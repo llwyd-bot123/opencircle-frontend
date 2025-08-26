@@ -1,0 +1,90 @@
+import React from "react";
+import { useImageUrl } from "@src/shared/hooks/useImageUrl";
+import { LoadingState } from "@src/shared/components/states/LoadingState";
+import { ErrorState } from "@src/shared/components/states/ErrorState";
+import { PrimaryButton } from "@src/shared/components/PrimaryButton";
+import type { OrganizationMember } from "../schema/member.types";
+
+interface MemberRequestsListProps {
+  memberRequests: OrganizationMember[];
+  isLoading: boolean;
+  error: Error | null;
+  onAccept?: (memberId: number) => void;
+  onDecline?: (memberId: number) => void;
+}
+
+/**
+ * Component to display a list of pending member requests
+ */
+export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
+  memberRequests,
+  isLoading,
+  error,
+  onAccept,
+  onDecline,
+}) => {
+  const { getImageUrl } = useImageUrl();
+
+  return (
+    <div className="h-full overflow-y-auto">
+      {isLoading ? (
+        <LoadingState message="Loading member requests..." />
+      ) : error ? (
+        <ErrorState
+          message={`Error loading member requests: ${error.message}`}
+        />
+      ) : !memberRequests || memberRequests.length === 0 ? (
+        <div className="flex items-center justify-center h-full">
+          <p className="text-responsive-sm text-gray-500">
+            No pending member requests found.
+          </p>
+        </div>
+      ) : (
+        <div className="px-4 my-2">
+          {memberRequests.map((request) => (
+            <div
+              key={request.user_id}
+              className="flex items-center justify-between p-3"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <img
+                    src={
+                      request.profile_picture
+                        ? getImageUrl(
+                            request.profile_picture.directory,
+                            request.profile_picture.filename,
+                            "/assets/images/avatar.png"
+                          )
+                        : "/assets/images/avatar.png"
+                    }
+                    alt={`${request.first_name || "User"}'s profile picture`}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold">
+                    {request.first_name} {request.last_name}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="flex space-x-2">
+                <PrimaryButton
+                  variant="acceptButton"
+                  label="Accept"
+                  onClick={() => onAccept && onAccept(request.user_id)}
+                />
+                <PrimaryButton
+                  variant="declineButton"
+                  label="Decline"
+                  onClick={() => onDecline && onDecline(request.user_id)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
