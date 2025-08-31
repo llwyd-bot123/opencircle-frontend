@@ -82,12 +82,10 @@ export function CommentsModal({
         };
 
         await editCommentMutation.mutateAsync(editData);
-        console.log("Comment updated successfully");
         setEditingCommentId(null);
         setEditingCommentText("");
       } catch (error) {
-        console.error(`Error updating comment ${editingCommentId}:`, error);
-        setError("Failed to update comment");
+        setError(String(error));
       }
     }
   };
@@ -121,8 +119,6 @@ export function CommentsModal({
     },
   });
 
-  console.log("comments", comments);
-
   // Update post_id or event_id value when props change
   useEffect(() => {
     if (postId && postId > 0) {
@@ -136,31 +132,23 @@ export function CommentsModal({
     }
   }, [postId, eventId, setValue]);
 
-  /**
-   * Handle form submission with validated data
-   */
   const onSubmit = handleSubmit(async (data) => {
-    // Clear any previous error messages
     setError("");
 
-    // Check if we have a valid postId or eventId
     if ((!postId || postId <= 0) && (!eventId || eventId <= 0)) {
       setError("Cannot post comment: Invalid content ID");
       return;
     }
 
     try {
-      // Wait for the comment posting mutation to complete
       await postCommentMutation.mutateAsync(data);
 
-      // Reset form after successful comment posting
       reset({
         ...(postId && postId > 0 ? { post_id: postId } : {}),
         ...(eventId && eventId > 0 ? { event_id: eventId } : {}),
         message: "",
       });
     } catch (error: unknown) {
-      // Handle comment posting errors
       if (error instanceof Error) {
         setError(error.message);
       } else {

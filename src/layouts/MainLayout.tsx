@@ -10,6 +10,7 @@ import { ConfirmationModal } from "@src/shared/components/modals";
 import { useAuthStore } from "@src/shared/store";
 import { RoleId } from "@src/features/auth/schema/auth.types";
 import { useLogout } from "@src/features/auth/model/auth.mutations";
+
 import homeNavLogo from "@src/assets/navbar/home.svg";
 import profileNavLogo from "@src/assets/navbar/profile.svg";
 import memberNavLogo from "@src/assets/navbar/members.svg";
@@ -86,6 +87,11 @@ export default function MainLayout() {
 
   const getActiveMenuItem = (): string => {
     const currentPath = location.pathname;
+    
+    // Don't set any activeItem when a member visits the URL "organization/{id}"
+    if (userRole === "member" && /^\/organization\/[^/]+$/.test(currentPath)) {
+      return "";
+    }
 
     // Find matching menu item based on redirectPage
     const activeItem = menuItems.find(
@@ -135,6 +141,7 @@ export default function MainLayout() {
         onButtonClick={() => handleLogout()}
         buttonLabel="Log out"
       />
+      {/* Brand logo click handler is now implemented in NavbarComponent */}
       <main className="flex-1 pt-[86px]">
         <ScrollToTop />
         <Outlet />
@@ -150,6 +157,8 @@ export default function MainLayout() {
             confirmButtonVariant={modalConfig.confirmButtonVariant}
           />
         )}
+
+
       </main>
       {/* <Footer /> */}
     </div>

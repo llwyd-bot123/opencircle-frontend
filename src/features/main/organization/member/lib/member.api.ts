@@ -2,7 +2,6 @@ import axiosInstance from "@src/shared/api/axios";
 import type { OrganizationMembersResponse, MemberRequestsResponse } from "../schema/member.types";
 import { objectToFormData } from "@src/shared/utils/formDataConverter";
 
-// Fetch organization members
 export const getOrganizationMembers = async (
   organizationId: number
 ): Promise<OrganizationMembersResponse> => {
@@ -13,7 +12,6 @@ export const getOrganizationMembers = async (
   return response.data;
 };
 
-// Fetch pending member requests
 export const getMemberRequests = async (): Promise<MemberRequestsResponse> => {
   const response = await axiosInstance.get<MemberRequestsResponse>(
     "/organization/pending-applications"
@@ -22,7 +20,6 @@ export const getMemberRequests = async (): Promise<MemberRequestsResponse> => {
   return response.data;
 };
 
-// Update a member request status
 export const updateMemberRequestStatus = async (
   userId: number,
   status: "approved" | "rejected"

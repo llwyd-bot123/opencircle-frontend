@@ -15,6 +15,7 @@ import type {
   CreateEventResponse,
   UpdateEventResponse,
 } from "../schema/event.type";
+import { showSuccessToast, showErrorToast } from "@src/shared/components/Toast/CustomToast";
 
 // Custom hook for handling event creation functionality using TanStack Query
 export const useCreateEvent = () => {
@@ -22,14 +23,14 @@ export const useCreateEvent = () => {
   return useMutation<CreateEventResponse, Error, CreateEventFormData>({
     mutationFn: (eventData) => createEvent(eventData),
     onSuccess: () => {
-      // Invalidate the events query to refresh the events list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
       });
+      showSuccessToast("Successfully created");
     },
     onError: (error) => {
       console.error("Event creation error:", error);
-      // Error handling can be implemented here
+      showErrorToast("Failed to create");
     },
   });
 };
@@ -40,7 +41,6 @@ export const useDeleteEvent = () => {
   return useMutation<void, Error, number>({
     mutationFn: (eventId) => deleteEvent(eventId),
     onSuccess: () => {
-      // Invalidate the events query to refresh the events list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
       });
@@ -48,10 +48,11 @@ export const useDeleteEvent = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.RANDOM_EVENTS],
       });
+      showSuccessToast("Successfully deleted");
     },
     onError: (error) => {
       console.error("Event deletion error:", error);
-      // Error handling can be implemented here
+      showErrorToast("Failed to delete");
     },
   });
 };
@@ -66,17 +67,17 @@ export const useUpdateEvent = () => {
   >({
     mutationFn: ({ eventId, eventData }) => updateEvent(eventId, eventData),
     onSuccess: (_, variables) => {
-      // Invalidate queries to refresh event list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
       });
-      // Invalidate the specific event query
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EVENTS, variables.eventId],
       });
+      showSuccessToast("Successfully updated");
     },
     onError: (error) => {
       console.error("Event update error:", error);
+      showErrorToast("Failed to update");
     },
   });
 };
@@ -86,19 +87,17 @@ export const useAcceptRsvpRequest = () => {
   return useMutation<{ success: boolean; message?: string }, Error, number>({
     mutationFn: (rsvpId) => acceptRsvpRequest(rsvpId),
     onSuccess: () => {
-      // Invalidate queries to refresh event list and pending requests
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
       });
-
-      // Invalidate all event RSVPs queries to refresh the RSVPs data
-      // This will refresh any event RSVPs data that might be affected by this mutation
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EVENTS_RSVPS],
       });
+      showSuccessToast("Successfully accepted");
     },
     onError: (error) => {
       console.error("RSVP acceptance error:", error);
+      showErrorToast("Failed to accept");
     },
   });
 };
@@ -108,19 +107,17 @@ export const useDeclineRsvpRequest = () => {
   return useMutation<{ success: boolean; message?: string }, Error, number>({
     mutationFn: (rsvpId) => declineRsvpRequest(rsvpId),
     onSuccess: () => {
-      // Invalidate queries to refresh event list and pending requests
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
       });
-
-      // Invalidate all event RSVPs queries to refresh the RSVPs data
-      // This will refresh any event RSVPs data that might be affected by this mutation
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EVENTS_RSVPS],
       });
+      showSuccessToast("Successfully declined");
     },
     onError: (error) => {
       console.error("RSVP decline error:", error);
+      showErrorToast("Failed to decline");
     },
   });
 };

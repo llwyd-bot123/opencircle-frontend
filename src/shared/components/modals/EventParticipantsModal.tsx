@@ -19,6 +19,7 @@ interface EventParticipantsModalProps {
   onClose: () => void;
   eventId: number;
   initialTab?: "members" | "requests";
+  isUserMember?: boolean;
 }
 
 export function EventParticipantsModal({
@@ -26,6 +27,7 @@ export function EventParticipantsModal({
   onClose,
   eventId,
   initialTab = "members",
+  isUserMember = false,
 }: EventParticipantsModalProps) {
   const [activeTab, setActiveTab] = useState<"members" | "requests">(
     initialTab
@@ -175,11 +177,13 @@ export function EventParticipantsModal({
                           </p>
                         </div>
                       </div>
-                      <PrimaryButton
-                        label="Remove"
-                        variant="removeButton"
-                        onClick={() => handleRemoveMember(member.rsvp_id)}
-                      />
+                      {!isUserMember && (
+                        <PrimaryButton
+                          label="Remove"
+                          variant="removeButton"
+                          onClick={() => handleRemoveMember(member.rsvp_id)}
+                        />
+                      )}
                     </div>
                   ))
                 ) : (
@@ -224,28 +228,30 @@ export function EventParticipantsModal({
                           </p>
                         </div>
                       </div>
-                      <div className="flex space-x-3">
-                        <PrimaryButton
-                          label={
-                            acceptRequestMutation.isPending &&
-                            acceptRequestMutation.variables === request.rsvp_id
-                              ? "Accepting..."
-                              : "Accept"
-                          }
-                          variant="acceptButton"
-                          onClick={() => handleAcceptRequest(request.rsvp_id)}
-                        />
-                        <PrimaryButton
-                          label={
-                            declineRequestMutation.isPending &&
-                            declineRequestMutation.variables === request.rsvp_id
-                              ? "Declining..."
-                              : "Decline"
-                          }
-                          variant="declineButton"
-                          onClick={() => handleDeclineRequest(request.rsvp_id)}
-                        />
-                      </div>
+                      {!isUserMember && (
+                        <div className="flex space-x-3">
+                          <PrimaryButton
+                            label={
+                              acceptRequestMutation.isPending &&
+                              acceptRequestMutation.variables === request.rsvp_id
+                                ? "Accepting..."
+                                : "Accept"
+                            }
+                            variant="acceptButton"
+                            onClick={() => handleAcceptRequest(request.rsvp_id)}
+                          />
+                          <PrimaryButton
+                            label={
+                              declineRequestMutation.isPending &&
+                              declineRequestMutation.variables === request.rsvp_id
+                                ? "Declining..."
+                                : "Decline"
+                            }
+                            variant="declineButton"
+                            onClick={() => handleDeclineRequest(request.rsvp_id)}
+                          />
+                        </div>
+                      )}
                     </div>
                   ))
                 ) : (

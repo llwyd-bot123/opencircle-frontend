@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteRsvp, joinOrganization, rsvpEvent } from "../lib/home.api";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "@src/shared/components/Toast/CustomToast";
 
 // Hook for joining an organization
 export const useJoinOrganization = () => {
@@ -15,9 +19,17 @@ export const useJoinOrganization = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_EVENTS_BY_RSVP_STATUS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEMBER_PAST_EVENTS],
+      });
+      showSuccessToast("Successfully requested to join");
     },
     onError: (error: unknown) => {
       console.error("Failed to join organization:", error);
+      showErrorToast("Failed to join the organization");
     },
   });
 };
@@ -34,9 +46,14 @@ export const useRsvpEvent = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_EVENTS_BY_RSVP_STATUS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
+      });
+      showSuccessToast("Successfully reserved");
     },
     onError: (error: unknown) => {
       console.error("Failed to RSVP to event:", error);
+      showErrorToast("Failed to reserve");
     },
   });
 };
@@ -53,9 +70,14 @@ export const useDeleteRsvp = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_EVENTS_BY_RSVP_STATUS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
+      });
+      showSuccessToast("Reservation cancelled");
     },
     onError: (error: unknown) => {
       console.error("Failed to delete RSVP:", error);
+      showErrorToast("Failed to cancel");
     },
   });
 };

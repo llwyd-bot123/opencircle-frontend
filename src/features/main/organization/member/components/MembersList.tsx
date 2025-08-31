@@ -10,9 +10,7 @@ interface MembersListProps {
   error: Error | null;
 }
 
-/**
- * Component to display a list of organization members
- */
+
 export const MembersList: React.FC<MembersListProps> = ({
   members,
   isLoading,

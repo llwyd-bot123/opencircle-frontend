@@ -2,9 +2,10 @@ import axiosInstance from "@src/shared/api/axios";
 import type {
   OrganizationMembershipsResponse,
   PendingOrganizationMembershipsResponse,
+  DirectOrganizationSearchResponse,
+  OrganizationSearchResponse,
 } from "../schema/organization.types";
 
-// Fetch all organizations that the member has joined along with their members
 export const getOrganizationMemberships = async (
   accountUuid: string
 ): Promise<OrganizationMembershipsResponse> => {
@@ -20,7 +21,6 @@ export const getOrganizationMemberships = async (
   }
 };
 
-// Leave an organization
 export const leaveOrganization = async (
   organizationId: number
 ): Promise<{ success: boolean; message: string }> => {
@@ -36,7 +36,6 @@ export const leaveOrganization = async (
   }
 };
 
-// Fetch all pending organization memberships for the member
 export const getPendingOrganizationMemberships = async (
   accountUuid: string
 ): Promise<PendingOrganizationMembershipsResponse> => {
@@ -49,6 +48,21 @@ export const getPendingOrganizationMemberships = async (
     return response.data;
   } catch (error) {
     console.error("Failed to fetch pending organization memberships:", error);
+    throw error;
+  }
+};
+
+export const searchOrganizations = async (
+  query: string
+): Promise<DirectOrganizationSearchResponse> => {
+  try {
+    const response = await axiosInstance.get<OrganizationSearchResponse>(
+      `/organization/search?query=${encodeURIComponent(query)}`
+    );
+
+    return response.data.results;
+  } catch (error) {
+    console.error("Failed to search organizations:", error);
     throw error;
   }
 };

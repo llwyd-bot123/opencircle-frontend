@@ -10,12 +10,10 @@ import type {
 import { getMemberPostsWithComments, getAllMemberPosts } from "../lib/post.api";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
 
-// Type for the parameters accepted by useInfiniteMemberPosts
 type InfiniteMemberPostsParams = Omit<UserQueryParams, "page"> & {
   limit?: number;
 };
 
-// Hook for fetching member posts with infinite scrolling
 export const useInfiniteMemberPosts = ({
   uid,
   limit = 5,

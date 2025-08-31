@@ -48,6 +48,8 @@ export const ProtectedRoute = ({
     }
   }
 
+  console.log("user data", user);
+
   // If user's role is not allowed, redirect to their appropriate home page based on role
   // At this point, we know user exists because we've already checked isAuthenticated
   // and we're in the block that checks user?.role_id

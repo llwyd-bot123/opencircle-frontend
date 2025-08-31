@@ -10,6 +10,8 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
   const { getName, getRole, getBio, getImageUrl, getEmail } =
     useProfileData(profile);
 
+  console.log("profile", profile);
+
   // Handle null/undefined profile case
   if (!profile) {
     return (

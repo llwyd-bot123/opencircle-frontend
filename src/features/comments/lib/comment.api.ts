@@ -12,15 +12,11 @@ import type {
   EditCommentResponse,
 } from "../schema/comment.types";
 
-// Posts a new comment with the provided form data (post_id/event_id and message)
 export const postComment = async (
   commentData: PostCommentFormData
 ): Promise<PostCommentResponse> => {
   try {
-    // Convert comment data object to FormData
     const formData = objectToFormData(commentData);
-
-    // Determine the endpoint based on whether it's a post or event comment
     const endpoint = commentData.post_id ? "/comment/post/" : "/comment/event/";
 
     const response = await axiosInstance.post<PostCommentResponse>(
@@ -35,12 +31,10 @@ export const postComment = async (
   }
 };
 
-// Fetches paginated comments for a specific post or event
 export const getContentComments = async (
   params: ContentCommentQueryParams
 ): Promise<CommentsResponse> => {
   try {
-    // Determine if we're fetching post or event comments
     const contentType = params.postId ? "post" : "event";
     const contentId = params.postId || params.eventId;
 
@@ -61,14 +55,12 @@ export const getContentComments = async (
   }
 };
 
-// Legacy function to fetch paginated comments for a post
 export const getPostComments = async (
   params: ContentCommentQueryParams
 ): Promise<CommentsResponse> => {
   return getContentComments(params);
 };
 
-// Deletes a comment by its ID
 export const deleteComment = async (
   commentId: number
 ): Promise<DeleteCommentResponse> => {
@@ -84,12 +76,10 @@ export const deleteComment = async (
   }
 };
 
-// Edits a comment with the provided form data (comment_id and message)
 export const editComment = async (
   commentData: EditCommentFormData
 ): Promise<EditCommentResponse> => {
   try {
-    // Convert comment data object to FormData
     const formData = objectToFormData(commentData);
 
     const response = await axiosInstance.put<EditCommentResponse>(

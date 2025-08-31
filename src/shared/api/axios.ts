@@ -17,8 +17,8 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // Don't redirect on 401 errors from login endpoints
-    const isLoginRequest = originalRequest?.url?.includes('signin');
-    
+    const isLoginRequest = originalRequest?.url?.includes("signin");
+
     if (error.response?.status === 401 && originalRequest && !isLoginRequest) {
       window.location.href = "/login";
       return Promise.reject(new Error("Unauthorized"));

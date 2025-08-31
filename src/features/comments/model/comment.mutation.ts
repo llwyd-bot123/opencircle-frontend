@@ -10,34 +10,27 @@ import type {
   EditCommentResponse,
 } from "../schema/comment.types";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
+import { showSuccessToast, showErrorToast } from "@src/shared/components/Toast/CustomToast";
 
-// Custom hook for handling comment posting functionality using TanStack Query
 export const usePostComment = () => {
   const queryClient = useQueryClient();
   return useMutation<PostCommentResponse, Error, PostCommentFormData>({
     mutationFn: (commentData) => postComment(commentData),
     onSuccess: (_, variables) => {
-      // Determine if it's a post or event comment
       const isPostComment = !!variables.post_id;
-
-      // Invalidate the content-comments query
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EVENT_COMMENTS],
       });
 
-      // Invalidate the post-comments query for backward compatibility
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.POST_COMMENTS],
       });
 
-      // Invalidate the appropriate content list
       if (isPostComment) {
-        // Invalidate member-posts to refresh the post list
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.MEMBER_POSTS],
         });
       } else {
-        // Invalidate organization-events to refresh the event list
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
         });
@@ -45,7 +38,6 @@ export const usePostComment = () => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.ORGANIZATION_PAST_EVENTS],
         });
-        // Invalidate random-events to refresh the event list
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.RANDOM_EVENTS],
         });
@@ -53,32 +45,35 @@ export const usePostComment = () => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.MEMBER_EVENTS_BY_RSVP_STATUS],
         });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.MEMBER_PAST_EVENTS],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
+          exact: false,
+        });
       }
     },
     onError: (error) => {
       console.error("Comment posting error:", error);
-      // Error handling can be implemented here
+      showErrorToast("Failed to post");
     },
   });
 };
 
-// Custom hook for handling comment deletion functionality using TanStack Query
 export const useDeleteComment = () => {
   const queryClient = useQueryClient();
   return useMutation<DeleteCommentResponse, Error, number>({
     mutationFn: (commentId) => deleteComment(commentId),
     onSuccess: () => {
-      // Invalidate the content-comments query to refresh the comments list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EVENT_COMMENTS],
       });
 
-      // Invalidate the post-comments query for backward compatibility
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.POST_COMMENTS],
       });
 
-      // Invalidate both member-posts and organization-events to refresh the content lists
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_POSTS],
       });
@@ -98,15 +93,33 @@ export const useDeleteComment = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_EVENTS_BY_RSVP_STATUS],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEMBER_PAST_EVENTS],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEMBER_CALENDAR_EVENTS],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION_CALENDAR_EVENTS],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
+        exact: false,
+      });
+      
+      showSuccessToast("Comment deleted");
     },
     onError: (error) => {
       console.error("Comment deletion error:", error);
-      // Error handling can be implemented here
+      showErrorToast("Failed to delete");
     },
   });
 };
 
-// Custom hook for handling comment editing functionality using TanStack Query
 export const useEditComment = () => {
   const queryClient = useQueryClient();
   return useMutation<EditCommentResponse, Error, EditCommentFormData>({
@@ -116,17 +129,14 @@ export const useEditComment = () => {
         queryKey: [QUERY_KEYS.EVENT_COMMENTS],
       });
 
-      // Invalidate the random-events query to refresh the comments list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.RANDOM_EVENTS],
       });
 
-      // Invalidate the post-comments query for backward compatibility
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.POST_COMMENTS],
       });
 
-      // Invalidate both member-posts and organization-events to refresh the content lists
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_POSTS],
       });
@@ -146,10 +156,29 @@ export const useEditComment = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_EVENTS_BY_RSVP_STATUS],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEMBER_PAST_EVENTS],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEMBER_CALENDAR_EVENTS],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION_CALENDAR_EVENTS],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
+        exact: false,
+      });
+      
+      showSuccessToast("Comment updated");
     },
     onError: (error) => {
       console.error("Comment editing error:", error);
-      // Error handling can be implemented here
+      showErrorToast("Failed to update");
     },
   });
 };

@@ -13,9 +13,7 @@ interface MemberRequestsListProps {
   onDecline?: (memberId: number) => void;
 }
 
-/**
- * Component to display a list of pending member requests
- */
+
 export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
   memberRequests,
   isLoading,

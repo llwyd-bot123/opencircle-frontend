@@ -1,13 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ActiveComponent from "../components/ActiveComponent";
 import PastEventsComponent from "../components/PastEventsComponent";
 import { UserProfileHeader } from "@src/shared/components/UserProfileHeader";
 import { useAuthStore } from "@src/shared/store/auth";
 import { CalendarSection } from "@src/features/calendar/ui/CalendarSection";
+import { useOrganizationByIdQuery } from "../model/organization.query";
+import {
+  isMember,
+  isOrganization,
+} from "@src/shared/utils/checkAuthenticatedRole";
+import { type Organization } from "@src/features/auth/schema/auth.types";
 
-export default function OrganizationProfileInterface() {
+interface OrganizationProfileInterfaceProps {
+  organizationId?: string;
+}
+
+export default function OrganizationProfileInterface({
+  organizationId,
+}: OrganizationProfileInterfaceProps) {
   const [activeTab, setActiveTab] = useState("active");
   const { user } = useAuthStore();
+  const [organizationData, setOrganizationData] = useState<Organization | null>(
+    null
+  );
+
+  const isUserMember = user ? isMember(user) : false;
+
+  const { data: organizationDetails } = useOrganizationByIdQuery(
+    isUserMember && organizationId ? organizationId : undefined
+  );
+
+  useEffect(() => {
+    if (isUserMember && organizationDetails) {
+      setOrganizationData(organizationDetails);
+    }
+    else if (!isUserMember && user && isOrganization(user)) {
+      setOrganizationData(user);
+    }
+  }, [isUserMember, organizationDetails, organizationId, user]);
 
   const profileTabs = [
     { id: "active", label: "Active" },
@@ -16,15 +46,26 @@ export default function OrganizationProfileInterface() {
   ];
 
   const renderActiveComponent = () => {
+    // Get the account UUID from the organization data or the current user
+    // For organization users, use their own UUID
+    // For member users viewing an organization, use the organization's account_id as UUID
+    const accountUuid = isUserMember
+      ? organizationData?.uuid || ""
+      : user?.uuid || "";
+
+    // Organization account UUID
+
     switch (activeTab) {
       case "active":
-        return <ActiveComponent />;
+        return <ActiveComponent accountUuid={accountUuid} isUserMember={isUserMember} />;
       case "past-events":
-        return <PastEventsComponent />;
+        return <PastEventsComponent accountUuid={accountUuid} />;
       case "calendar":
-        return <CalendarSection userType="organization" />;
+        return (
+          <CalendarSection userType="organization" accountUuid={accountUuid} />
+        );
       default:
-        return <PastEventsComponent />;
+        return <PastEventsComponent accountUuid={accountUuid} />;
     }
   };
 
@@ -33,7 +74,12 @@ export default function OrganizationProfileInterface() {
       {/* Profile Header Section */}
       <div className="w-full h-auto sm:h-64 md:h-72 bg-white relative flex flex-col">
         {/* Profile Details Section - Centered */}
-        <UserProfileHeader profile={user} />
+        <UserProfileHeader
+          profile={
+            organizationData ||
+            (isUserMember ? null : isOrganization(user) ? user : null)
+          }
+        />
 
         {/* Menu Section - Fixed at Bottom */}
         <nav className="flex justify-center px-2 sm:px-4 sm:pb-0">

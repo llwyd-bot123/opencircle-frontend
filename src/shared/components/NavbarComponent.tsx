@@ -27,7 +27,7 @@ export function Navbar({
 
   return (
     <nav
-      className={`w-full fixed top-0 left-0 z-50 transition-colors duration-300 ${
+      className={`w-full fixed top-0 left-0 z-50 transition-all duration-300 ${
         shouldBeTransparent ? "bg-transparent" : "bg-white shadow-md"
       }`}
     >
@@ -35,13 +35,16 @@ export function Navbar({
         <div className="flex justify-between items-center">
           {/* Brand */}
           <div className="flex flex-row items-center">
-            <div className="flex flex-row space-x-1 items-center h-[86px]">
+            <div
+              className="flex flex-row space-x-1 items-center h-[86px] cursor-pointer"
+              onClick={() => (window.location.href = "/")}
+            >
               <img
                 src={shouldBeTransparent ? brandlogo : brandLogoDark}
                 className="h-full max-h-full w-auto object-contain"
               />
               <div
-                className={`hidden sm:block text-responsive-base font-semibold transition-colors duration-300 ${
+                className={`hidden sm:block text-responsive-lg font-semibold transition-colors duration-300 ${
                   shouldBeTransparent ? "text-white" : "text-primary"
                 }`}
               >
@@ -95,7 +98,7 @@ export function Navbar({
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden bg-white shadow-lg absolute top-[86px] left-0 right-0 z-50 py-4 px-4 border-t">
-            <div className="w-full">{navMenu}</div>
+            <div className="w-full text-primary">{navMenu}</div>
             <div className="mt-4">
               <PrimaryButton onClick={onButtonClick} label={buttonLabel} />
             </div>

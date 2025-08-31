@@ -1,16 +1,15 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getUserEventsByRsvpStatus } from "../lib/event.api";
+import { getUserEventsByRsvpStatus, getUserPastEvents } from "../lib/event.api";
 import type {
   EventsByRsvpStatusQueryParams,
   EventsByRsvpStatusResponse,
 } from "../schema/event.types";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
 
-// Custom hook for fetching user events by RSVP status with infinite scrolling
 export const useUserEventsByRsvpStatusInfiniteQuery = (
-  params: EventsByRsvpStatusQueryParams
+  params: EventsByRsvpStatusQueryParams & { enabled?: boolean }
 ) => {
-  const { accountUuid, rsvpStatus, limit = 10 } = params;
+  const { accountUuid, rsvpStatus, limit = 10, enabled = true } = params;
 
   return useInfiniteQuery<EventsByRsvpStatusResponse>({
     queryKey: [
@@ -35,6 +34,36 @@ export const useUserEventsByRsvpStatusInfiniteQuery = (
         ? pagination.page + 1
         : undefined;
     },
-    enabled: !!accountUuid && !!rsvpStatus,
+    enabled: enabled && !!accountUuid && !!rsvpStatus,
+  });
+};
+
+export const useUserPastEventsInfiniteQuery = (
+  params: Omit<EventsByRsvpStatusQueryParams, 'rsvpStatus'>
+) => {
+  const { accountUuid, limit = 5 } = params;
+
+  return useInfiniteQuery<EventsByRsvpStatusResponse>({
+    queryKey: [
+      QUERY_KEYS.MEMBER_PAST_EVENTS,
+      accountUuid,
+    ],
+    queryFn: async ({ pageParam }) => {
+      // Ensure pageParam is a number with default value of 1
+      const page = typeof pageParam === "number" ? pageParam : 1;
+      return await getUserPastEvents(
+        accountUuid,
+        page,
+        limit
+      );
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { pagination } = lastPage;
+      return pagination.page < pagination.pages
+        ? pagination.page + 1
+        : undefined;
+    },
+    enabled: !!accountUuid,
   });
 };

@@ -1,5 +1,6 @@
 import axiosInstance from "@src/shared/api/axios";
 import { objectToFormData } from "@src/shared/utils/formDataConverter";
+import type { Organization } from "@src/features/auth/schema/auth.types";
 import type {
   CreateEventFormData,
   EventFormData,
@@ -16,13 +17,22 @@ import type {
   PastEventsResponse,
 } from "../schema/event.type";
 
-// Accepts an RSVP request
-export const acceptRsvpRequest = async (rsvpId: number): Promise<{ success: boolean; message?: string }> => {
+interface EventWithCommentsParams {
+  eventId: number;
+  accountUuid: string;
+}
+
+export const acceptRsvpRequest = async (
+  rsvpId: number
+): Promise<{ success: boolean; message?: string }> => {
   try {
     // Convert status data to FormData using utility function
-    const formData = objectToFormData({ status: 'joined' });
-    
-    const response = await axiosInstance.put(`/rsvp/status/${rsvpId}`, formData);
+    const formData = objectToFormData({ status: "joined" });
+
+    const response = await axiosInstance.put(
+      `/rsvp/status/${rsvpId}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to accept RSVP request ${rsvpId}:`, error);
@@ -30,8 +40,9 @@ export const acceptRsvpRequest = async (rsvpId: number): Promise<{ success: bool
   }
 };
 
-// Declines an RSVP request
-export const declineRsvpRequest = async (rsvpId: number): Promise<{ success: boolean; message?: string }> => {
+export const declineRsvpRequest = async (
+  rsvpId: number
+): Promise<{ success: boolean; message?: string }> => {
   try {
     const response = await axiosInstance.delete(`/rsvp/${rsvpId}`);
     return response.data;
@@ -41,7 +52,6 @@ export const declineRsvpRequest = async (rsvpId: number): Promise<{ success: boo
   }
 };
 
-// Creates a new event with the provided data
 export const createEvent = async (
   eventData: CreateEventFormData
 ): Promise<CreateEventResponse> => {
@@ -61,7 +71,6 @@ export const createEvent = async (
   }
 };
 
-// Fetches events for the organization
 export const getEvents = async () => {
   try {
     const response = await axiosInstance.get("/event");
@@ -72,7 +81,6 @@ export const getEvents = async () => {
   }
 };
 
-// Fetches active events for a specific organization with pagination
 export const getOrganizationActiveEvents = async (
   params: OrganizationEventQueryParams
 ): Promise<EventsResponse> => {
@@ -161,9 +169,13 @@ export const getRandomEvents = async (
 };
 
 // Fetches all RSVPs for a specific event
-export const getEventRsvps = async (eventId: number): Promise<EventRsvpsResponse> => {
+export const getEventRsvps = async (
+  eventId: number
+): Promise<EventRsvpsResponse> => {
   try {
-    const response = await axiosInstance.get<EventRsvpsResponse>(`/event/${eventId}/rsvps`);
+    const response = await axiosInstance.get<EventRsvpsResponse>(
+      `/event/${eventId}/rsvps`
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch RSVPs for event with ID ${eventId}:`, error);
@@ -190,6 +202,47 @@ export const getOrganizationPastEvents = async (
     return response.data;
   } catch (error) {
     console.error("Failed to fetch organization past events:", error);
+    throw error;
+  }
+};
+
+// Fetches organization details by organization ID
+export const getOrganizationById = async (
+  organizationId: string
+): Promise<Organization> => {
+  try {
+    const response = await axiosInstance.get<Organization>(
+      `/organization/${organizationId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Failed to fetch organization with ID ${organizationId}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+// Fetches a single event with comments by its ID and account UUID
+export const getEventWithComments = async (
+  params: EventWithCommentsParams
+): Promise<EventData> => {
+  try {
+    const response = await axiosInstance.get<EventData>(
+      `/event/${params.eventId}/with_comments`,
+      {
+        params: {
+          account_uuid: params.accountUuid,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Failed to fetch event with comments for ID ${params.eventId}:`,
+      error
+    );
     throw error;
   }
 };

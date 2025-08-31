@@ -79,6 +79,7 @@ export interface AllMemberPostData {
   user_membership_status_with_organizer: string;
   user_rsvp: string;
   latest_comments: ContentComment[];
+  total_comments: number;
 }
 
 // Type definition for paginated member posts response

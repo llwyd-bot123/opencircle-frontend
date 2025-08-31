@@ -1,11 +1,10 @@
-import { type CalendarEvent } from "../schema/calendar.type";
 import { getDayString } from "../../main/member/profile/lib/calendarUtils";
 import { EventChip } from "./EventChip";
 
 // Import for the event modal
 import { useState } from "react";
 import { AllEventsModal } from "@src/shared/components/modals/AllEventsModal";
-import { EventDetailsModal } from "@src/shared/components/modals/EventDetailsModal";
+import type { CalendarEvent } from "../schema/calendar.type";
 
 interface DayCellProps {
   date: Date;
@@ -23,12 +22,8 @@ export function DayCell({
   onDateClick,
   onEventClick,
 }: DayCellProps) {
-  // State for modal visibility and selected event
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // State for all events modal visibility
   const [showAllEventsModal, setShowAllEventsModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null
-  );
 
   // Handle date click
   const handleClick = () => {
@@ -38,12 +33,12 @@ export function DayCell({
   // Handle event click
   const handleEventClick = (event: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the parent onClick
+    // Always use the parent's event click handler if provided
+    // This ensures consistent modal behavior throughout the application
     if (onEventClick) {
       onEventClick(event);
-    } else {
-      setSelectedEvent(event);
-      setIsModalOpen(true);
     }
+    // We no longer set local state or open the modal directly here
   };
 
   // Handle showing all events
@@ -55,8 +50,10 @@ export function DayCell({
   // Handle event click from all events modal
   const handleAllEventsModalEventClick = (event: CalendarEvent) => {
     setShowAllEventsModal(false);
-    setSelectedEvent(event);
-    setIsModalOpen(true);
+    // Use the parent's event click handler to ensure consistent behavior
+    if (onEventClick) {
+      onEventClick(event);
+    }
   };
 
   // Get visible events (only show 1 with the new larger design)
@@ -107,14 +104,8 @@ export function DayCell({
         </div>
       </div>
 
-      {/* Event Details Modal */}
-      {isModalOpen && selectedEvent && (
-        <EventDetailsModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          event={selectedEvent}
-        />
-      )}
+      {/* Event Details Modal is no longer managed here */}
+      {/* We rely on the parent component to handle the event details modal */}
 
       {/* All Events Modal */}
       <AllEventsModal

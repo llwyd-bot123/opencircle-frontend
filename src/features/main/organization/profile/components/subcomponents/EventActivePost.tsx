@@ -3,30 +3,48 @@ import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { EventTabContent } from "@src/shared/components/EventTabContent";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import { useFormatDate, useImageUrl, checkOwnership } from "@src/shared/hooks";
+import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import avatarImage from "@src/assets/shared/avatar.png";
+import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
+import joinedIcon from "@src/assets/shared/joined_icon.svg";
+import joinIcon from "@src/assets/shared/join_icon.svg";
 import type { EventData } from "../../schema/event.type";
 
 interface EventActivePostProps {
   event: EventData;
   currentUserAvatar: string;
+  isUserMember?: boolean;
   onViewMoreComments?: (eventId: number) => void;
   onViewMoreMembers?: (eventId: number) => void;
   onViewMoreRequests?: (eventId: number) => void;
   onEdit?: (eventId: number) => void;
   onDelete?: (eventId: number) => void;
+  onJoinOrganization?: (orgId: number) => void;
+  onCancelJoiningOrganization?: (orgId: number) => void;
+  onLeaveOrganization?: (orgId: number) => void;
+  onRsvpEvent?: (eventId: number) => void;
+  onDeleteRsvpEvent?: (rsvpId: number) => void;
 }
 
 export const EventActivePost = ({
   event,
   currentUserAvatar,
+  isUserMember = false,
   onViewMoreComments,
   onViewMoreMembers,
   onViewMoreRequests,
   onEdit,
   onDelete,
+  onJoinOrganization,
+  onCancelJoiningOrganization,
+  onLeaveOrganization,
+  onRsvpEvent,
+  onDeleteRsvpEvent,
 }: EventActivePostProps) => {
   const [activeTab, setActiveTab] = useState<"members" | "request">("members");
   const { formatRelativeTime, formatFriendlyDateTime } = useFormatDate();
+
+  // Check if user is a member
 
   const { getImageUrl } = useImageUrl();
   const eventImageUrl = getImageUrl(
@@ -86,7 +104,50 @@ export const EventActivePost = ({
           </div>
         </div>
 
-        <div className="flex items-start">
+        <div className="flex items-start space-x-2">
+          {/* Join/Pending/Joined buttons for members */}
+          {isUserMember && (
+            <>
+              {/* Show Join Organization button when status is null or rejected */}
+              {(!event.user_membership_status_with_organizer ||
+                event.user_membership_status_with_organizer === "rejected") && (
+                <PrimaryButton
+                  variant="joinStatusButton"
+                  iconClass="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
+                  label="Join Organization"
+                  responsiveLabel="Join"
+                  icon={joinIcon}
+                  onClick={() => onJoinOrganization?.(event.organization.id)}
+                />
+              )}
+
+              {/* Show For Approval button when status is pending */}
+              {event.user_membership_status_with_organizer === "pending" && (
+                <PrimaryButton
+                  variant="iconButton"
+                  iconClass="w-4 h-4 sm:w-5 sm:h-5"
+                  label=""
+                  icon={pendingIcon}
+                  buttonClass="p-1"
+                  onClick={() =>
+                    onCancelJoiningOrganization?.(event.organization.id)
+                  }
+                />
+              )}
+
+              {/* Show only icon when status is approved */}
+              {event.user_membership_status_with_organizer === "approved" && (
+                <PrimaryButton
+                  variant="iconButton"
+                  iconClass="w-4 h-4 sm:w-5 sm:h-5"
+                  label=""
+                  icon={joinedIcon}
+                  onClick={() => onLeaveOrganization?.(event.organization.id)}
+                />
+              )}
+            </>
+          )}
+
           {/* Horizontal 3-dot menu - only show if the event is from the authenticated user */}
           {checkOwnership({
             type: "event",
@@ -144,6 +205,38 @@ export const EventActivePost = ({
         </span>
       </div>
 
+      {/* RSVP buttons for members */}
+      {isUserMember && (
+        <div className="mb-4 mt-4">
+          {/* Show RSVP button if user hasn't RSVPed yet */}
+          {!event.user_rsvp && (
+            <PrimaryButton
+              variant={"rsvpButton"}
+              label={"RSVP"}
+              onClick={() => onRsvpEvent?.(event.id)}
+            />
+          )}
+
+          {/* Show Pending button if user has RSVPed and status is pending */}
+          {event.user_rsvp && event.user_rsvp.status === "pending" && (
+            <PrimaryButton
+              variant={"pendingEventButton"}
+              label={"Pending"}
+              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+            />
+          )}
+
+          {/* Show Cancel RSVP button if user has RSVPed and status is approved */}
+          {event.user_rsvp && event.user_rsvp.status === "approved" && (
+            <PrimaryButton
+              variant={"activeEventButton"}
+              label={"Cancel RSVP"}
+              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+            />
+          )}
+        </div>
+      )}
+
       {/* 5. Description */}
       <div className="bg-athens_gray p-3 sm:p-4 rounded-xl text-responsive-xs text-primary leading-relaxed">
         <p>{event.description}</p>
@@ -198,6 +291,7 @@ export const EventActivePost = ({
             totalMembers={event.total_members}
             totalRequests={event.total_pending_rsvps}
             requests={event.pending_rsvps}
+            isUserMember={isUserMember}
             onViewMoreMembers={handleViewMoreMembers}
             onViewMoreRequests={handleViewMoreRequests}
           />

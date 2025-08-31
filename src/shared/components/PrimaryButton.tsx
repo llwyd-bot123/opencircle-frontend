@@ -37,7 +37,7 @@ const variantClasses: Record<Variant, string> = {
   pendingEventButton:
     "border-2 py-1 px-6 border-secondary text-secondary text-responsive-xxs rounded-full",
   joinStatusButton:
-    "bg-primary text-white py-1 px-6 rounded-full flex items-center text-responsive-xxs",
+    "bg-primary text-white py-[6px] px-6 rounded-full flex items-center text-responsive-xxs",
   rsvpButton:
     "border-2 py-1 px-6 border-primary text-primary text-responsive-xxs rounded-full",
   leaveOrgButton: "text-red-700 text-responsive-xxs",

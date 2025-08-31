@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getOrganizationMemberships, getPendingOrganizationMemberships } from "../lib/organization.api";
+import {
+  getOrganizationMemberships,
+  getPendingOrganizationMemberships,
+  searchOrganizations,
+} from "../lib/organization.api";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
 
-// Hook for fetching organization memberships for the current user
 export const useOrganizationMembershipsQuery = (accountUuid?: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.ORGANIZATION_MEMBERSHIP, accountUuid],
@@ -13,12 +16,23 @@ export const useOrganizationMembershipsQuery = (accountUuid?: string) => {
   });
 };
 
-// Hook for fetching pending organization memberships for the current user
-export const usePendingOrganizationMembershipsQuery = (accountUuid?: string) => {
+export const usePendingOrganizationMembershipsQuery = (
+  accountUuid?: string
+) => {
   return useQuery({
     queryKey: [QUERY_KEYS.ORGANIZATION_MEMBER_REQUESTS, accountUuid],
     queryFn: () => getPendingOrganizationMemberships(accountUuid || ""),
     enabled: !!accountUuid,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useOrganizationSearchQuery = (query: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ORGANIZATION, "search", query],
+    queryFn: () => searchOrganizations(query),
+    enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
   });

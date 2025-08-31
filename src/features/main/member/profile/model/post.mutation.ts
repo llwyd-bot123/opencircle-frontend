@@ -8,27 +8,25 @@ import {
 } from "../lib/post.api";
 import type { PostFormData } from "../schema/post.schema";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
+import { showSuccessToast, showErrorToast } from "@src/shared/components/Toast/CustomToast";
 
-// Custom hook for handling post creation functionality using TanStack Query
 export const useCreatePost = () => {
   const queryClient = useQueryClient();
   return useMutation<CreatePostResponse, Error, PostFormData>({
     mutationFn: (postData) => createPost(postData),
     onSuccess: () => {
-      // Success handling can be implemented here
-      // For example, invalidating queries to refresh post list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_POSTS],
       });
+      showSuccessToast("Successfully created");
     },
     onError: (error) => {
       console.error("Post creation error:", error);
-      // Error handling can be implemented here
+      showErrorToast("Failed to create");
     },
   });
 };
 
-// Custom hook for handling post update functionality using TanStack Query
 export const useUpdatePost = () => {
   const queryClient = useQueryClient();
   return useMutation<
@@ -38,34 +36,34 @@ export const useUpdatePost = () => {
   >({
     mutationFn: ({ postId, postData }) => updatePost(postId, postData),
     onSuccess: (_, variables) => {
-      // Invalidate queries to refresh post list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_POSTS],
       });
-      // Invalidate the specific post query
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.POST, variables.postId],
       });
+      showSuccessToast("Successfully updated");
     },
     onError: (error) => {
       console.error("Post update error:", error);
+      showErrorToast("Failed to update");
     },
   });
 };
 
-// Custom hook for handling post deletion functionality using TanStack Query
 export const useDeletePost = () => {
   const queryClient = useQueryClient();
   return useMutation<void, Error, number>({
     mutationFn: (postId) => deletePost(postId),
     onSuccess: () => {
-      // Invalidate queries to refresh post list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_POSTS],
       });
+      showSuccessToast("Successfully deleted");
     },
     onError: (error) => {
       console.error("Post deletion error:", error);
+      showErrorToast("Failed to delete");
     },
   });
 };

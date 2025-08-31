@@ -7,7 +7,7 @@ import { CommentsSection } from "@src/shared/components";
 interface PublicMemberPostProps {
   post: AllMemberPostData;
   currentUserAvatar: string;
-  onViewMoreComments?: () => void;
+  onViewMoreComments?: (postId: number) => void;
   onDeletePost?: (postId: number) => void;
   onEditPost?: (postId: number) => void;
 }
@@ -42,7 +42,7 @@ export const PublicMemberPost = ({
   };
 
   const handleViewMoreComments = () => {
-    onViewMoreComments?.();
+    onViewMoreComments?.(post.id);
   };
 
   return (
@@ -101,7 +101,7 @@ export const PublicMemberPost = ({
         contentType="post"
         contentId={post.id}
         comments={post.latest_comments}
-        totalComments={post.latest_comments.length}
+        totalComments={post.total_comments}
         currentUserAvatar={currentUserAvatar}
         onViewMoreComments={handleViewMoreComments}
       />

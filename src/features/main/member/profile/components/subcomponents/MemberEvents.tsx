@@ -11,7 +11,7 @@ interface MemberActiveEventProps {
   event: EventData;
   currentUserAvatar?: string;
   onViewMoreComments?: () => void;
-  status?: string; // Optional status property for RSVP status
+  status?: string; // Optional status property for RSVP status ("Approved", "Pending", or "Past")
   onJoinOrganization: (orgId: number) => void;
   onCancelJoiningOrganization: (orgId: number) => void;
   onLeaveOrganization: (orgId: number) => void;
@@ -28,9 +28,11 @@ export const MemberEvents = ({
   onLeaveOrganization,
   onRsvpEvent,
   onDeleteRsvpEvent,
+  status,
 }: MemberActiveEventProps) => {
   const { formatRelativeTime, formatDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
+  const isPastEvent = status === "Past";
 
   const handleViewMoreComments = () => {
     onViewMoreComments?.();
@@ -150,35 +152,37 @@ export const MemberEvents = ({
         </span>
       </div>
 
-      {/* RSVP Buttons */}
-      <div className="mb-4">
-        {/* Show RSVP button if user hasn't RSVPed yet */}
-        {!event.user_rsvp && (
-          <PrimaryButton
-            variant={"rsvpButton"}
-            label={"RSVP"}
-            onClick={() => onRsvpEvent?.(event.id)}
-          />
-        )}
+      {/* RSVP Buttons - Hidden for Past events */}
+      {!isPastEvent && (
+        <div className="mb-4">
+          {/* Show RSVP button if user hasn't RSVPed yet */}
+          {!event.user_rsvp && (
+            <PrimaryButton
+              variant={"rsvpButton"}
+              label={"RSVP"}
+              onClick={() => onRsvpEvent?.(event.id)}
+            />
+          )}
 
-        {/* Show Pending button if user has RSVPed and status is pending */}
-        {event.user_rsvp && event.user_rsvp.status === "pending" && (
-          <PrimaryButton
-            variant={"pendingEventButton"}
-            label={"Pending"}
-            onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
-          />
-        )}
+          {/* Show Pending button if user has RSVPed and status is pending */}
+          {event.user_rsvp && event.user_rsvp.status === "pending" && (
+            <PrimaryButton
+              variant={"pendingEventButton"}
+              label={"Pending"}
+              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+            />
+          )}
 
-        {/* Show Cancel RSVP button if user has RSVPed and status is approved */}
-        {event.user_rsvp && event.user_rsvp.status === "joined" && (
-          <PrimaryButton
-            variant={"activeEventButton"}
-            label={"Approved"}
-            onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
-          />
-        )}
-      </div>
+          {/* Show Cancel RSVP button if user has RSVPed and status is approved */}
+          {event.user_rsvp && event.user_rsvp.status === "joined" && (
+            <PrimaryButton
+              variant={"activeEventButton"}
+              label={"Approved"}
+              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+            />
+          )}
+        </div>
+      )}
 
       {/* 5. Description */}
       <div className="bg-athens_gray p-3 sm:p-4 rounded-xl text-responsive-xs text-primary leading-relaxed">

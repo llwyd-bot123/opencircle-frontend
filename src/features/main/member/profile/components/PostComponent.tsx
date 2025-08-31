@@ -72,7 +72,6 @@ export default function PostComponent() {
   // Ensure fetchNextPostsPage is properly typed
   const handleFetchNextPage = () => {
     if (fetchNextPostsPage) {
-      console.log("Fetching next page of posts");
       fetchNextPostsPage();
     } else {
       console.error("fetchNextPostsPage function is not available");
@@ -121,7 +120,6 @@ export default function PostComponent() {
       onConfirm: async () => {
         try {
           await deletePostMutation.mutateAsync(postId);
-          console.log("Post deleted successfully:", postId);
         } catch (error) {
           console.error("Failed to delete post:", error);
         }

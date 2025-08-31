@@ -38,3 +38,21 @@ export interface PendingOrganizationMembership {
 export interface PendingOrganizationMembershipsResponse {
   pending_memberships: PendingOrganizationMembership[];
 }
+
+// Response interface for organization search
+export interface OrganizationSearchResponse {
+  results: DirectOrganizationSearchItem[];
+}
+
+// Interface for direct organization search result item
+export interface DirectOrganizationSearchItem {
+  organization_id: number;
+  account_uuid: string;
+  name: string;
+  description: string;
+  category: string;
+  logo: ProfilePicture;
+}
+
+// Type for direct organization search response
+export type DirectOrganizationSearchResponse = DirectOrganizationSearchItem[];

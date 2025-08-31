@@ -58,7 +58,7 @@ export const router = createBrowserRouter([
             element: <HomePage />,
           },
 
-          // Organization routes - only accessible to organization role
+          // Organization routes - organization-profile/:id is accessible to members too
           {
             element: (
               <ProtectedRoute allowedRoles={["organization" as RoleName]} />
@@ -73,6 +73,12 @@ export const router = createBrowserRouter([
                 element: <OrganizationMemberPage />,
               },
             ],
+          },
+
+          // Organization profile route with ID parameter - accessible to both roles
+          {
+            path: "organization/:organizationId",
+            element: <OrganizationProfilePage />,
           },
 
           // Member routes - only accessible to member role

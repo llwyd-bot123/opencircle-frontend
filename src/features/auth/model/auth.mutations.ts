@@ -1,64 +1,60 @@
 import { useMutation } from "@tanstack/react-query";
-import { loginMember, loginOrganization, logout, type LoginCredentials, type LoginResponse, type MemberLoginResponse, type OrganizationLoginResponse } from "../lib";
+import {
+  loginMember,
+  loginOrganization,
+  logout,
+  type LoginCredentials,
+  type MemberLoginResponse,
+  type OrganizationLoginResponse,
+} from "../lib";
+import { showSuccessToast, showErrorToast } from "@src/shared/components/Toast/CustomToast";
 
-// Hook for member login using TanStack Query
+/**
+ * Hook for member login using TanStack Query
+ */
 export const useMemberLogin = () => {
   return useMutation<MemberLoginResponse, Error, LoginCredentials>({
     mutationFn: (credentials) => loginMember(credentials),
     onSuccess: () => {
-      // TODO: Add toast notification for success
+      showSuccessToast("Successfully logged in");
     },
     onError: (error) => {
       console.error("Member login error:", error);
-      // TODO: Add toast notification for error
+      showErrorToast("Failed to login");
     },
   });
 };
 
-// Hook for organization login using TanStack Query
+/**
+ * Hook for organization login using TanStack Query
+ */
 export const useOrganizationLogin = () => {
   return useMutation<OrganizationLoginResponse, Error, LoginCredentials>({
     mutationFn: (credentials) => loginOrganization(credentials),
     onSuccess: () => {
-      // TODO: Add toast notification for success
+      showSuccessToast("Successfully logged in");
     },
     onError: (error) => {
       console.error("Organization login error:", error);
-      // TODO: Add toast notification for error
+      showErrorToast("Failed to login");
     },
   });
 };
 
-// @deprecated Use useMemberLogin or useOrganizationLogin instead
+// Removed deprecated useLogin hook
 
-export const useLogin = () => {
-  return useMutation<LoginResponse, Error, LoginCredentials & { isOrganization: boolean }>({
-    mutationFn: (credentials) => {
-      const { isOrganization, ...loginCredentials } = credentials;
-      return isOrganization 
-        ? loginOrganization(loginCredentials)
-        : loginMember(loginCredentials);
-    },
-    onSuccess: () => {
-      // TODO: Add toast notification for success
-    },
-    onError: (error) => {
-      console.error("Login error:", error);
-      // TODO: Add toast notification for error
-    },
-  });
-};
-
-// Hook for logout using TanStack Query
+/**
+ * Hook for logout using TanStack Query
+ */
 export const useLogout = () => {
   return useMutation<void, Error, void>({
     mutationFn: () => logout(),
     onSuccess: () => {
-      // TODO: Add toast notification for successful logout
+      showSuccessToast("Successfully logged out");
     },
     onError: (error) => {
       console.error("Logout error:", error);
-      // TODO: Add toast notification for logout error
+      showErrorToast("Failed to logout");
     },
   });
 };

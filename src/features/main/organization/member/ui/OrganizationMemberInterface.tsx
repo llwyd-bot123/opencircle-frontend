@@ -9,10 +9,7 @@ import {
 import { useUpdateMemberRequestStatus } from "../model/member.mutation";
 import { useAuthStore } from "@src/shared/store";
 
-/**
- * Organization Member Interface Component
- * Displays tabs for Members and Member Requests
- */
+
 export default function OrganizationMemberInterface() {
   // State for active tab
   const [activeTab, setActiveTab] = useState<"members" | "requests">("members");

@@ -39,7 +39,6 @@ export function CommentsSection({
   const editCommentMutation = useEditComment();
   const { formatRelativeTime } = useFormatDate();
 
-  // Initialize React Hook Form with Zod validation
   const {
     register,
     handleSubmit,
@@ -55,16 +54,11 @@ export function CommentsSection({
     },
   });
 
-  // Handle form submission with validated data
   const onSubmit = handleSubmit(async (data) => {
-    // Clear any previous error messages
     setError("");
 
     try {
-      // Wait for the comment posting mutation to complete
       await postCommentMutation.mutateAsync(data);
-
-      // Reset form after successful comment posting
       reset({
         ...(contentType === "post"
           ? { post_id: contentId }
@@ -72,22 +66,19 @@ export function CommentsSection({
         message: "",
       });
     } catch (error: unknown) {
-      // Handle comment posting errors
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError(String(error)); // fallback in case it's not an Error object
+        setError(String(error));
       }
     }
   });
 
   const { getImageUrl } = useImageUrl();
 
-  // Start editing a comment
   const handleEditComment = (comment: ContentComment) => {
     setEditingCommentId(comment.comment_id);
     setEditingCommentText(comment.message);
-    // Focus the input field after it's rendered
     setTimeout(() => {
       if (editInputRef.current) {
         editInputRef.current.focus();
@@ -95,7 +86,6 @@ export function CommentsSection({
     }, 0);
   };
 
-  // Save the edited comment
   const saveEditedComment = async () => {
     if (!editingCommentId) return;
 
@@ -106,16 +96,13 @@ export function CommentsSection({
       };
 
       await editCommentMutation.mutateAsync(editData);
-      console.log("Comment updated successfully");
       setEditingCommentId(null);
       setEditingCommentText("");
     } catch (error) {
-      console.error(`Error updating comment ${editingCommentId}:`, error);
-      setError("Failed to update comment");
+      setError(String(error));
     }
   };
 
-  // Handle key press events in the edit input field
   const handleEditKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -126,20 +113,16 @@ export function CommentsSection({
     }
   };
 
-  // Cancel editing when clicking outside the input field
   const cancelEditing = () => {
     setEditingCommentId(null);
     setEditingCommentText("");
   };
 
-  // Function to delete a comment
   const handleDeleteComment = async (commentId: number) => {
     try {
       await deleteCommentMutation.mutateAsync(commentId);
-      // Show success message to user (implement UI feedback here)
     } catch (error) {
-      console.error(`Error deleting comment ${commentId}:`, error);
-      setError("Failed to delete comment");
+      setError(String(error));
     }
   };
 
@@ -235,7 +218,6 @@ export function CommentsSection({
                     )}
                   </div>
                 </div>
-                {/* Only show dropdown menu if the comment is from the authenticated user */}
                 {checkOwnership({
                   type: "comment",
                   accountId: comment.account.id,

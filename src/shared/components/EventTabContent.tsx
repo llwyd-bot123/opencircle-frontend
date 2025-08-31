@@ -16,6 +16,7 @@ interface EventTabContentProps {
   totalRequests?: number;
   onViewMoreMembers?: () => void;
   onViewMoreRequests?: () => void;
+  isUserMember?: boolean;
 }
 
 export function EventTabContent({
@@ -26,6 +27,7 @@ export function EventTabContent({
   totalRequests = 0,
   onViewMoreMembers,
   onViewMoreRequests,
+  isUserMember = false,
 }: EventTabContentProps) {
   const {
     isConfirmModalOpen,
@@ -100,13 +102,15 @@ export function EventTabContent({
                     </p>
                   </div>
                 </div>
-                <div className="flex space-x-2 sm:space-x-3">
-                  <PrimaryButton
-                    label="Remove"
-                    variant="removeButton"
-                    onClick={() => handleRemoveClick(member)}
-                  />
-                </div>
+                {!isUserMember && (
+                  <div className="flex space-x-2 sm:space-x-3">
+                    <PrimaryButton
+                      label="Remove"
+                      variant="removeButton"
+                      onClick={() => handleRemoveClick(member)}
+                    />
+                  </div>
+                )}
               </div>
             ))
           ) : (
@@ -176,18 +180,20 @@ export function EventTabContent({
                     </p> */}
                   </div>
                 </div>
-                <div className="flex space-x-2 sm:space-x-3">
-                  <PrimaryButton
-                    label="Accept"
-                    variant="acceptButton"
-                    onClick={() => handleAcceptClick(request)}
-                  />
-                  <PrimaryButton
-                    label="Decline"
-                    variant="declineButton"
-                    onClick={() => handleDeclineClick(request)}
-                  />
-                </div>
+                {!isUserMember && (
+                  <div className="flex space-x-2 sm:space-x-3">
+                    <PrimaryButton
+                      label="Accept"
+                      variant="acceptButton"
+                      onClick={() => handleAcceptClick(request)}
+                    />
+                    <PrimaryButton
+                      label="Decline"
+                      variant="declineButton"
+                      onClick={() => handleDeclineClick(request)}
+                    />
+                  </div>
+                )}
               </div>
             ))
           ) : (

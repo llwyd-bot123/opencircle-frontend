@@ -1,27 +1,33 @@
-// import { useState } from "react";
-import type { CalendarEvent } from "@src/features/calendar/schema/calendar.type";
-// import type { ContentComment } from "@src/features/comments/schema/comment.types";
+import { useState } from "react";
 import { Modal } from "../Modal";
-// import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
-// import { CommentsModal } from "./CommentsModal";
-import { useImageUrl, useFormatDate } from "@src/shared/hooks";
-// import { useInfiniteContentComments } from "@src/features/comments/model/comment.infinite.query";
-// import {
-//   useRsvpEvent,
-//   useDeleteRsvp,
-// } from "@src/features/home/model/home.mutation";
-// import { useConfirmationModal } from "@src/shared/hooks/useConfirmationModal";
-// import { PrimaryButton } from "@src/shared/components/PrimaryButton";
-// import { LoadingState, ErrorState } from "@src/shared/components";
-// import { useAuthStore } from "@src/shared/store/auth";
-// import avatarImage from "@src/assets/shared/avatar.png";
-// import { isMember, isOrganization } from "@src/shared/utils";
+import { checkOwnership, useFormatDate, useImageUrl } from "@src/shared/hooks";
+import avatarImage from "@src/assets/shared/avatar.png";
+import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
+import { PrimaryButton } from "@src/shared/components/PrimaryButton";
+import { DropdownMenu } from "@src/shared/components/DropdownMenu";
+import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
+import joinedIcon from "@src/assets/shared/joined_icon.svg";
+import joinIcon from "@src/assets/shared/join_icon.svg";
+import { CommentsModal } from "./CommentsModal";
+import { useInfiniteContentComments } from "@src/features/comments/model/comment.infinite.query";
+import { useGetEventWithComments } from "@src/features/main/organization/profile/model/event.query";
+import { LoadingState } from "@src/shared/components/states/LoadingState";
+import { ErrorState } from "@src/shared/components/states/ErrorState";
+import { useAuthStore } from "@src/shared/store/auth";
 
 interface EventDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  event: CalendarEvent;
+  eventId: number;
   userRole?: "member" | "organization";
+  currentUserAvatar?: string;
+  onEdit?: (eventId: number) => void;
+  onDelete?: (eventId: number) => void;
+  onJoinOrganization?: (orgId: number) => void;
+  onCancelJoiningOrganization?: (orgId: number) => void;
+  onLeaveOrganization?: (orgId: number) => void;
+  onRsvpEvent?: (eventId: number) => void;
+  onDeleteRsvpEvent?: (rsvpId: number) => void;
 }
 
 /**
@@ -31,108 +37,76 @@ interface EventDetailsModalProps {
 export function EventDetailsModal({
   isOpen,
   onClose,
-  event,
-}: // userRole = "member",
-EventDetailsModalProps) {
-  // const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+  eventId,
+  userRole = "member",
+  currentUserAvatar = avatarImage,
+  onEdit,
+  onDelete,
+  onJoinOrganization,
+  onCancelJoiningOrganization,
+  onLeaveOrganization,
+  onRsvpEvent,
+  onDeleteRsvpEvent,
+}: EventDetailsModalProps) {
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const { getImageUrl } = useImageUrl();
   const { formatFriendlyDateTime, formatRelativeTime } = useFormatDate();
-  // const { user } = useAuthStore();
-  // const rsvpEventMutation = useRsvpEvent();
-  // const deleteRsvpMutation = useDeleteRsvp();
-  // const { openConfirmationModal } = useConfirmationModal();
+  const { user } = useAuthStore();
+  const accountUuid = user?.uuid || "";
+  
 
-  // Fetch comments for the event with infinite scrolling
-  // const {
-  //   data: infiniteCommentsData,
-  //   isLoading: isCommentsLoading,
-  //   error: commentsError,
-  //   fetchNextPage: fetchNextCommentsPage,
-  //   hasNextPage: hasNextCommentsPage,
-  //   isFetchingNextPage: isFetchingNextCommentsPage,
-  // } = useInfiniteContentComments({
-  //   eventId: event.event_id,
-  //   limit: 5,
-  // });
+  // Fetch event data with comments using React Query
+  const {
+    data: event,
+    isLoading: isLoadingEvent,
+    error: eventError,
+  } = useGetEventWithComments(eventId, accountUuid, isOpen);
 
-  // // Flatten the pages of comments into a single array
-  // const comments =
-  //   infiniteCommentsData?.pages?.flatMap((page) => page.comments) || [];
+  // Set up infinite comments query
+  const {
+    data: commentsData,
+    isLoading: isLoadingComments,
+    error: commentsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteContentComments({
+    eventId: eventId,
+    limit: 5,
+  });
 
-  // // Get the total number of comments from the first page
-  // const totalComments = infiniteCommentsData?.pages?.[0]?.total || 0;
+  const handleViewMoreComments = () => {
+    setIsCommentsModalOpen(true);
+  };
 
-  // // Get current user avatar for comments
-  // const currentAvatar = getImageUrl(
-  //   isMember(user)
-  //     ? user?.profile_picture?.directory
-  //     : isOrganization(user)
-  //     ? user?.logo?.directory
-  //     : undefined,
-  //   isMember(user)
-  //     ? user?.profile_picture?.filename
-  //     : isOrganization(user)
-  //     ? user?.logo?.filename
-  //     : undefined,
-  //   avatarImage
-  // );
-
-  // Handle RSVP event
-  // const handleRsvpEvent = () => {
-  //   openConfirmationModal({
-  //     title: "Reserve Your Spot",
-  //     message:
-  //       "Are you sure you want to reserve your spot for this event? You will receive a confirmation once your reservation is completed.",
-  //     confirmButtonText: "Reserve",
-  //     confirmButtonVariant: "primary",
-  //     onConfirm: async () => {
-  //       try {
-  //         await rsvpEventMutation.mutateAsync(event.event_id);
-  //         console.log("Successfully RSVPed to event:", event.event_id);
-  //       } catch (error) {
-  //         console.error("Failed to RSVP to event:", error);
-  //       }
-  //     },
-  //   });
-  // };
-
-  // Handle delete RSVP
-  // const handleDeleteRsvpEvent = (rsvpId: number) => {
-  //   openConfirmationModal({
-  //     title: "Cancel Reservation",
-  //     message:
-  //       "Are you sure you want to cancel your reservation for this event?",
-  //     confirmButtonText: "Cancel Reservation",
-  //     confirmButtonVariant: "primary",
-  //     onConfirm: async () => {
-  //       try {
-  //         await deleteRsvpMutation.mutateAsync(rsvpId);
-  //         console.log("Successfully cancelled RSVP:", rsvpId);
-  //       } catch (error) {
-  //         console.error("Failed to cancel RSVP:", error);
-  //       }
-  //     },
-  //   });
-  // };
-
-  // Handle view more comments
-  // const handleViewMoreComments = () => {
-  //   setIsCommentsModalOpen(true);
-  // };
+  const allComments =
+    commentsData?.pages.flatMap((page) => page.comments ?? []) || [];
 
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl">
+        {isLoadingEvent && (
+          <LoadingState message="Loading event details..." className="p-8" />
+        )}
+
+        {eventError && (
+          <ErrorState 
+            message="Error loading event details. Please try again later." 
+            className="p-8" 
+          />
+        )}
+
         {/* Event Content */}
+        {event && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden px-4 sm:px-6">
-          {/* 1. Header with Avatar, Name, Time */}
+          {/* 1. Header with Avatar, Name, Time and buttons */}
           <div className="p-4 sm:p-0 pt-4 sm:pt-6 flex flex-row items-start justify-between">
             <div className="flex flex-row items-center space-x-2 sm:space-x-3">
               <img
                 src={getImageUrl(
                   event.organization?.logo?.directory,
                   event.organization?.logo?.filename,
-                  "https://placehold.co/40x40/29465b/ffffff?text=O"
+                  avatarImage
                 )}
                 alt="Event Creator"
                 className="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover"
@@ -148,6 +122,75 @@ EventDetailsModalProps) {
                   {formatRelativeTime(event.created_date)}
                 </p>
               </div>
+            </div>
+
+            <div className="flex items-start space-x-2">
+              {/* Horizontal 3-dot menu - only show if user is the owner */}
+              {checkOwnership({
+                type: "event",
+                ownerId: event.organization?.account_id,
+              }) && (
+                <DropdownMenu
+                  onEdit={() => onEdit?.(Number(event.id))}
+                  onDelete={() => onDelete?.(Number(event.id))}
+                />
+              )}
+
+              {/* Conditional rendering based on user role and membership status */}
+              {userRole === "member" && (
+                <>
+                  {/* Show Join Organization button when status is null or rejected */}
+                  {(!event.user_membership_status_with_organizer ||
+                    event.user_membership_status_with_organizer ===
+                      "rejected") && (
+                    <PrimaryButton
+                      variant="joinStatusButton"
+                      iconClass="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
+                      label="Join Organization"
+                      responsiveLabel="Join"
+                      icon={joinIcon}
+                      onClick={() =>
+                        onJoinOrganization?.(
+                          Number(event.organization_id)
+                        )
+                      }
+                    />
+                  )}
+
+                  {/* Show For Approval button when status is pending */}
+                  {event.user_membership_status_with_organizer ===
+                    "pending" && (
+                    <PrimaryButton
+                      variant="iconButton"
+                      iconClass="w-4 h-4 sm:w-5 sm:h-5"
+                      label=""
+                      icon={pendingIcon}
+                      buttonClass="p-1"
+                      onClick={() =>
+                        onCancelJoiningOrganization?.(
+                          Number(event.organization_id)
+                        )
+                      }
+                    />
+                  )}
+
+                  {/* Show only icon when status is approved */}
+                  {event.user_membership_status_with_organizer ===
+                    "approved" && (
+                    <PrimaryButton
+                      variant="iconButton"
+                      iconClass="w-4 h-4 sm:w-5 sm:h-5"
+                      label=""
+                      icon={joinedIcon}
+                      onClick={() =>
+                        onLeaveOrganization?.(
+                          Number(event.organization_id)
+                        )
+                      }
+                    />
+                  )}
+                </>
+              )}
             </div>
           </div>
 
@@ -198,35 +241,41 @@ EventDetailsModalProps) {
             </span>
           </div>
 
-          {/* Only show RSVP button for members, not for organizations */}
-          {/* {userRole === "member" && (
-              <div className="pb-4">
-                {!event.user_rsvp && (
-                  <PrimaryButton
-                    variant={"rsvpButton"}
-                    label={"RSVP"}
-                    onClick={handleRsvpEvent}
-                  />
-                )}
+          {/* Only show RSVP button for members, not for organizations, and only for future events */}
+          {userRole === "member" && event && new Date(event.event_date) > new Date() && (
+            <div className="mb-4">
+              {/* Show RSVP button if user hasn't RSVPed yet */}
+              {!event.user_rsvp && (
+                <PrimaryButton
+                  variant={"rsvpButton"}
+                  label={"RSVP"}
+                  onClick={() => onRsvpEvent?.(Number(event.id))}
+                />
+              )}
 
-                {event.user_rsvp && event.user_rsvp.status === "pending" && (
-                  <PrimaryButton
-                    variant={"pendingEventButton"}
-                    label={"Pending"}
-                    onClick={() => handleDeleteRsvpEvent(event.user_rsvp.rsvp_id)}
-                  />
-                )}
+              {/* Show Pending button if user has RSVPed and status is pending */}
+              {event.user_rsvp && event.user_rsvp?.status === "pending" && (
+                <PrimaryButton
+                  variant={"pendingEventButton"}
+                  label={"Pending"}
+                  onClick={() =>
+                    onDeleteRsvpEvent?.(Number(event.user_rsvp?.rsvp_id))
+                  }
+                />
+              )}
 
-                {event.user_rsvp && 
-                  (event.user_rsvp.status === "approved" || event.user_rsvp.status === "joined") && (
-                  <PrimaryButton
-                    variant={"activeEventButton"}
-                    label={"Cancel RSVP"}
-                    onClick={() => handleDeleteRsvpEvent(event.user_rsvp.rsvp_id)}
-                  />
-                )}
-              </div>
-            )} */}
+              {/* Show Cancel RSVP button if user has RSVPed and status is approved */}
+              {event.user_rsvp && event.user_rsvp?.status === "approved" && (
+                <PrimaryButton
+                  variant={"activeEventButton"}
+                  label={"Cancel RSVP"}
+                  onClick={() =>
+                    onDeleteRsvpEvent?.(Number(event.user_rsvp?.rsvp_id))
+                  }
+                />
+              )}
+            </div>
+          )}
 
           {/* 5. Description */}
           <div className="bg-athens_gray p-3 sm:p-4 rounded-xl text-responsive-xs text-primary leading-relaxed mb-4">
@@ -250,40 +299,35 @@ EventDetailsModalProps) {
 
           <hr className="my-4 text-gainsboro" />
 
-          {/* 7. Comments Section */}
-          {/* <div className="pb-4">
-              {isCommentsLoading ? (
-                <LoadingState message="Loading comments..." />
-              ) : commentsError ? (
-                <ErrorState message="Failed to load comments. Please try again later." />
-              ) : (
-                <CommentsSection
-                  contentType="event"
-                  contentId={event.event_id}
-                  comments={comments}
-                  totalComments={totalComments || 0}
-                  currentUserAvatar={currentAvatar}
-                  onViewMoreComments={handleViewMoreComments}
-                />
-              )}
-            </div> */}
+          {/* Comments Section */}
+          <CommentsSection
+            comments={event.latest_comments || []}
+            totalComments={event.total_comments || 0}
+            currentUserAvatar={currentUserAvatar}
+            onViewMoreComments={handleViewMoreComments}
+            contentId={Number(event.id)}
+            contentType="event"
+          />
         </div>
+        )}
       </Modal>
 
-      {/* Comments Modal */}
-      {/* <CommentsModal
+      {/* Comments Modal for viewing all comments */}
+      {event && (
+      <CommentsModal
         isOpen={isCommentsModalOpen}
         onClose={() => setIsCommentsModalOpen(false)}
-        comments={comments}
-        isLoading={isCommentsLoading}
+        comments={allComments}
+        isLoading={isLoadingComments}
         error={commentsError}
-        currentUserAvatar={currentAvatar}
-        fetchNextPage={fetchNextCommentsPage}
-        hasNextPage={hasNextCommentsPage}
-        isFetchingNextPage={isFetchingNextCommentsPage}
-        totalComments={totalComments}
-        eventId={event.event_id}
-      /> */}
+        currentUserAvatar={currentUserAvatar}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        totalComments={event.total_comments || 0}
+        eventId={eventId}
+      />
+      )}
     </>
   );
 }

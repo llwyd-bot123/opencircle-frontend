@@ -1,12 +1,15 @@
-import React from "react";
-import type { PendingOrganizationMembershipsResponse } from "../schema/organization.types";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
+import { ErrorState } from "@src/shared/components/states/ErrorState";
+import { LoadingState } from "@src/shared/components/states/LoadingState";
+import { useAuthStore } from "@src/shared/store/auth";
+import { usePendingOrganizationMembershipsQuery } from "../model/organization.query";
 
 interface PendingOrganizationProps {
-  data: PendingOrganizationMembershipsResponse | undefined;
   selectedOrgId: number | null;
-  filterType: "joined" | "approval";
-  handleFilterClick: (type: "joined" | "approval") => void;
+  filterType: "all" | "joined" | "approval";
+  handleFilterClick: (type: "all" | "joined" | "approval") => void;
   handleLeaveOrg: (organizationId: number) => void;
   getImageUrl: (
     directory?: string,
@@ -15,28 +18,93 @@ interface PendingOrganizationProps {
   ) => string;
 }
 
-/**
- * PendingOrganization component with filter buttons
- * This component displays pending organization membership requests
- */
+
 const PendingOrganization: React.FC<PendingOrganizationProps> = ({
-  data,
   filterType,
   handleFilterClick,
   handleLeaveOrg,
   getImageUrl,
 }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { user } = useAuthStore();
+  const accountUuid = user?.uuid || "";
+  
+  // Fetch pending organization memberships
+  const { data: pendingData, isLoading, isError, error } = usePendingOrganizationMembershipsQuery(accountUuid);
+  
+  // Filter organizations based on search query
+  const filteredData = React.useMemo(() => {
+    if (!pendingData) return undefined;
+    
+    const searchTerm = searchQuery.toLowerCase().trim();
+    if (!searchTerm) return pendingData;
+    
+    return {
+      pending_memberships: pendingData.pending_memberships.filter(org => 
+        org.organization_name.toLowerCase().includes(searchTerm)
+      )
+    };
+  }, [pendingData, searchQuery]);
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+  };
+  
+  const navigate = useNavigate();
+  
   const handleCardClick = (orgId: number) => {
-    // Navigate to organization detail page in the future
-    // Implementation will be added later
-    console.log(`Navigating to organization ${orgId}`);
+    // Navigate to organization profile page with the organization ID
+    navigate(`/organization/${orgId}`);
   };
 
   return (
-    <div className="flex justify-center items-center h-screen px-4">
-      <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-gray-100 flex flex-col h-full md:h-screen border shadow-lg border-primary/30">
+    <>
+      <div className="flex justify-center items-center mt-6">
+        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-white padding-responsive-sm border-gray-200 mb-6 rounded-full shadow-sm">
+          <div className="relative w-full">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-primary-75"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <input
+              type="text"
+              className="w-full p-2 pl-12 text-responsive-sm text-primary border border-transparent rounded-full h-[56px] focus:outline-none focus:border-transparent focus:ring-0 placeholder:text-responsive-sm"
+              placeholder="Find Organization"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center items-center h-screen px-4">
+        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-gray-100 flex flex-col h-full md:h-screen border shadow-lg border-primary/30">
         <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200">
           <div className="flex">
+            <button
+              className={`text-responsive-xxs ${
+                filterType === "all"
+                  ? "text-primary font-medium"
+                  : "text-primary-75"
+              }`}
+              onClick={() => handleFilterClick("all")}
+            >
+              All
+            </button>
+            <div className="w-px bg-primary mx-2 my-1"></div>
             <button
               className={`text-responsive-xxs ${
                 filterType === "joined"
@@ -62,9 +130,12 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
         </div>
 
         <div className="flex-grow overflow-y-auto">
-          {data && data.pending_memberships.length > 0 ? (
+          {isLoading && <LoadingState message="Loading pending organizations..." />}
+          {isError && <ErrorState message={`Failed to load pending organizations: ${error instanceof Error ? error.message : 'Unknown error'}`} />}
+          
+          {!isLoading && !isError && filteredData && filteredData.pending_memberships.length > 0 ? (
             <div className="space-y-3 md:space-y-4">
-              {data.pending_memberships.map((org) => (
+              {filteredData.pending_memberships.map((org) => (
                 <div
                   key={org.organization_id}
                   className="flex items-center justify-between p-3 hover:bg-white hover:shadow-md transition-all duration-200 group cursor-pointer"
@@ -120,9 +191,11 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
+export { PendingOrganization };
 export default PendingOrganization;

@@ -16,13 +16,11 @@ import type {
   InfinitePastEventsResponse,
 } from "../schema/event.type";
 
-// Type for the parameters accepted by useInfiniteOrganizationEvents
 type InfiniteOrganizationEventsParams = Omit<
   OrganizationEventQueryParams,
   "page"
 >;
 
-// Hook for fetching organization events with infinite scrolling
 export const useInfiniteOrganizationEvents = ({
   account_uuid,
   per_page = 5,

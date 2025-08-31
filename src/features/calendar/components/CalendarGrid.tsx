@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { addMonths, subMonths } from "date-fns";
-import type { CalendarEvent, EventsByDate } from "../schema/calendar.type";
+import type { CalendarEvent } from "../schema/calendar.type";
 import {
   buildMonthGrid,
   getMonthYearString,
@@ -9,6 +9,7 @@ import {
 } from "../../main/member/profile/lib/calendarUtils";
 import { DayCell } from "./DayCell";
 import { MonthYearPicker } from "./MonthYearPicker";
+import type { EventsByDate } from "../schema/calendar.type";
 
 // Array of weekday names
 const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THUR", "FRI", "SAT"];

@@ -6,6 +6,7 @@ import { RouterProvider } from "react-router-dom";
 import { Providers } from "./Provider";
 import { router } from "./routes/router";
 import { Suspense } from "react";
+import { ToastContainer } from "../shared/components";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <Providers>
           <RouterProvider router={router} />
+          <ToastContainer />
         </Providers>
       </Suspense>
     </ErrorBoundary>

@@ -11,6 +11,7 @@ import {
   EventFormModal,
   ConfirmationModal,
   PostFormModal,
+  CommentsModal,
 } from "@src/shared/components/modals";
 import {
   useDeleteRsvp,
@@ -25,18 +26,21 @@ import { useInfiniteAllMemberPosts } from "@src/features/main/member/profile/mod
 import { useDeletePost } from "@src/features/main/member/profile/model/post.mutation";
 import { PublicEventPost } from "../components/PublicEventPost";
 import { PublicMemberPost } from "../components/PublicMemberPost";
+import { useInfiniteContentComments } from "@src/features/comments/model/comment.infinite.query";
+import type { CommentsResponse } from "@src/features/comments/schema/comment.types";
+import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
+import type { AllMemberPostData } from "@src/features/main/member/profile/schema/post.types";
 
 export default function HomeInterface() {
   // State for modals
   const [isEventFormModalOpen, setIsEventFormModalOpen] = useState(false);
   const [isPostFormModalOpen, setIsPostFormModalOpen] = useState(false);
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [eventFormMode, setEventFormMode] = useState<"create" | "edit">(
     "create"
   );
   const [postFormMode, setPostFormMode] = useState<"create" | "edit">("create");
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
-  // We'll use this state when implementing comment viewing functionality in the future
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   // No additional confirmation modal state needed - using useConfirmationModal
@@ -146,33 +150,46 @@ export default function HomeInterface() {
   // Flatten the posts data from all pages
   const posts = postsData?.pages.flatMap((page) => page.posts) || [];
 
+  // Define union type for combined content items
+  type CombinedContentItem =
+    | { type: "event"; data: EventData; date: Date }
+    | { type: "post"; data: AllMemberPostData; date: Date };
+
+  // Combine and shuffle events and posts for display
+  const combinedContent: CombinedContentItem[] = [
+    ...events.map((event) => ({
+      type: "event" as const,
+      data: event,
+      date: new Date(event.created_date),
+    })),
+    ...posts.map((post) => ({
+      type: "post" as const,
+      data: post,
+      date: new Date(post.created_date),
+    })),
+  ].sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort by date, newest first
+
   const handleOpenCreateEventModal = () => {
     setSelectedEventId(null);
     setEventFormMode("create");
     setIsEventFormModalOpen(true);
   };
 
-  /**
-   * Opens the post form modal for creating a new post
-   */
+  // Open post creation modal
   const handleOpenCreatePostModal = () => {
     setSelectedPostId(null);
     setPostFormMode("create");
     setIsPostFormModalOpen(true);
   };
 
-  /**
-   * Handles editing an event by opening the event form modal in edit mode
-   */
+  // Edit event
   const handleEditEvent = (eventId: number) => {
     setSelectedEventId(eventId);
     setEventFormMode("edit");
     setIsEventFormModalOpen(true);
   };
 
-  /**
-   * Handles deleting an event by showing a confirmation modal
-   */
+  // Delete event
   const handleDeleteEvent = (eventId: number) => {
     setSelectedEventId(eventId);
     openConfirmationModal({
@@ -184,36 +201,55 @@ export default function HomeInterface() {
       onConfirm: async () => {
         try {
           await deleteEventMutation.mutateAsync(eventId);
-          console.log("Event deleted successfully:", eventId);
-        } catch (error) {
-          console.error("Failed to delete event:", error);
+        } catch {
+          // Error handled by mutation
         }
       },
     });
   };
 
+  // Fetch comments for the selected content with infinite scrolling
+  const {
+    data: infiniteCommentsData,
+    isLoading: isCommentsLoading,
+    error: commentsError,
+    fetchNextPage: fetchNextCommentsPage,
+    hasNextPage: hasNextCommentsPage,
+    isFetchingNextPage: isFetchingNextCommentsPage,
+  } = useInfiniteContentComments({
+    postId: selectedPostId || 0,
+    eventId: selectedEventId || 0,
+    limit: 5,
+  });
+
+  // Flatten the pages of comments into a single array
+  const comments =
+    infiniteCommentsData?.pages?.flatMap(
+      (page: CommentsResponse) => page.comments
+    ) || [];
+  // Get the total number of comments from the first page
+  const totalComments = infiniteCommentsData?.pages?.[0]?.total || 0;
+
   const handleViewEventComments = (eventId: number) => {
     setSelectedEventId(eventId);
+    setSelectedPostId(null);
+    setIsCommentsModalOpen(true);
   };
 
-  // This function will be expanded in the future to handle post comments viewing
   const handleViewPostComments = (postId: number) => {
-    console.log(`Viewing comments for post ${postId}`);
     setSelectedPostId(postId);
+    setSelectedEventId(null);
+    setIsCommentsModalOpen(true);
   };
 
-  /**
-   * Handles editing a post by opening the post form modal in edit mode
-   */
+  // Edit post
   const handleEditPost = (postId: number) => {
     setPostFormMode("edit");
     setSelectedPostId(postId);
     setIsPostFormModalOpen(true);
   };
 
-  /**
-   * Handles deleting a post by showing a confirmation modal
-   */
+  // Delete post
   const handleDeletePost = (postId: number) => {
     setSelectedPostId(postId);
     openConfirmationModal({
@@ -225,9 +261,8 @@ export default function HomeInterface() {
       onConfirm: async () => {
         try {
           await deletePostMutation.mutateAsync(postId);
-          console.log("Post deleted successfully:", postId);
-        } catch (error) {
-          console.error("Failed to delete post:", error);
+        } catch {
+          // Error handled by mutation
         }
       },
     });
@@ -285,9 +320,7 @@ export default function HomeInterface() {
     });
   };
 
-  /**
-   * Handles RSVP for an event by showing a confirmation modal
-   */
+  // RSVP for event
   const handleRsvpEvent = (eventId: number) => {
     setSelectedEventId(eventId);
     openConfirmationModal({
@@ -299,17 +332,14 @@ export default function HomeInterface() {
       onConfirm: async () => {
         try {
           await rsvpEventMutation.mutateAsync(eventId);
-          console.log("Successfully RSVPed to event:", eventId);
-        } catch (error) {
-          console.error("Failed to RSVP to event:", error);
+        } catch {
+          // Error handled by mutation
         }
       },
     });
   };
 
-  /**
-   * Handles deleting an RSVP for an event by showing a confirmation modal
-   */
+  // Cancel event reservation
   const handleDeleteRsvpEvent = (rsvpId: number) => {
     openConfirmationModal({
       title: "Cancel Reservation",
@@ -320,9 +350,8 @@ export default function HomeInterface() {
       onConfirm: async () => {
         try {
           await deleteRsvpMutation.mutateAsync(rsvpId);
-          console.log("Successfully cancelled RSVP:", rsvpId);
-        } catch (error) {
-          console.error("Failed to cancel RSVP:", error);
+        } catch {
+          // Error handled by mutation
         }
       },
     });
@@ -399,40 +428,41 @@ export default function HomeInterface() {
         !isErrorPosts &&
         (events.length > 0 || posts.length > 0) && (
           <div className="space-y-6">
-            {/* Interleave events and posts */}
-            {/* For simplicity, we'll display events first, then posts */}
-            {/* In a real app, you might want to sort them by date */}
-
-            {/* Events */}
-            {events.map((event) => (
-              <PublicEventPost
-                key={`event-${event.id}`}
-                event={event}
-                currentUserAvatar={currentAvatar}
-                userRole={isMember(user) ? "member" : "organization"}
-                onViewMoreComments={handleViewEventComments}
-                onEdit={() => handleEditEvent(event.id)}
-                onDelete={() => handleDeleteEvent(event.id)}
-                onJoinOrganization={handleJoinOrganization}
-                onCancelJoiningOrganization={handleCancelJoiningOrganization}
-                onLeaveOrganization={handleLeaveOrganization}
-                onRsvpEvent={handleRsvpEvent}
-                onDeleteRsvpEvent={handleDeleteRsvpEvent}
-              />
-            ))}
-
-            {/* Posts */}
-            {posts.map((post) => {
-              return (
-                <PublicMemberPost
-                  key={`post-${post.id}`}
-                  post={post}
-                  currentUserAvatar={currentAvatar}
-                  onViewMoreComments={() => handleViewPostComments(post.id)}
-                  onDeletePost={() => handleDeletePost(post.id)}
-                  onEditPost={() => handleEditPost(post.id)}
-                />
-              );
+            {/* Combined and chronologically sorted content */}
+            {combinedContent.map((item) => {
+              if (item.type === "event") {
+                const event = item.data;
+                return (
+                  <PublicEventPost
+                    key={`event-${event.id}`}
+                    event={event}
+                    currentUserAvatar={currentAvatar}
+                    userRole={isMember(user) ? "member" : "organization"}
+                    onViewMoreComments={handleViewEventComments}
+                    onEdit={() => handleEditEvent(event.id)}
+                    onDelete={() => handleDeleteEvent(event.id)}
+                    onJoinOrganization={handleJoinOrganization}
+                    onCancelJoiningOrganization={
+                      handleCancelJoiningOrganization
+                    }
+                    onLeaveOrganization={handleLeaveOrganization}
+                    onRsvpEvent={handleRsvpEvent}
+                    onDeleteRsvpEvent={handleDeleteRsvpEvent}
+                  />
+                );
+              } else {
+                const post = item.data;
+                return (
+                  <PublicMemberPost
+                    key={`post-${post.id}`}
+                    post={post}
+                    currentUserAvatar={currentAvatar}
+                    onViewMoreComments={() => handleViewPostComments(post.id)}
+                    onDeletePost={() => handleDeletePost(post.id)}
+                    onEditPost={() => handleEditPost(post.id)}
+                  />
+                );
+              }
             })}
 
             {/* Infinite scroll sentinel element */}
@@ -505,6 +535,22 @@ export default function HomeInterface() {
       )}
 
       {/* Confirmation Modal for RSVP - Handled by useConfirmationModal */}
+
+      {/* Comments Modal */}
+      <CommentsModal
+        isOpen={isCommentsModalOpen}
+        onClose={() => setIsCommentsModalOpen(false)}
+        comments={comments}
+        currentUserAvatar={currentAvatar}
+        isLoading={isCommentsLoading}
+        error={commentsError}
+        postId={selectedPostId || undefined}
+        eventId={selectedEventId || undefined}
+        fetchNextPage={fetchNextCommentsPage}
+        hasNextPage={hasNextCommentsPage}
+        isFetchingNextPage={isFetchingNextCommentsPage}
+        totalComments={totalComments}
+      />
     </div>
   );
 }

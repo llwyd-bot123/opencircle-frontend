@@ -1,13 +1,22 @@
 import { UserProfileHeader } from "@src/shared/components/UserProfileHeader";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PostComponent from "../components/PostComponent";
 import EventComponent from "../components/EventComponent";
 import { useAuthStore } from "@src/shared/store/auth";
 import { CalendarSection } from "@src/features/calendar/ui/CalendarSection";
 
 export default function MemberProfileInterface() {
-  const [activeTab, setActiveTab] = useState("post");
+  // Initialize with stored tab or default to "post"
+  const [activeTab, setActiveTab] = useState(() => {
+    const storedTab = localStorage.getItem("memberProfileActiveTab");
+    return storedTab || "post";
+  });
   const { user } = useAuthStore();
+
+  // Save active tab to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("memberProfileActiveTab", activeTab);
+  }, [activeTab]);
 
   const profileTabs = [
     { id: "post", label: "Post" },

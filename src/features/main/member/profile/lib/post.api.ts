@@ -17,12 +17,10 @@ export interface PostResponse {
 export type CreatePostResponse = PostResponse;
 export type EditPostResponse = PostResponse;
 
-// Creates a new post with the provided data
 export const createPost = async (
   postData: PostFormData
 ): Promise<CreatePostResponse> => {
   try {
-    // Convert post data object to FormData
     const formData = objectToFormData(postData, ["image"]);
 
     const response = await axiosInstance.post<CreatePostResponse>(
@@ -37,13 +35,11 @@ export const createPost = async (
   }
 };
 
-// Updates an existing post with the provided data
 export const updatePost = async (
   postId: number,
   postData: PostFormData
 ): Promise<EditPostResponse> => {
   try {
-    // Convert post data object to FormData
     const formData = objectToFormData(postData, ["image"]);
 
     const response = await axiosInstance.put<EditPostResponse>(
@@ -58,7 +54,6 @@ export const updatePost = async (
   }
 };
 
-// Deletes a post by its ID
 export const deletePost = async (postId: number): Promise<void> => {
   try {
     await axiosInstance.delete(`/post/${postId}`);
@@ -68,7 +63,6 @@ export const deletePost = async (postId: number): Promise<void> => {
   }
 };
 
-// Fetches a single post by its ID
 export const getPostById = async (postId: number): Promise<PostData> => {
   try {
     const response = await axiosInstance.get<PostData>(
@@ -81,13 +75,6 @@ export const getPostById = async (postId: number): Promise<PostData> => {
   }
 };
 
-/**
- * Fetches posts with comments for a specific member
- * @param uid - User ID of the member (UUID string)
- * @param page - Page number for pagination (default: 1)
- * @param pageSize - Number of posts per page (default: 5)
- * @returns Promise with the paginated posts response
- */
 export const getMemberPostsWithComments = async (
   params?: UserQueryParams
 ): Promise<MemberPostsResponse> => {

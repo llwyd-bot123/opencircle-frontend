@@ -4,7 +4,7 @@ import pendingEventLogo from "@src/assets/shared/pending-events.svg";
 import historyEventLogo from "@src/assets/shared/history-events.svg";
 import { MemberEvents } from "./subcomponents/MemberEvents";
 import { useAuthStore } from "@src/shared/store/auth";
-import { useUserEventsByRsvpStatusInfiniteQuery } from "../model/event.infinite.query";
+import { useUserEventsByRsvpStatusInfiniteQuery, useUserPastEventsInfiniteQuery } from "../model/event.infinite.query";
 import { useInfiniteScroll } from "@src/shared/hooks/useInfiniteScroll";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
@@ -43,7 +43,23 @@ export default function EventComponent() {
   // Get user UUID for API calls
   const userUuid = user?.uuid || "";
 
-  // Fetch events based on RSVP status
+  // Fetch past events when selectedRsvpStatus is "past", otherwise fetch events by RSVP status
+  const isPastEvents = selectedRsvpStatus === "past";
+  
+  const {
+    data: pastEventsData,
+    fetchNextPage: fetchNextPastPage,
+    hasNextPage: hasNextPastPage,
+    isFetchingNextPage: isFetchingNextPastPage,
+    isLoading: isLoadingPastEvents,
+    refetch: refetchPastEvents,
+    error: pastEventsError,
+  } = useUserPastEventsInfiniteQuery({
+    accountUuid: userUuid,
+    limit: 5,
+  });
+  
+  // Fetch events based on RSVP status (for non-past events)
   const {
     data: eventsData,
     fetchNextPage,
@@ -55,6 +71,7 @@ export default function EventComponent() {
   } = useUserEventsByRsvpStatusInfiniteQuery({
     accountUuid: userUuid,
     rsvpStatus: selectedRsvpStatus,
+    enabled: !isPastEvents,
   });
 
   const {
@@ -79,24 +96,27 @@ export default function EventComponent() {
   // Ensure fetchNextPostsPage is properly typed
   const handleFetchNextPage = () => {
     if (fetchNextPage) {
-      console.log("Fetching next page of posts");
       fetchNextPage();
     } else {
       console.error("fetchNextPostsPage function is not available");
     }
   };
 
-  // Setup infinite scroll
+  // Setup infinite scroll for the appropriate query based on selectedRsvpStatus
   const { sentinelRef } = useInfiniteScroll({
-    onLoadMore: fetchNextPage,
-    hasMore: !!hasNextPage,
-    isLoading: isFetchingNextPage,
+    onLoadMore: isPastEvents ? fetchNextPastPage : fetchNextPage,
+    hasMore: isPastEvents ? !!hasNextPastPage : !!hasNextPage,
+    isLoading: isPastEvents ? isFetchingNextPastPage : isFetchingNextPage,
   });
 
   // Refetch when RSVP status changes
   useEffect(() => {
-    refetch();
-  }, [selectedRsvpStatus, refetch]);
+    if (isPastEvents) {
+      refetchPastEvents();
+    } else {
+      refetch();
+    }
+  }, [selectedRsvpStatus, refetch, refetchPastEvents, isPastEvents]);
 
   const handleViewMoreComments = (eventId: number) => {
     setSelectedEventId(eventId);
@@ -134,10 +154,10 @@ export default function EventComponent() {
     setSelectedRsvpStatus(event.target.value);
   };
 
-  // Get events from the infinite query data
-  const events = eventsData?.pages.flatMap((page) => page.events || []) || [];
-
-  console.log("events data", events);
+  // Get events from the appropriate infinite query data based on selectedRsvpStatus
+  const events = isPastEvents
+    ? pastEventsData?.pages.flatMap((page) => page.events || []) || []
+    : eventsData?.pages.flatMap((page) => page.events || []) || [];
 
   // Flatten the pages of comments into a single array
   const comments =
@@ -275,15 +295,18 @@ export default function EventComponent() {
       </div>
 
       {/* Loading State */}
-      {isLoading && <LoadingState message="Loading events..." />}
+      {(isPastEvents ? isLoadingPastEvents : isLoading) && <LoadingState message={`Loading ${isPastEvents ? 'past' : ''} events...`} />}
 
       {/* Error State */}
-      {eventsError && (
-        <ErrorState message="Failed to load events. Please try again later." />
+      {(isPastEvents ? pastEventsError : eventsError) && (
+        <ErrorState 
+          message={`Failed to load ${isPastEvents ? 'past' : ''} events. Please try again later.`} 
+          onRetry={isPastEvents ? refetchPastEvents : refetch}
+        />
       )}
 
       {/* No Events State */}
-      {!isLoading && !eventsError && events.length === 0 && (
+      {!isPastEvents && !isLoading && !eventsError && events.length === 0 && (
         <div className="text-center py-3 sm:py-4 md:py-6">
           <p className="text-placeholderbg text-responsive-xs">
             No{" "}
@@ -296,9 +319,18 @@ export default function EventComponent() {
           </p>
         </div>
       )}
+      
+      {/* No Past Events State */}
+      {isPastEvents && !isLoadingPastEvents && !pastEventsError && events.length === 0 && (
+        <div className="text-center py-3 sm:py-4 md:py-6">
+          <p className="text-placeholderbg text-responsive-xs">
+            No past events found.
+          </p>
+        </div>
+      )}
 
       {/* Events List */}
-      {!isLoading && !eventsError && events && events.length > 0 && (
+      {((isPastEvents && !isLoadingPastEvents && !pastEventsError) || (!isPastEvents && !isLoading && !eventsError)) && events && events.length > 0 && (
         <div className="space-y-3 sm:space-y-4 md:space-y-5">
           {events.map((event) => (
             <MemberEvents
@@ -325,20 +357,20 @@ export default function EventComponent() {
 
           {/* Infinite scroll sentinel element */}
           <div className="w-full my-3 sm:my-4">
-            {isFetchingNextPage && (
+            {(isPastEvents ? isFetchingNextPastPage : isFetchingNextPage) && (
               <LoadingState
                 message="Loading more events..."
                 className="py-3 sm:py-4 text-center text-responsive-xs"
               />
             )}
-            {eventsError && !isFetchingNextPage && (
+            {((isPastEvents ? pastEventsError : eventsError) && !(isPastEvents ? isFetchingNextPastPage : isFetchingNextPage)) && (
               <div className="flex flex-col items-center py-3 sm:py-4">
                 <ErrorState
                   message="Failed to load more events."
                   className="mb-2 text-center text-responsive-xs"
                 />
                 <button
-                  onClick={handleFetchNextPage}
+                  onClick={isPastEvents ? () => fetchNextPastPage() : handleFetchNextPage}
                   className="px-3 py-1.5 sm:px-4 sm:py-2 bg-primary text-white rounded hover:bg-primary-dark mt-2 text-responsive-xs"
                 >
                   Retry
@@ -349,7 +381,7 @@ export default function EventComponent() {
             <div
               ref={sentinelRef}
               className={`w-full ${
-                hasNextPage ? "h-16 sm:h-20" : "h-2 sm:h-4"
+                (isPastEvents ? hasNextPastPage : hasNextPage) ? "h-16 sm:h-20" : "h-2 sm:h-4"
               }`}
               style={{ marginBottom: "16px" }}
             />

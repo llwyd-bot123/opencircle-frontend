@@ -20,7 +20,11 @@ import { useInfiniteContentComments } from "@src/features/comments/model/comment
 import type { CommentsResponse } from "@src/features/comments/schema/comment.types";
 import type { EventParticipant } from "../schema/event.type";
 
-export default function PastEventsComponent() {
+interface PastEventsComponentProps {
+  accountUuid: string;
+}
+
+export default function PastEventsComponent({ accountUuid }: PastEventsComponentProps) {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
@@ -45,7 +49,7 @@ export default function PastEventsComponent() {
     isFetchingNextPage: isFetchingNextPastEventsPage,
     isError: isPastEventsError,
   } = useInfiniteOrganizationPastEvents({
-    account_uuid: user?.uuid || "",
+    account_uuid: accountUuid,
     per_page: 5, // This will be mapped to page_size in the API call
   });
 
@@ -68,10 +72,12 @@ export default function PastEventsComponent() {
   const pastEventsData =
     infinitePastEventsData?.pages.flatMap((page) => page.past_events) || [];
 
-  console.log("past events:", pastEventsData);
+  // Past events data loaded
 
-  const handleEdit = (eventId: number) => {
-    console.log("Edit clicked for past event:", eventId);
+  // This function would be implemented when edit functionality is needed
+  const handleEdit = (_eventId: number) => {
+    // Edit past event functionality would be implemented here
+    console.log(_eventId)
   };
 
   const deleteEventMutation = useDeleteEvent();
@@ -87,7 +93,7 @@ export default function PastEventsComponent() {
       onConfirm: async () => {
         try {
           await deleteEventMutation.mutateAsync(eventId);
-          console.log("Past event deleted successfully:", eventId);
+          // Past event deleted successfully
         } catch (error) {
           console.error("Failed to delete past event:", error);
         }

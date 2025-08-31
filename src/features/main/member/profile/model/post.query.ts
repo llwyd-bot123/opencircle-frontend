@@ -4,7 +4,6 @@ import type { UserQueryParams } from "@src/shared/utils/QueryParams";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
 import type { PostData } from "../schema/post.types";
 
-// Custom hook for fetching a single post by ID
 export const useGetPost = (postId: number, enabled: boolean = true) => {
   return useQuery<PostData, Error>({
     queryKey: [QUERY_KEYS.POST, postId],
@@ -14,8 +13,7 @@ export const useGetPost = (postId: number, enabled: boolean = true) => {
   });
 };
 
-// Hook for fetching member posts with comments
-export const useMemberPostsWithComments = (params?: UserQueryParams) => {
+export const useMemberPostsWithComments = (params: UserQueryParams) => {
   return useQuery({
     queryKey: [QUERY_KEYS.MEMBER_POSTS, params],
     queryFn: () => getMemberPostsWithComments(params),

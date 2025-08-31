@@ -30,5 +30,11 @@ export const QUERY_KEYS = {
   ORGANIZATION_MEMBERS: "organization-members",
   ORGANIZATION_MEMBER_REQUESTS: "organization-member-requests",
   MEMBER_EVENTS_BY_RSVP_STATUS: "member-events-by-rsvp-status",
+  MEMBER_PAST_EVENTS: "member-past-events",
   ORGANIZATION_MEMBERSHIP: "organization-membership",
+
+  // CALENDAR
+  CALENDAR_EVENTS: "calendar-events",
+  MEMBER_CALENDAR_EVENTS: "member-calendar-events",
+  ORGANIZATION_CALENDAR_EVENTS: "organization-calendar-events",
 };

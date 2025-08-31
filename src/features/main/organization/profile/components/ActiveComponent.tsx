@@ -19,8 +19,16 @@ import { useDeleteEvent } from "../model/event.mutation";
 import { LoadingState, ErrorState } from "@src/shared/components";
 import { useInfiniteContentComments } from "@src/features/comments/model/comment.infinite.query";
 import type { CommentsResponse } from "@src/features/comments/schema/comment.types";
+import { useJoinOrganization } from "@src/features/home/model/home.mutation";
+import { useLeaveOrganization } from "@src/features/main/member/organization/model/organization.mutation";
+import { useRsvpEvent, useDeleteRsvp } from "@src/features/home/model/home.mutation";
 
-export default function ActiveComponent() {
+interface ActiveComponentProps {
+  accountUuid: string;
+  isUserMember?: boolean;
+}
+
+export default function ActiveComponent({ accountUuid, isUserMember = false }: ActiveComponentProps) {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [isEventFormModalOpen, setIsEventFormModalOpen] = useState(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
@@ -54,7 +62,7 @@ export default function ActiveComponent() {
     isFetchingNextPage: isFetchingNextEventsPage,
     isError: isEventsError,
   } = useInfiniteOrganizationEvents({
-    account_uuid: user?.uuid || "",
+    account_uuid: accountUuid,
     per_page: 5,
   });
 
@@ -78,7 +86,7 @@ export default function ActiveComponent() {
     infiniteEventsData?.pages.flatMap((page) => page.active_events) || [];
 
   const handleEdit = (eventId: number) => {
-    console.log("Edit clicked for event:", eventId);
+    // Edit event
     setSelectedEventId(eventId);
     setEventFormMode("edit");
     setIsEventFormModalOpen(true);
@@ -97,7 +105,7 @@ export default function ActiveComponent() {
       onConfirm: async () => {
         try {
           await deleteEventMutation.mutateAsync(eventId);
-          console.log("Event deleted successfully:", eventId);
+          // Event deleted successfully
         } catch (error) {
           console.error("Failed to delete event:", error);
         }
@@ -120,6 +128,106 @@ export default function ActiveComponent() {
     setSelectedEventId(eventId);
     setParticipantsModalTab("requests");
     setIsParticipantsModalOpen(true);
+  };
+  
+  // Initialize mutations for organization membership and event RSVPs
+  const joinOrganizationMutation = useJoinOrganization();
+  const leaveOrganizationMutation = useLeaveOrganization();
+  const rsvpEventMutation = useRsvpEvent();
+  const deleteRsvpMutation = useDeleteRsvp();
+  
+  // Handler for joining an organization
+  const handleJoinOrganization = (orgId: number) => {
+    setSelectedEventId(orgId);
+    openConfirmationModal({
+      title: "Request to Join",
+      message:
+        "Do you want to join this group? Once you join, you'll be able to access its content, participate in discussions, and receive updates.",
+      confirmButtonText: "Join",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await joinOrganizationMutation.mutateAsync(orgId);
+        } catch (error) {
+          console.error("Failed to request to join organization:", error);
+        }
+      },
+    });
+  };
+
+  // Handler for canceling a join request
+  const handleCancelJoiningOrganization = (orgId: number) => {
+    setSelectedEventId(orgId);
+    openConfirmationModal({
+      title: "Cancel Join Request",
+      message: "Do you want to cancel your request to join this organization?",
+      confirmButtonText: "Cancel Request",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await leaveOrganizationMutation.mutateAsync(orgId);
+        } catch (error) {
+          console.error("Failed to cancel join request:", error);
+        }
+      },
+    });
+  };
+
+  // Handler for leaving an organization
+  const handleLeaveOrganization = (orgId: number) => {
+    setSelectedEventId(orgId);
+    openConfirmationModal({
+      title: "Leave Organization",
+      message: "Do you want to leave this organization?",
+      confirmButtonText: "Leave",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await leaveOrganizationMutation.mutateAsync(orgId);
+        } catch (error) {
+          console.error("Failed to leave organization:", error);
+        }
+      },
+    });
+  };
+
+  // Handler for RSVPing to an event
+  const handleRsvpEvent = (eventId: number) => {
+    setSelectedEventId(eventId);
+    openConfirmationModal({
+      title: "Reserve Your Spot",
+      message:
+        "Are you sure you want to reserve your spot for this event? You will receive a confirmation once your reservation is completed.",
+      confirmButtonText: "Reserve",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await rsvpEventMutation.mutateAsync(eventId);
+          // Successfully RSVPed to event
+        } catch (error) {
+          console.error("Failed to RSVP to event:", error);
+        }
+      },
+    });
+  };
+
+  // Handler for deleting an RSVP
+  const handleDeleteRsvpEvent = (rsvpId: number) => {
+    openConfirmationModal({
+      title: "Cancel Reservation",
+      message:
+        "Are you sure you want to cancel your reservation for this event?",
+      confirmButtonText: "Cancel Reservation",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await deleteRsvpMutation.mutateAsync(rsvpId);
+          // Successfully cancelled RSVP
+        } catch (error) {
+          console.error("Failed to cancel RSVP:", error);
+        }
+      },
+    });
   };
 
   // Fetch comments for the selected event with infinite scrolling
@@ -163,34 +271,34 @@ export default function ActiveComponent() {
     avatarImage
   );
 
-  console.log("events", eventsData);
-
   return (
     <div className="w-full lg:w-1/2 mx-auto p-8">
-      {/* Comment Card */}
-      <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
-        <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
-          {/* Avatar Column */}
-          <div className="flex-shrink-0">
-            <img
-              src={currentAvatar}
-              alt="User Avatar"
-              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
-            />
-          </div>
+      {/* Comment Card - Only shown if not a member */}
+      {!isUserMember && (
+        <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
+          <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
+            {/* Avatar Column */}
+            <div className="flex-shrink-0">
+              <img
+                src={currentAvatar}
+                alt="User Avatar"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+              />
+            </div>
 
-          {/* Input Column */}
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Post an event..."
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs cursor-pointer"
-              onClick={handleOpenCreateEventModal}
-              readOnly
-            />
+            {/* Input Column */}
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Post an event..."
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs cursor-pointer"
+                onClick={handleOpenCreateEventModal}
+                readOnly
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Loading State */}
       {isEventsLoading && <LoadingState message="Loading events..." />}
@@ -213,7 +321,7 @@ export default function ActiveComponent() {
         </div>
       )}
 
-      {/* Event Posts */}
+      {/* Events List */}
       {!isEventsLoading &&
         !isEventsError &&
         eventsData &&
@@ -224,11 +332,17 @@ export default function ActiveComponent() {
                 key={event.id}
                 event={event}
                 currentUserAvatar={currentAvatar}
+                isUserMember={isUserMember}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onViewMoreComments={() => handleViewMoreComments(event.id)}
                 onViewMoreMembers={() => handleViewMoreMembers(event.id)}
                 onViewMoreRequests={() => handleViewMoreRequests(event.id)}
+                onJoinOrganization={handleJoinOrganization}
+                onCancelJoiningOrganization={handleCancelJoiningOrganization}
+                onLeaveOrganization={handleLeaveOrganization}
+                onRsvpEvent={handleRsvpEvent}
+                onDeleteRsvpEvent={handleDeleteRsvpEvent}
               />
             ))}
 
@@ -307,6 +421,7 @@ export default function ActiveComponent() {
           onClose={() => setIsParticipantsModalOpen(false)}
           initialTab={participantsModalTab}
           eventId={selectedEventId}
+          isUserMember={isUserMember}
         />
       )}
     </div>

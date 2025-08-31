@@ -15,8 +15,10 @@ interface NavMenuProps {
 }
 
 export function NavMenuComponent({ menuItems, activeItem }: NavMenuProps) {
+  // If activeItem is explicitly an empty string, don't set any active item
+  // Otherwise, fall back to the first menu item
   const [currentActive, setCurrentActive] = useState<string>(
-    activeItem || menuItems[0]?.id || ""
+    activeItem === "" ? "" : (activeItem || menuItems[0]?.id || "")
   );
 
   const redirect = useRedirect();
@@ -29,7 +31,8 @@ export function NavMenuComponent({ menuItems, activeItem }: NavMenuProps) {
   return (
     <nav className="flex md:flex-row md:space-x-3 flex-col space-y-2 md:space-y-0">
       {menuItems.map((item) => {
-        const isActive = currentActive === item.id;
+        // Only consider an item active if currentActive is not empty and matches the item id
+        const isActive = currentActive !== "" && currentActive === item.id;
 
         return (
           <button

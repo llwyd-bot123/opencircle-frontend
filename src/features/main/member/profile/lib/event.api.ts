@@ -1,7 +1,6 @@
 import axiosInstance from "@src/shared/api/axios";
 import type { EventsByRsvpStatusResponse } from "../schema/event.types";
 
-// Fetches user events based on RSVP status with pagination
 export const getUserEventsByRsvpStatus = async (
   accountUuid: string,
   rsvpStatus: string,
@@ -24,6 +23,30 @@ export const getUserEventsByRsvpStatus = async (
     return response.data;
   } catch (error) {
     console.error("Failed to fetch user events by RSVP status:", error);
+    throw error;
+  }
+};
+
+export const getUserPastEvents = async (
+  accountUuid: string,
+  page: number = 1,
+  limit: number = 5
+): Promise<EventsByRsvpStatusResponse> => {
+  try {
+    const response = await axiosInstance.get<EventsByRsvpStatusResponse>(
+      `/event/user/past_events_with_comments`,
+      {
+        params: {
+          account_uuid: accountUuid,
+          page,
+          limit,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch user past events:", error);
     throw error;
   }
 };
