@@ -1,6 +1,6 @@
 // Providers.tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type PropsWithChildren, useState } from "react";
 import { AuthProvider } from "@src/features/auth/components/AuthProvider";
 

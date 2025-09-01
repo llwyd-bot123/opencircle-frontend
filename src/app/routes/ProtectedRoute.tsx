@@ -1,3 +1,7 @@
+/**
+ * Protected Route Component
+ * Handles authentication and role-based access control for routes
+ */
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuthStore } from "@src/shared/store";
 import { RoleId } from "@src/features/auth/schema/auth.types";
@@ -48,11 +52,8 @@ export const ProtectedRoute = ({
     }
   }
 
-  console.log("user data", user);
-
-  // If user's role is not allowed, redirect to their appropriate home page based on role
-  // At this point, we know user exists because we've already checked isAuthenticated
-  // and we're in the block that checks user?.role_id
+  // If user's role is not allowed, redirect to their appropriate home page
+  // We know user exists because we've already checked isAuthenticated
   const homePath = "/home";
   return <Navigate to={homePath} replace />;
 };
