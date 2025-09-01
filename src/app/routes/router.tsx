@@ -1,6 +1,11 @@
-// src/router/index.tsx (or wherever your router file is)
+/**
+ * Application routing configuration
+ * Defines all routes and their access control requirements
+ */
 import { createBrowserRouter } from "react-router-dom";
 import type { RoleName } from "@src/features/auth/schema/auth.types";
+
+// Lazy-loaded page components
 import {
   LandingPage,
   LoginPage,
@@ -11,13 +16,22 @@ import {
   OrganizationProfilePage,
   SignUpMemberPage,
   SignUpOrgPage,
+  NotFoundPage,
 } from "./lazyComponents";
+
+// Layout components
 import LandingLayout from "@src/layouts/LandingLayout";
 import AuthLayout from "@src/layouts/AuthLayout";
 import MainLayout from "@src/layouts/MainLayout";
+
+// Route protection component
 import { ProtectedRoute } from "./ProtectedRoute";
 
+/**
+ * Router configuration with role-based access control
+ */
 export const router = createBrowserRouter([
+  // Public landing routes
   {
     path: "/",
     element: <LandingLayout />,
@@ -28,6 +42,8 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  
+  // Authentication routes
   {
     element: <AuthLayout />,
     children: [
@@ -45,20 +61,21 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  
+  // Protected application routes
   {
     element: <MainLayout />,
     children: [
-      // Protected routes with role-based access control
       {
-        element: <ProtectedRoute />,
+        element: <ProtectedRoute />, // Requires authentication
         children: [
-          // Route accessible to both organization and member roles
+          // Common routes (accessible to all authenticated users)
           {
             path: "home",
             element: <HomePage />,
           },
 
-          // Organization routes - organization-profile/:id is accessible to members too
+          // Organization-specific routes
           {
             element: (
               <ProtectedRoute allowedRoles={["organization" as RoleName]} />
@@ -75,13 +92,13 @@ export const router = createBrowserRouter([
             ],
           },
 
-          // Organization profile route with ID parameter - accessible to both roles
+          // Shared route with dynamic parameter
           {
             path: "organization/:organizationId",
             element: <OrganizationProfilePage />,
           },
 
-          // Member routes - only accessible to member role
+          // Member-specific routes
           {
             element: <ProtectedRoute allowedRoles={["member" as RoleName]} />,
             children: [
@@ -98,5 +115,11 @@ export const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  
+  // 404 Not Found route (catch-all)
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ]);
