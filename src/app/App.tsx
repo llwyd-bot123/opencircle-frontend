@@ -7,6 +7,7 @@ import { Providers } from "./Provider";
 import { router } from "./routes/router";
 import { Suspense } from "react";
 import { ToastContainer } from "../shared/components";
+import Preloader from "./routes/Preloader";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
       FallbackComponent={ErrorBoundaryComponent}
       onReset={() => window.location.reload()}
     >
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Preloader />}>
         <Providers>
           <RouterProvider router={router} />
           <ToastContainer />
