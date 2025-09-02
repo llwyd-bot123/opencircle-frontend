@@ -57,8 +57,6 @@ export function CalendarSection(
     accountUuid || user?.uuid || ""
   );
 
-  console.log("ids", accountUuid, user?.uuid);
-
   // Select the appropriate query result based on userType
   const { data, isLoading, isError } =
     userType === "organization" ? organizationQuery : memberQuery;
@@ -96,15 +94,7 @@ export function CalendarSection(
               last_modified_date: event.last_modified_date,
               rsvp_status: "organizer", // Organization is the organizer
               address: event.address,
-              organization: {
-                id: event.organization_id,
-                name: isOrganization(user)
-                  ? user.name
-                  : `${user?.first_name || ""} ${user?.last_name || ""}`,
-                description: "",
-                logo: { id: 0, directory: "", filename: "" },
-                category: "",
-              },
+              organization: event.organization,
             }))
           : [];
     } else {
