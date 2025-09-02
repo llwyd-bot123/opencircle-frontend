@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../schema/auth.schema";
 
 export default function LoginInterface() {
-  const [error, setError] = useState("");
   const [loginType, setLoginType] = useState<"member" | "organization">(
     "member"
   );
@@ -32,14 +31,10 @@ export default function LoginInterface() {
 
   // Handle form submission with validated data
   const onSubmit = async (data: LoginFormData) => {
-    // Clear previous errors
-    setError("");
-
     try {
       if (loginType === "member") {
         // Login as member
         await memberLoginMutation.mutateAsync(data);
-
 
         navigate("/member-profile");
       } else {
@@ -50,17 +45,12 @@ export default function LoginInterface() {
       }
     } catch (error: unknown) {
       // Handle login errors without navigating
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError(String(error)); // fallback in case it's not an Error object
-      }
+      console.error('Login error:', error);
     }
   };
 
   const handleLoginTypeChange = (type: "member" | "organization") => {
     setLoginType(type);
-    setError(""); // Clear any previous errors when switching login type
     reset(); // Reset form when switching login type
   };
 
@@ -70,11 +60,13 @@ export default function LoginInterface() {
         <div className="bg-white rounded-56 px-8 pb-24">
           {/* Brand Logo */}
           <div className="flex justify-center ">
-            <img
-              src={brandLogoDark}
-              alt="Brand Logo"
-              className="w-64 object-cover"
-            />
+            <Link to="/">
+              <img
+                src={brandLogoDark}
+                alt="Brand Logo"
+                className="w-64 object-cover cursor-pointer"
+              />
+            </Link>
           </div>
 
           {/* Login Type Selector */}
@@ -153,8 +145,7 @@ export default function LoginInterface() {
               )}
             </div>
 
-            {/* API Error Message */}
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
 
             {/* Login Button */}
             <div className="mb-6">

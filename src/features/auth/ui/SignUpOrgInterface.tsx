@@ -3,7 +3,7 @@ import uploadIcon from "@src/assets/shared/upload_icon.png";
 import brandLogoDark from "@src/assets/brand-dark.png";
 import { useDropzone } from "react-dropzone";
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { organizationCategoryOptions } from "@src/shared/enums/organizationCategories";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,7 @@ export default function SignUpOrgInterface() {
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState("");
   const organizationSignupMutation = useOrganizationSignup();
+  const navigate = useNavigate();
 
   // Setup form with Zod validation
   const {
@@ -95,8 +96,8 @@ export default function SignUpOrgInterface() {
 
       // Wait for the signup mutation to complete
       await organizationSignupMutation.mutateAsync(formattedData);
-      // Only navigate after successful signup
-      // navigate("/organization-profile");
+      // Navigate to home page after successful signup
+      navigate("/login");
       resetForm();
     } catch (error: unknown) {
       // Handle signup errors without navigating
@@ -119,11 +120,13 @@ export default function SignUpOrgInterface() {
           >
             {/* Brand Logo */}
             <div className="flex justify-center items-center relative">
-              <img
-                src={brandLogoDark}
-                alt="Brand Logo"
-                className="w-64 object-cover"
-              />
+              <Link to="/">
+                <img
+                  src={brandLogoDark}
+                  alt="Brand Logo"
+                  className="w-64 object-cover cursor-pointer"
+                />
+              </Link>
               <p className="absolute bottom-6 text-center text-base text-primary opacity-75">
                 Create Events. Gather People. Make It Happen.
               </p>
