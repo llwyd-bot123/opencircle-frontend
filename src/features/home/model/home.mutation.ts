@@ -13,6 +13,13 @@ export const useJoinOrganization = () => {
   return useMutation({
     mutationFn: (organizationId: number) => joinOrganization(organizationId),
     onSuccess: () => {
+      // Invalidate organization membership and pending requests queries
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION_MEMBERSHIP],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION_MEMBER_REQUESTS],
+      });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.RANDOM_EVENTS],
       });
@@ -24,6 +31,12 @@ export const useJoinOrganization = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_PAST_EVENTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
       });
       showSuccessToast("Successfully requested to join");
     },
@@ -49,6 +62,9 @@ export const useRsvpEvent = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
+      });
       showSuccessToast("Successfully reserved");
     },
     onError: (error: unknown) => {
@@ -72,6 +88,9 @@ export const useDeleteRsvp = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
       });
       showSuccessToast("Reservation cancelled");
     },

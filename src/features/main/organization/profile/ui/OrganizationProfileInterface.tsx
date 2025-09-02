@@ -33,8 +33,7 @@ export default function OrganizationProfileInterface({
   useEffect(() => {
     if (isUserMember && organizationDetails) {
       setOrganizationData(organizationDetails);
-    }
-    else if (!isUserMember && user && isOrganization(user)) {
+    } else if (!isUserMember && user && isOrganization(user)) {
       setOrganizationData(user);
     }
   }, [isUserMember, organizationDetails, organizationId, user]);
@@ -57,7 +56,12 @@ export default function OrganizationProfileInterface({
 
     switch (activeTab) {
       case "active":
-        return <ActiveComponent accountUuid={accountUuid} isUserMember={isUserMember} />;
+        return (
+          <ActiveComponent
+            accountUuid={accountUuid}
+            isUserMember={isUserMember}
+          />
+        );
       case "past-events":
         return <PastEventsComponent accountUuid={accountUuid} />;
       case "calendar":

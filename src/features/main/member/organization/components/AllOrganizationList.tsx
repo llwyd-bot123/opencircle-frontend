@@ -27,11 +27,10 @@ interface AllOrganizationListProps {
   ) => string;
 }
 
-
 const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
   // selectedOrgId is currently not used but kept for future implementation
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  selectedOrgId,
+  // selectedOrgId,
   filterType,
   handleFilterClick,
   handleJoinOrg,
@@ -52,8 +51,6 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
   // Fetch pending organizations
   const { data: pendingData } =
     usePendingOrganizationMembershipsQuery(accountUuid);
-
-
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

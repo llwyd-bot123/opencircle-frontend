@@ -1,7 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { leaveOrganization } from "../lib/organization.api";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
-import { showSuccessToast, showErrorToast } from "@src/shared/components/Toast/CustomToast";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "@src/shared/components/Toast/CustomToast";
 
 // Hook for leaving an organization
 export const useLeaveOrganization = () => {
@@ -28,6 +31,12 @@ export const useLeaveOrganization = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_PAST_EVENTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATION],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
       });
       showSuccessToast("Successfully left");
     },

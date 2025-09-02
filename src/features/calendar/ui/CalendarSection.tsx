@@ -14,6 +14,12 @@ import type {
 } from "../schema/calendar.type";
 import { useImageUrl } from "@src/shared/hooks";
 import avatarImage from "@src/assets/shared/avatar.png";
+import {
+  useJoinOrganization,
+  useRsvpEvent,
+  useDeleteRsvp,
+} from "@src/features/home/model/home.mutation";
+import { useLeaveOrganization } from "@src/features/main/member/organization/model/organization.mutation";
 
 // Calendar component that displays events based on user type (member or organization)
 type CalendarSectionProps = {
@@ -30,6 +36,12 @@ export function CalendarSection(
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuthStore();
 
+  // Initialize mutation hooks
+  const joinOrganizationMutation = useJoinOrganization();
+  const leaveOrganizationMutation = useLeaveOrganization();
+  const rsvpEventMutation = useRsvpEvent();
+  const deleteRsvpMutation = useDeleteRsvp();
+
   // State for tracking current month and year
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
@@ -44,6 +56,8 @@ export function CalendarSection(
     currentYear,
     accountUuid || user?.uuid || ""
   );
+
+  console.log("ids", accountUuid, user?.uuid);
 
   // Select the appropriate query result based on userType
   const { data, isLoading, isError } =
@@ -121,6 +135,28 @@ export function CalendarSection(
     setIsModalOpen(true);
   };
 
+  // Callback functions for EventDetailsModal
+  const handleJoinOrganization = (orgId: number) => {
+    joinOrganizationMutation.mutate(orgId);
+  };
+
+  const handleCancelJoiningOrganization = (orgId: number) => {
+    // Cancel joining uses the same API as leaving organization
+    leaveOrganizationMutation.mutate(orgId);
+  };
+
+  const handleLeaveOrganization = (orgId: number) => {
+    leaveOrganizationMutation.mutate(orgId);
+  };
+
+  const handleRsvpEvent = (eventId: number) => {
+    rsvpEventMutation.mutate(eventId);
+  };
+
+  const handleDeleteRsvpEvent = (rsvpId: number) => {
+    deleteRsvpMutation.mutate(rsvpId);
+  };
+
   const { getImageUrl } = useImageUrl();
 
   const currentAvatar = getImageUrl(
@@ -169,6 +205,11 @@ export function CalendarSection(
               ? "organization"
               : "member"
           }
+          onJoinOrganization={handleJoinOrganization}
+          onCancelJoiningOrganization={handleCancelJoiningOrganization}
+          onLeaveOrganization={handleLeaveOrganization}
+          onRsvpEvent={handleRsvpEvent}
+          onDeleteRsvpEvent={handleDeleteRsvpEvent}
         />
       )}
     </div>
