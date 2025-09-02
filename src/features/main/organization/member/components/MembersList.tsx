@@ -2,12 +2,14 @@ import React from "react";
 import { useImageUrl } from "@src/shared/hooks/useImageUrl";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
+import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import type { OrganizationMember } from "../schema/member.types";
 
 interface MembersListProps {
   members: OrganizationMember[];
   isLoading: boolean;
   error: Error | null;
+  onRemove?: (userId: number, firstName: string, lastName: string) => void;
 }
 
 
@@ -15,6 +17,7 @@ export const MembersList: React.FC<MembersListProps> = ({
   members,
   isLoading,
   error,
+  onRemove,
 }) => {
   const { getImageUrl } = useImageUrl();
 
@@ -35,28 +38,37 @@ export const MembersList: React.FC<MembersListProps> = ({
           {members.map((member) => (
             <div
               key={member.user_id}
-              className="flex items-center space-x-3 p-3 "
+              className="flex items-center justify-between p-3"
             >
-              {member.profile_picture ? (
-                <img
-                  src={getImageUrl(
-                    member.profile_picture.directory,
-                    member.profile_picture.filename,
-                    "/assets/images/avatar.png"
-                  )}
-                  alt={`${member.first_name || "User"}'s profile picture`}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0">
-                  {(member.first_name || "U").charAt(0)}
+              <div className="flex items-center space-x-3">
+                {member.profile_picture ? (
+                  <img
+                    src={getImageUrl(
+                      member.profile_picture.directory,
+                      member.profile_picture.filename,
+                      "/assets/images/avatar.png"
+                    )}
+                    alt={`${member.first_name || "User"}'s profile picture`}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0">
+                    {(member.first_name || "U").charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-responsive-xs md:text-responsive-sm font-medium text-primary">
+                    {member.first_name} {member.last_name}
+                  </h3>
                 </div>
-              )}
-              <div>
-                <h3 className="text-responsive-xs md:text-responsive-sm font-medium text-primary">
-                  {member.first_name} {member.last_name}
-                </h3>
               </div>
+              {onRemove && (
+                <PrimaryButton
+                  label="Remove"
+                  variant="removeButton"
+                  onClick={() => onRemove(member.user_id, member.first_name, member.last_name)}
+                />
+              )}
             </div>
           ))}
         </div>

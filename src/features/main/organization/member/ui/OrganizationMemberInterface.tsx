@@ -9,7 +9,6 @@ import {
 import { useUpdateMemberRequestStatus } from "../model/member.mutation";
 import { useAuthStore } from "@src/shared/store";
 
-
 export default function OrganizationMemberInterface() {
   // State for active tab
   const [activeTab, setActiveTab] = useState<"members" | "requests">("members");
@@ -76,6 +75,22 @@ export default function OrganizationMemberInterface() {
     });
   };
 
+  const handleRemoveMember = (
+    userId: number,
+    firstName: string,
+    lastName: string
+  ) => {
+    openConfirmationModal({
+      title: "Remove Member",
+      message: `Are you sure you want to remove ${firstName} ${lastName} from the organization?`,
+      confirmButtonText: "Remove",
+      confirmButtonVariant: "primary",
+      onConfirm: () => {
+        updateStatusMutation.mutate({ userId, status: "rejected" });
+      },
+    });
+  };
+
   // Tab change handler
   const handleTabChange = (tab: "members" | "requests") => {
     setActiveTab(tab);
@@ -118,6 +133,7 @@ export default function OrganizationMemberInterface() {
                 members={membersData?.members || []}
                 isLoading={isMembersLoading}
                 error={membersError as Error | null}
+                onRemove={handleRemoveMember}
               />
             </div>
           )}

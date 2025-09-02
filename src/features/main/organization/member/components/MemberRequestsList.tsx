@@ -4,6 +4,7 @@ import { LoadingState } from "@src/shared/components/states/LoadingState";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import type { OrganizationMember } from "../schema/member.types";
+import avatarImage from "@src/assets/shared/avatar.png";
 
 interface MemberRequestsListProps {
   memberRequests: OrganizationMember[];
@@ -12,7 +13,6 @@ interface MemberRequestsListProps {
   onAccept?: (memberId: number) => void;
   onDecline?: (memberId: number) => void;
 }
-
 
 export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
   memberRequests,
@@ -52,9 +52,9 @@ export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
                         ? getImageUrl(
                             request.profile_picture.directory,
                             request.profile_picture.filename,
-                            "/assets/images/avatar.png"
+                            avatarImage
                           )
-                        : "/assets/images/avatar.png"
+                        : avatarImage
                     }
                     alt={`${request.first_name || "User"}'s profile picture`}
                     className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
