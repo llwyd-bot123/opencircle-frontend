@@ -80,4 +80,5 @@ export interface OrganizationEvent {
   created_date: string;
   last_modified_date: string;
   address: Address;
+  organization: Organization;
 }
