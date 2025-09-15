@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useCallback } from "react";
+import axios from "axios";
 
 // Types for PSGC API responses
 interface PGSCRegion {
@@ -99,7 +99,9 @@ export const usePGSCLocation = () => {
     setErrors((prev) => ({ ...prev, regions: null }));
 
     try {
-      const response = await axios.get<PGSCRegion[]>('https://psgc.gitlab.io/api/regions');
+      const response = await axios.get<PGSCRegion[]>(
+        "https://psgc.gitlab.io/api/regions"
+      );
       const options = response.data.map((region) => ({
         value: region.code,
         label: region.name,
@@ -107,8 +109,8 @@ export const usePGSCLocation = () => {
       }));
       setRegionOptions(options);
     } catch (error) {
-      console.error('Error fetching regions:', error);
-      setErrors((prev) => ({ ...prev, regions: 'Failed to load regions' }));
+      console.error("Error fetching regions:", error);
+      setErrors((prev) => ({ ...prev, regions: "Failed to load regions" }));
     } finally {
       setLoading((prev) => ({ ...prev, regions: false }));
     }
@@ -116,6 +118,7 @@ export const usePGSCLocation = () => {
 
   /**
    * Fetch provinces by region code
+   * For NCR, fetch districts instead of provinces
    */
   const fetchProvinces = useCallback(async (regionCode: string) => {
     if (!regionCode) return;
@@ -124,9 +127,15 @@ export const usePGSCLocation = () => {
     setErrors((prev) => ({ ...prev, provinces: null }));
 
     try {
-      const response = await axios.get<PGSCProvince[]>(
-        `https://psgc.gitlab.io/api/regions/${regionCode}/provinces`
-      );
+      // Check if the region is NCR (National Capital Region)
+      const isNCR = regionCode === "130000000"; // NCR region code
+      
+      // Use different endpoint for NCR
+      const endpoint = isNCR
+        ? `https://psgc.gitlab.io/api/regions/${regionCode}/districts`
+        : `https://psgc.gitlab.io/api/regions/${regionCode}/provinces`;
+      
+      const response = await axios.get<PGSCProvince[]>(endpoint);
       const options = response.data.map((province) => ({
         value: province.code,
         label: province.name,
@@ -134,8 +143,8 @@ export const usePGSCLocation = () => {
       }));
       setProvinceOptions(options);
     } catch (error) {
-      console.error('Error fetching provinces:', error);
-      setErrors((prev) => ({ ...prev, provinces: 'Failed to load provinces' }));
+      console.error("Error fetching provinces:", error);
+      setErrors((prev) => ({ ...prev, provinces: "Failed to load provinces" }));
     } finally {
       setLoading((prev) => ({ ...prev, provinces: false }));
     }
@@ -143,6 +152,7 @@ export const usePGSCLocation = () => {
 
   /**
    * Fetch cities by province code
+   * For NCR, fetch cities by district code
    */
   const fetchCities = useCallback(async (provinceCode: string) => {
     if (!provinceCode) return;
@@ -151,9 +161,16 @@ export const usePGSCLocation = () => {
     setErrors((prev) => ({ ...prev, cities: null }));
 
     try {
-      const response = await axios.get<PGSCCity[]>(
-        `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities`
-      );
+      // Check if the selected region is NCR based on the province/district code format
+      // NCR district codes typically start with '13' (NCR region code)
+      const isNCRDistrict = provinceCode.startsWith('13');
+      
+      // Use different endpoint for NCR districts
+      const endpoint = isNCRDistrict
+        ? `https://psgc.gitlab.io/api/districts/${provinceCode}/cities`
+        : `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities`;
+      
+      const response = await axios.get<PGSCCity[]>(endpoint);
       const options = response.data.map((city) => ({
         value: city.code,
         label: city.name,
@@ -161,8 +178,8 @@ export const usePGSCLocation = () => {
       }));
       setCityOptions(options);
     } catch (error) {
-      console.error('Error fetching cities:', error);
-      setErrors((prev) => ({ ...prev, cities: 'Failed to load cities' }));
+      console.error("Error fetching cities:", error);
+      setErrors((prev) => ({ ...prev, cities: "Failed to load cities" }));
     } finally {
       setLoading((prev) => ({ ...prev, cities: false }));
     }
@@ -188,8 +205,8 @@ export const usePGSCLocation = () => {
       }));
       setBarangayOptions(options);
     } catch (error) {
-      console.error('Error fetching barangays:', error);
-      setErrors((prev) => ({ ...prev, barangays: 'Failed to load barangays' }));
+      console.error("Error fetching barangays:", error);
+      setErrors((prev) => ({ ...prev, barangays: "Failed to load barangays" }));
     } finally {
       setLoading((prev) => ({ ...prev, barangays: false }));
     }
@@ -220,6 +237,13 @@ export const usePGSCLocation = () => {
     },
     [fetchProvinces]
   );
+  
+  /**
+   * Check if the selected region is NCR
+   */
+  const isNCR = useCallback((regionCode?: string) => {
+    return regionCode === "130000000";
+  }, []);
 
   /**
    * Handle province selection
@@ -285,27 +309,30 @@ export const usePGSCLocation = () => {
     provinceOptions,
     cityOptions,
     barangayOptions,
-    
+
     // Selected values
     selectedLocation,
     setSelectedLocation,
-    
+
     // Loading states
     loading,
-    
+
     // Error states
     errors,
-    
+
     // Fetch functions
     fetchRegions,
     fetchProvinces,
     fetchCities,
     fetchBarangays,
-    
+
     // Change handlers
     handleRegionChange,
     handleProvinceChange,
     handleCityChange,
     handleBarangayChange,
+    
+    // Helper functions
+    isNCR,
   };
 };

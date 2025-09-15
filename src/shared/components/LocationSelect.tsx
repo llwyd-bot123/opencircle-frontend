@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { CustomSelectField } from "./CustomSelectField";
 import { usePGSCLocation } from "../hooks/usePGSCLocation";
 
@@ -57,12 +57,23 @@ export const LocationSelect = ({
     handleProvinceChange: resetProvinceOptions,
     handleCityChange: resetCityOptions,
     handleBarangayChange: resetBarangayOptions,
+    
+    // Helper functions
+    isNCR,
   } = usePGSCLocation();
 
   // Fetch regions on initial load
   useEffect(() => {
     fetchRegions();
   }, [fetchRegions]);
+  
+  // Determine if the selected region is NCR
+  const selectedRegionIsNCR = useMemo(() => {
+    const selectedRegion = regionOptions.find(
+      (option) => option.label === regionValue
+    );
+    return selectedRegion ? isNCR(selectedRegion.value) : false;
+  }, [regionValue, regionOptions, isNCR]);
 
   // Fetch provinces when region changes (only if a region is selected)
   useEffect(() => {
@@ -199,14 +210,16 @@ export const LocationSelect = ({
             value={provinceValue}
             onChange={handleProvinceChange}
             options={provinceOptions}
-            placeholder="Province"
+            placeholder={selectedRegionIsNCR ? "District" : "Province"}
             className={loading.provinces ? "opacity-70" : ""}
           />
           {errors.provinces && (
             <p className="text-red-500 text-xs mt-1">{errors.provinces}</p>
           )}
           {loading.provinces && (
-            <p className="text-primary-75 text-xs mt-1">Loading provinces...</p>
+            <p className="text-primary-75 text-xs mt-1">
+              {selectedRegionIsNCR ? "Loading districts..." : "Loading provinces..."}
+            </p>
           )}
         </div>
 
