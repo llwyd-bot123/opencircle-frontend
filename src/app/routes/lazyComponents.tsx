@@ -12,6 +12,9 @@ export const LandingPage = lazy(() => import("../../pages/Landing"));
 export const LoginPage = lazy(() => import("../../pages/auth/Login"));
 export const SignUpMemberPage = lazy(() => import("../../pages/auth/SignUpMember"));
 export const SignUpOrgPage = lazy(() => import("../../pages/auth/SignUpOrg"));
+export const EmailOtpVerificationPage = lazy(() => import("../../pages/auth/EmailOtpVerification"))
+export const OtpSigninVerificationPage = lazy(() => import("../../pages/auth/OtpSigninVerification"))
+export const TwoFactorSetupPage = lazy(() => import("../../pages/auth/TwoFactorSetup"))
 
 // Organization-specific components
 export const OrganizationProfilePage = lazy(

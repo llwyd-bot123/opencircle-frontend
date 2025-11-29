@@ -33,6 +33,7 @@ export default function SignUpMemberInterface() {
       last_name: "",
       bio: "",
       email: "",
+      username: "",
       password: "",
       role_id: 1,
       profile_picture: undefined,
@@ -90,11 +91,26 @@ export default function SignUpMemberInterface() {
       };
 
       // Wait for the signup mutation to complete
-      await memberSignupMutation.mutateAsync(
+      const response = await memberSignupMutation.mutateAsync(
         formattedData as MemberSignupFormData
       );
+
+      console.log("signup data", response.verification_required, response.email)
+
+      if (response.verification_required && response.email) {
+
+        sessionStorage.setItem("pendingEmailSignup", response.email);
+
+        navigate("/otp-verification", {
+          state: { email: response.email, message: response.message }
+        });
+        // navigate("/otp-verification");
+      } else {
+        navigate("/login");
+      }
+
       // Navigate to home page after successful signup
-      navigate("/login");
+      // navigate("/login");
       // Reset form after successful signup
       resetForm();
     } catch (error: unknown) {
@@ -221,6 +237,28 @@ export default function SignUpMemberInterface() {
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.email.message}
+                </p>
+              )}
+            </div>
+
+             {/* Username Field */}
+            <div className="mb-6">
+              <label
+                htmlFor="email"
+                className="block text-responsive-xs text-primary mb-2"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                {...register("username")}
+                className="w-full px-3 py-2 border border-primary rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                placeholder="Enter your username"
+              />
+              {errors.username && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.username.message}
                 </p>
               )}
             </div>

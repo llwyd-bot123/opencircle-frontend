@@ -16,7 +16,10 @@ import {
   OrganizationProfilePage,
   SignUpMemberPage,
   SignUpOrgPage,
+  EmailOtpVerificationPage,
+  OtpSigninVerificationPage,
   NotFoundPage,
+  TwoFactorSetupPage,
 } from "./lazyComponents";
 
 // Layout components
@@ -58,6 +61,18 @@ export const router = createBrowserRouter([
       {
         path: "signup-org",
         element: <SignUpOrgPage />,
+      },
+      {
+        path: "otp-verification",
+        element: <EmailOtpVerificationPage />,
+      },
+      {
+        path: "otp-signin-verification",
+        element: <OtpSigninVerificationPage />,
+      },
+      {
+        path: "two-factor-setup",
+        element: <TwoFactorSetupPage />,
       },
     ],
   },

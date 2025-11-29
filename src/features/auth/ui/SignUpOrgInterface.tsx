@@ -34,6 +34,7 @@ export default function SignUpOrgInterface() {
       description: "",
       category: undefined,
       email: "",
+      username: "",
       password: "",
       role_id: 2,
       logo: undefined,
@@ -94,10 +95,17 @@ export default function SignUpOrgInterface() {
         name: toTitleCase(data.name),
       };
 
-      // Wait for the signup mutation to complete
-      await organizationSignupMutation.mutateAsync(formattedData);
-      // Navigate to home page after successful signup
-      navigate("/login");
+      const response = await organizationSignupMutation.mutateAsync(formattedData);
+
+      if (response.verification_required && response.email) {
+        sessionStorage.setItem("pendingEmailSignup", response.email);
+        navigate("/otp-verification", {
+          state: { email: response.email, message: response.message },
+        });
+      } else {
+        navigate("/login");
+      }
+
       resetForm();
     } catch (error: unknown) {
       // Handle signup errors without navigating
@@ -255,6 +263,30 @@ export default function SignUpOrgInterface() {
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Username Field */}
+            <div className="mb-6">
+              <label
+                htmlFor="username"
+                className="block text-responsive-xs text-primary mb-2"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                className={`w-full px-3 py-2 border ${
+                  errors.username ? "border-red-500" : "border-primary"
+                } rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary`}
+                placeholder="Enter your username"
+                {...register("username")}
+              />
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.username.message}
                 </p>
               )}
             </div>

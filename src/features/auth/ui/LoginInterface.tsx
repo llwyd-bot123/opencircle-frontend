@@ -2,17 +2,18 @@ import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import brandLogoDark from "@src/assets/brand-dark.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useMemberLogin, useOrganizationLogin } from "../model";
+import { useMemberLoginDeferred, useOrganizationLogin } from "../model";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../schema/auth.schema";
+import type { MemberLoginResponse, OrganizationLoginResponse } from "../schema/auth.types";
 
 export default function LoginInterface() {
   const [loginType, setLoginType] = useState<"member" | "organization">(
     "member"
   );
   const navigate = useNavigate();
-  const memberLoginMutation = useMemberLogin();
+  const memberLoginMutation = useMemberLoginDeferred();
   const organizationLoginMutation = useOrganizationLogin();
 
   // Initialize React Hook Form with Zod validation
@@ -24,28 +25,65 @@ export default function LoginInterface() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      login: "",
       password: "",
     },
   });
 
+  const determinePostLoginNavigation = (
+    loginTypeValue: "member" | "organization",
+    loginResponse: MemberLoginResponse | OrganizationLoginResponse,
+    formData: LoginFormData
+  ) => {
+    let is2FARequired = false;
+
+    if (loginTypeValue === "member") {
+      if ("requires_2fa" in loginResponse) {
+        is2FARequired = true;
+      } else if ("user" in loginResponse) {
+        const { user } = loginResponse;
+        is2FARequired = user.two_factor_enabled === 1 || user.bypass_two_factor === 1;
+      }
+
+      if (is2FARequired) {
+        navigate("/otp-signin-verification", {
+          state: { email: formData.login, loginType: loginTypeValue },
+        });
+      } else {
+        navigate("/two-factor-setup", { state: { loginResponse } });
+      }
+    } else {
+      if ("requires_2fa" in loginResponse) {
+        is2FARequired = true;
+      }
+
+      if (is2FARequired) {
+        navigate("/otp-signin-verification", {
+          state: { email: formData.login, loginType: loginTypeValue },
+        });
+      } else {
+        navigate("/organization-profile");
+      }
+    }
+  };
+
   // Handle form submission with validated data
   const onSubmit = async (data: LoginFormData) => {
     try {
-      if (loginType === "member") {
-        // Login as member
-        await memberLoginMutation.mutateAsync(data);
-
-        navigate("/member-profile");
-      } else {
-        // Login as organization
-        await organizationLoginMutation.mutateAsync(data);
-
-        navigate("/organization-profile");
+      if (memberLoginMutation.isPending || organizationLoginMutation.isPending) {
+        return;
       }
+
+      let loginResponse: MemberLoginResponse | OrganizationLoginResponse;
+      if (loginType === "member") {
+        loginResponse = await memberLoginMutation.mutateAsync(data);
+      } else {
+        loginResponse = await organizationLoginMutation.mutateAsync(data);
+      }
+
+      determinePostLoginNavigation(loginType, loginResponse, data);
     } catch (error: unknown) {
-      // Handle login errors without navigating
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     }
   };
 
@@ -109,14 +147,14 @@ export default function LoginInterface() {
                 type="email"
                 id="email"
                 className={`w-full px-3 py-2 border ${
-                  errors.email ? "border-red-500" : "border-primary"
+                  errors.login ? "border-red-500" : "border-primary"
                 } rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary`}
                 placeholder="Enter your email"
-                {...register("email")}
+                {...register("login")}
               />
-              {errors.email && (
+              {errors.login && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.email.message}
+                  {errors.login.message}
                 </p>
               )}
             </div>
