@@ -37,4 +37,7 @@ export const QUERY_KEYS = {
   CALENDAR_EVENTS: "calendar-events",
   MEMBER_CALENDAR_EVENTS: "member-calendar-events",
   ORGANIZATION_CALENDAR_EVENTS: "organization-calendar-events",
+  
+  // AUTH
+  TWO_FA_STATUS: "two-fa-status",
 };

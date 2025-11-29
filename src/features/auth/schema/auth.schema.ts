@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Login form validation schema
 export const loginSchema = z.object({
-  email: z
+  login: z
     .string()
     .min(1, { message: "Email is required" })
     .pipe(z.email({ message: "Invalid email format" })),
