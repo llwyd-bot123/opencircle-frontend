@@ -19,6 +19,13 @@ export const organizationSignupSchema = z.object({
     .string()
     .min(1, { message: "Email is required" })
     .pipe(z.email({ message: "Invalid email format" })),
+  username: z
+    .string()
+    .min(4, { message: "Username must be at least 4 characters" })
+    .max(30, { message: "Username must be at most 30 characters" })
+    .regex(/^[A-Za-z0-9_]+$/, {
+      message: "Only letters, numbers, and underscores allowed",
+    }),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters" }),
@@ -56,6 +63,13 @@ export const memberSignupSchema = z.object({
     .string()
     .min(1, { message: "Email is required" })
     .pipe(z.email({ message: "Invalid email format" })),
+  username: z
+    .string()
+    .min(4, { message: "Username must be at least 4 characters" })
+    .max(30, { message: "Username must be at most 30 characters" })
+    .regex(/^[A-Za-z0-9_]+$/, {
+      message: "Only letters, numbers, and underscores allowed",
+    }),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters" }),
@@ -71,5 +85,16 @@ export const memberSignupSchema = z.object({
     }),
 });
 
+export const otpVerificationSchema = z.object({
+  otp_code: z
+    .string()
+    .min(6, "OTP must be 6 digits")
+    .regex(/^\d+$/, "OTP must contain digits only"),
+  email: z.string().min(1, { message: "Email is required" }),
+});
+
 // Member signup form data type
 export type MemberSignupFormData = z.infer<typeof memberSignupSchema>;
+
+// Member signup form data type
+export type OtpSignupVerificationFormData = z.output<typeof otpVerificationSchema>;

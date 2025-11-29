@@ -4,6 +4,9 @@ import type {
   MemberLoginResponse,
   OrganizationLoginResponse,
   User,
+  TwoFactorBypassResponse,
+  TwoFactorBypassRequest,
+  TwoFactorVerifyRequest,
 } from "@src/features/auth/schema/auth.types";
 import { objectToFormData } from "@src/shared/utils/formDataConverter";
 
@@ -12,7 +15,7 @@ export type { MemberLoginResponse, OrganizationLoginResponse, User };
 
 // Login credentials type
 export type LoginCredentials = {
-  email: string;
+  login: string;
   password: string;
 };
 
@@ -21,7 +24,8 @@ export type LoginResponse = MemberLoginResponse | OrganizationLoginResponse;
 
 // Authenticates a member user with credentials
 export const loginMember = async (
-  credentials: LoginCredentials
+  credentials: LoginCredentials,
+  options?: { commit?: boolean }
 ): Promise<MemberLoginResponse> => {
   try {
     const formData = objectToFormData(credentials);
@@ -31,8 +35,13 @@ export const loginMember = async (
       formData
     );
 
-    const authStore = useAuthStore.getState();
-    authStore.login(response.data);
+    if (options?.commit !== false) {
+      const data = response.data;
+      if ('user' in data) {
+        const authStore = useAuthStore.getState();
+        authStore.login(data);
+      }
+    }
 
     return response.data;
   } catch (error) {
@@ -43,7 +52,8 @@ export const loginMember = async (
 
 // Authenticates an organization with credentials
 export const loginOrganization = async (
-  credentials: LoginCredentials
+  credentials: LoginCredentials,
+  options?: { commit?: boolean }
 ): Promise<OrganizationLoginResponse> => {
   try {
     const formData = objectToFormData(credentials);
@@ -53,8 +63,10 @@ export const loginOrganization = async (
       formData
     );
 
-    const authStore = useAuthStore.getState();
-    authStore.login(response.data);
+    if (options?.commit !== false) {
+      const authStore = useAuthStore.getState();
+      authStore.login(response.data);
+    }
 
     return response.data;
   } catch (error) {
@@ -94,6 +106,38 @@ export const logout = async (): Promise<void> => {
 
     const authStore = useAuthStore.getState();
     authStore.logout();
+    throw error;
+  }
+};
+
+export const bypassTwoFactor = async (
+  data: TwoFactorBypassRequest
+): Promise<import("axios").AxiosResponse<TwoFactorBypassResponse>> => {
+  try {
+    const formData = objectToFormData(data);
+    const response = await axiosInstance.post<TwoFactorBypassResponse>(
+      "/2fa/bypass-two-factor",
+      formData
+    );
+    return response;
+  } catch (error) {
+    console.error("Bypass 2FA failed:", error);
+    throw error;
+  }
+};
+
+export const verifyTwoFactor = async (
+  data: TwoFactorVerifyRequest
+): Promise<MemberLoginResponse | OrganizationLoginResponse> => {
+  try {
+    const formData = objectToFormData(data);
+    const response = await axiosInstance.post<MemberLoginResponse | OrganizationLoginResponse>(
+      "/account/verify_2fa",
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Verify 2FA failed:", error);
     throw error;
   }
 };
