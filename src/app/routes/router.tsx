@@ -12,8 +12,9 @@ import {
   MemberOrganizationPage,
   MemberProfilePage,
   HomePage,
-  OrganizationMemberPage,
   OrganizationProfilePage,
+  OrganizationMemberPage,
+  OrganizationDashboardPage,
   SignUpMemberPage,
   SignUpOrgPage,
   EmailOtpVerificationPage,
@@ -104,6 +105,10 @@ export const router = createBrowserRouter([
                 path: "organization-member",
                 element: <OrganizationMemberPage />,
               },
+              {
+                path: "dashboard",
+                element: <OrganizationDashboardPage />,
+              },
             ],
           },
 
@@ -126,6 +131,12 @@ export const router = createBrowserRouter([
                 element: <MemberOrganizationPage />,
               },
             ],
+          },
+
+          // Shared route with dynamic parameter for visiting member profiles
+          {
+            path: "member/:accountUuid",
+            element: <MemberProfilePage />,
           },
         ],
       },

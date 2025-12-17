@@ -21,7 +21,7 @@ export const createPost = async (
   postData: PostFormData
 ): Promise<CreatePostResponse> => {
   try {
-    const formData = objectToFormData(postData, ["image"]);
+    const formData = objectToFormData(postData, ["images"]);
 
     const response = await axiosInstance.post<CreatePostResponse>(
       "/post",
@@ -40,7 +40,7 @@ export const updatePost = async (
   postData: PostFormData
 ): Promise<EditPostResponse> => {
   try {
-    const formData = objectToFormData(postData, ["image"]);
+    const formData = objectToFormData(postData, ["images"]);
 
     const response = await axiosInstance.put<EditPostResponse>(
       `/post/${postId}`,

@@ -7,10 +7,8 @@ interface UserProfileHeaderProps {
 
 export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
   // Use the custom hook to get profile utility functions
-  const { getName, getRole, getBio, getImageUrl, getEmail } =
+  const { getName, getRole, getBio, getImageUrl, getUsername, isOrganization } =
     useProfileData(profile);
-
-  console.log("profile", profile);
 
   // Handle null/undefined profile case
   if (!profile) {
@@ -42,11 +40,12 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
   }
 
   // Get email from the hook
-  const email = getEmail();
+  // const email = getEmail();
+  const username = getUsername();
 
   return (
-    <div className="flex-1 flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:pt-8">
-      <div className="w-full sm:w-5/6 md:w-4/5 lg:w-2/3 flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start space-y-3 sm:space-y-0 sm:space-x-4 md:space-x-6 lg:space-x-8 xl:space-x-16">
+    <div className={`flex-1 flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:pt-8 ${isOrganization ? "bg-secondary/50" : ""}`}>
+      <div className={`w-full sm:w-5/6 md:w-4/5 lg:w-2/3 flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start space-y-3 sm:space-y-0 sm:space-x-4 md:space-x-6 lg:space-x-8 xl:space-x-16 `}>
         {/* Profile Image */}
         <div className="flex-shrink-0">
           <img
@@ -62,9 +61,14 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
             {getName()}
           </h1>
           <p className="text-responsive-xs text-primary mb-1">{getRole()}</p>
-          {email && (
+          {/* {email && (
             <p className="text-responsive-xs text-placeholderbg mb-1 truncate">
               @ {email}
+            </p>
+          )} */}
+          {username && (
+            <p className="text-responsive-xs text-placeholderbg mb-1 truncate">
+              @{username}
             </p>
           )}
           <p className="text-responsive-xs text-primary leading-relaxed line-clamp-3 sm:line-clamp-none">

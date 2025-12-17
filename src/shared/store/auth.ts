@@ -46,6 +46,11 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
         });
       },
+      updateTwoFactorEnabled: (enabled: 0 | 1) => {
+        set((state) => ({
+          user: state.user ? { ...state.user, two_factor_enabled: enabled } : state.user,
+        }));
+      },
     }),
     {
       name: "auth-storage", // name of the item in the storage

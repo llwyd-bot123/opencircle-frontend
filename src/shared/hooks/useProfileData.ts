@@ -37,6 +37,11 @@ export const isOrganizationType = (
  */
 export function useProfileData(profile: ProfileData | null | undefined) {
   const { getImageUrl: generateImageUrl } = useImageUrl();
+  const toTitleCase = (s: string) =>
+    s
+      .split(" ")
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ""))
+      .join(" ");
 
   // Determine if the profile is a Member or Organization using shared type guards
   const isMemberProfile = profile ? isMember(profile as Member | Organization | null) : false;
@@ -69,7 +74,7 @@ export function useProfileData(profile: ProfileData | null | undefined) {
       return `Organization | ${profile.category}`;
     }
     // For custom profile object
-    return "role" in profile ? profile.role : "";
+    return "role" in profile ? toTitleCase(profile.role) : "";
   };
 
   /**
@@ -112,6 +117,11 @@ export function useProfileData(profile: ProfileData | null | undefined) {
     return "email" in profile ? profile.email : undefined;
   };
 
+  const getUsername = () => {
+    if (!profile) return undefined;
+    return "username" in profile ? profile.username : undefined;
+  };
+
   return {
     isMember: isMemberProfile,
     isOrganization: isOrganizationProfile,
@@ -120,5 +130,6 @@ export function useProfileData(profile: ProfileData | null | undefined) {
     getBio,
     getImageUrl,
     getEmail,
+    getUsername,
   };
 }

@@ -3,7 +3,10 @@ import {
   CommentsModal,
   MembersModal,
   ConfirmationModal,
+  EventFormModal,
+  PostFormModal,
 } from "@src/shared/components/modals";
+import { IconDropdown } from "@src/shared/components";
 import { EventPastPost } from "./subcomponents/EventPastPost";
 import {
   useImageUrl,
@@ -28,6 +31,10 @@ export default function PastEventsComponent({ accountUuid }: PastEventsComponent
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+  const [isEventFormModalOpen, setIsEventFormModalOpen] = useState(false);
+  const [isPostFormModalOpen, setIsPostFormModalOpen] = useState(false);
+  const [eventFormMode, setEventFormMode] = useState<"create" | "edit">("create");
+  const [selectedPostType, setSelectedPostType] = useState<"event" | "post">("event");
 
   const {
     isConfirmModalOpen,
@@ -38,6 +45,7 @@ export default function PastEventsComponent({ accountUuid }: PastEventsComponent
 
   const { user } = useAuthStore();
   const { getImageUrl } = useImageUrl();
+  const isUserMember = user ? isMember(user) : false;
 
   // Fetch organization past events with infinite scrolling
   const {
@@ -146,10 +154,56 @@ export default function PastEventsComponent({ accountUuid }: PastEventsComponent
     avatarImage
   );
 
+  const handleOpenCreateEventModal = () => {
+    setEventFormMode("create");
+    setIsEventFormModalOpen(true);
+  };
+
+  const handleOpenCreatePostModal = () => {
+    setIsPostFormModalOpen(true);
+  };
+
+  const handleCreateActionClick = () => {
+    if (selectedPostType === "event") {
+      handleOpenCreateEventModal();
+    } else {
+      handleOpenCreatePostModal();
+    }
+  };
+
   // No sample data needed as we're using real data from the API
 
   return (
-    <div className="w-full lg:w-1/2 mx-auto p-4 sm:p-6 md:p-8">
+    <div className="w-full">
+      {!isUserMember && (
+        <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
+          <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
+            <div className="flex-shrink-0">
+              <img
+                src={currentAvatar}
+                alt="User Avatar"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+              />
+            </div>
+
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder={
+                  selectedPostType === "post" ? "Whats on your mind?" : "Post an event"
+                }
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs cursor-pointer"
+                onClick={handleCreateActionClick}
+                readOnly
+              />
+            </div>
+
+            <div className="flex-shrink-0">
+              <IconDropdown value={selectedPostType} setValue={setSelectedPostType} />
+            </div>
+          </div>
+        </div>
+      )}
       {/* Loading State */}
       {isPastEventsLoading && <LoadingState message="Loading past events..." />}
 
@@ -236,6 +290,20 @@ export default function PastEventsComponent({ accountUuid }: PastEventsComponent
         hasNextPage={hasNextCommentsPage}
         isFetchingNextPage={isFetchingNextCommentsPage}
         totalComments={totalComments}
+      />
+
+      <EventFormModal
+        isOpen={isEventFormModalOpen}
+        onClose={() => setIsEventFormModalOpen(false)}
+        mode={eventFormMode}
+        eventId={undefined}
+      />
+
+      <PostFormModal
+        isOpen={isPostFormModalOpen}
+        onClose={() => setIsPostFormModalOpen(false)}
+        mode="create"
+        postId={undefined}
       />
 
       {/* Members Modal */}

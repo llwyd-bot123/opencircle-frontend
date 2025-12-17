@@ -1,6 +1,7 @@
 // import { CommentsSection } from "@src/shared/components/CommentsSection";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { useImageUrl, useFormatDate, checkOwnership } from "@src/shared/hooks";
+import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { type PostData } from "@src/features/main/member/profile/schema/post.types";
 import avatarImage from "@src/assets/shared/avatar.png";
 import { CommentsSection } from "@src/shared/components";
@@ -22,15 +23,18 @@ export const MemberPost = ({
 }: MemberPostProps) => {
   const { getImageUrl } = useImageUrl();
   const { formatRelativeTime } = useFormatDate();
-  const postImageUrl = getImageUrl(
-    post.image.directory,
-    post.image.filename,
-    ""
+  const { openLightbox, LightboxViewer } = useLightbox();
+  const isOwner =
+    checkOwnership({ type: "post", ownerId: post.author.id }) ||
+    checkOwnership({ type: "event", ownerId: post.author.id });
+
+  const imageUrls = (post.images || []).map((img) =>
+    getImageUrl(img?.directory, img?.filename, "")
   );
 
   const authorImageUrl = getImageUrl(
-    post.author.profile_picture.directory,
-    post.author.profile_picture.filename,
+    post.author?.profile_picture?.directory,
+    post.author?.profile_picture?.filename,
     avatarImage
   );
 
@@ -46,6 +50,8 @@ export const MemberPost = ({
     onViewMoreComments?.();
   };
 
+  console.log("post data", post)
+
   return (
     <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 w-full">
       {/* 1. Header with Avatar, Name, Time and 3-dot menu */}
@@ -58,7 +64,9 @@ export const MemberPost = ({
           />
           <div className="flex flex-col">
             <h4 className="text-primary text-responsive-xs">
-              {post.author.first_name} {post.author.last_name}{" "}
+               {post.author.organization_name
+                ? post.author.organization_name
+                : `${post.author.first_name} ${post.author.last_name}`} {" "}
               <span className="text-authlayoutbg">posted</span>
             </h4>
             <p className="text-placeholderbg text-responsive-xxs">
@@ -68,10 +76,7 @@ export const MemberPost = ({
         </div>
 
         {/* Horizontal 3-dot menu - only show if the post is from the authenticated user */}
-        {checkOwnership({
-          type: "post",
-          ownerId: post.author.id,
-        }) && (
+        {isOwner && (
           <div className="flex-shrink-0">
             <DropdownMenu
               onEdit={handleEdit}
@@ -88,16 +93,25 @@ export const MemberPost = ({
         <p>{post.description}</p>
       </div>
 
-      {/* 6. Event Image */}
-      <div className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] rounded-lg sm:rounded-xl overflow-hidden mt-4">
-        <img
-          src={postImageUrl}
-          alt={`Post image ${post.id}`}
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <hr className="my-4 text-gainsboro" />
+      {imageUrls.length > 0 && (
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          {imageUrls.slice(0, 4).map((src, idx) => (
+            <button
+              key={idx}
+              type="button"
+              className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] rounded-lg sm:rounded-xl overflow-hidden relative cursor-pointer"
+              onClick={() => openLightbox(idx, imageUrls.map((u) => ({ src: u })))}
+            >
+              <img src={src} alt={`Post image ${post.id}-${idx + 1}`} className="w-full h-full object-cover" />
+              {idx === 3 && imageUrls.length > 4 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white font-bold text-responsive-lg">
+                  + {imageUrls.length - 4}
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* 8. Comments Section */}
       <CommentsSection
@@ -108,6 +122,7 @@ export const MemberPost = ({
         currentUserAvatar={currentUserAvatar}
         onViewMoreComments={handleViewMoreComments}
       />
+      <LightboxViewer />
     </div>
   );
 };

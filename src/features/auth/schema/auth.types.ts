@@ -12,6 +12,7 @@ export type Member = {
   first_name: string;
   last_name: string;
   email: string;
+  username: string;
   bio: string;
   profile_picture: ProfilePicture;
   uuid: string;
@@ -26,12 +27,14 @@ export type Organization = {
   account_id: number;
   name: string;
   email: string;
-  username?: string;
+  username: string;
   logo: ProfilePicture;
   category: string;
   description: string;
   uuid: string;
   role_id: number; // Role ID for RBAC (2 = organization)
+  two_factor_enabled: 0 | 1;
+  bypass_two_factor: 0 | 1;
 };
 
 // Authenticated user (either Member or Organization)
@@ -89,6 +92,7 @@ export type AuthState = {
   isAuthenticated: boolean;
   login: (userData: MemberLoginSuccess | OrganizationLoginResponse) => void;
   logout: () => void;
+  updateTwoFactorEnabled: (enabled: 0 | 1) => void;
 };
 
 export type VerifyEmailOtpResponse = {
@@ -129,6 +133,10 @@ export type ApiErrorResponse = {
 
 export type TwoFactorDisableResponse = {
   message: string;
+};
+
+export type TwoFactorDisableRequest = {
+  totp_token: string;
 };
 
 export type TwoFactorBypassResponse = {

@@ -7,12 +7,19 @@ import { useAuthStore } from "../../../shared/store/auth";
 import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
 
 // Custom hook to fetch calendar events for the current authenticated member by month and year
-export const useMemberCalendarEvents = (month: number, year: number) => {
+export const useMemberCalendarEvents = (
+  month: number,
+  year: number,
+  customAccountUuid?: string
+) => {
   const { user } = useAuthStore();
-  const accountUuid = user?.uuid || "";
+  const accountUuid = customAccountUuid || user?.uuid || "";
 
   return useQuery({
-    queryKey: [QUERY_KEYS.MEMBER_CALENDAR_EVENTS, { month, year }],
+    queryKey: [
+      QUERY_KEYS.MEMBER_CALENDAR_EVENTS,
+      { month, year, accountUuid },
+    ],
     queryFn: () => fetchMemberCalendarEvents(accountUuid, month, year),
     enabled: !!accountUuid,
     staleTime: 5 * 60 * 1000, // 5 minutes

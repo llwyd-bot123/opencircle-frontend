@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import activeEventLogo from "@src/assets/shared/active-events.svg";
 import pendingEventLogo from "@src/assets/shared/pending-events.svg";
 import historyEventLogo from "@src/assets/shared/history-events.svg";
+import rejectedEventLogo from "@src/assets/shared/rejected_icon.png";
 import { MemberEvents } from "./subcomponents/MemberEvents";
 import { useAuthStore } from "@src/shared/store/auth";
 import { useUserEventsByRsvpStatusInfiniteQuery, useUserPastEventsInfiniteQuery } from "../model/event.infinite.query";
@@ -26,7 +27,8 @@ import {
 } from "@src/features/home/model/home.mutation";
 import { useLeaveOrganization } from "../../organization/model/organization.mutation";
 
-export default function EventComponent() {
+type EventComponentProps = { accountUuid?: string };
+export default function EventComponent({ accountUuid }: EventComponentProps) {
   const [selectedRsvpStatus, setSelectedRsvpStatus] =
     useState<string>("joined");
   // const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export default function EventComponent() {
   const deleteRsvpMutation = useDeleteRsvp();
 
   // Get user UUID for API calls
-  const userUuid = user?.uuid || "";
+  const userUuid = accountUuid || user?.uuid || "";
 
   // Fetch past events when selectedRsvpStatus is "past", otherwise fetch events by RSVP status
   const isPastEvents = selectedRsvpStatus === "past";
@@ -267,10 +269,16 @@ export default function EventComponent() {
                   ? activeEventLogo
                   : selectedRsvpStatus === "pending"
                   ? pendingEventLogo
+                  : selectedRsvpStatus === "rejected"
+                  ? rejectedEventLogo
                   : historyEventLogo
               }
               alt="Event Status"
-              className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
+              className={
+                selectedRsvpStatus === "rejected"
+                  ? "w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ml-1"
+                  : "w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
+              }
             />
             <select
               className="bg-transparent text-primary font-medium text-responsive-xs text-center focus:outline-none appearance-none pr-8 w-full"
@@ -282,6 +290,9 @@ export default function EventComponent() {
               </option>
               <option value="pending" className="flex items-center">
                 Pending Events
+              </option>
+              <option value="rejected" className="flex items-center">
+                Rejected Events
               </option>
               <option value="past" className="flex items-center">
                 Event History
@@ -313,7 +324,7 @@ export default function EventComponent() {
             {selectedRsvpStatus === "joined"
               ? "active"
               : selectedRsvpStatus === "pending"
-              ? "pending"
+              ? "pending" : selectedRsvpStatus === "rejected" ? "rejected"
               : "past"}{" "}
             events found.
           </p>
@@ -340,7 +351,7 @@ export default function EventComponent() {
                 selectedRsvpStatus === "joined"
                   ? "Approved"
                   : selectedRsvpStatus === "pending"
-                  ? "Pending"
+                  ? "Pending" : selectedRsvpStatus === "pending" ? "Rejected"
                   : "Past"
               }
               currentUserAvatar={userAvatar}

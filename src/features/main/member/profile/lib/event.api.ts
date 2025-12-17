@@ -1,5 +1,6 @@
 import axiosInstance from "@src/shared/api/axios";
 import type { EventsByRsvpStatusResponse } from "../schema/event.types";
+import type { MemberProfileResponse } from "../schema/profile.types";
 
 export const getUserEventsByRsvpStatus = async (
   accountUuid: string,
@@ -47,6 +48,20 @@ export const getUserPastEvents = async (
     return response.data;
   } catch (error) {
     console.error("Failed to fetch user past events:", error);
+    throw error;
+  }
+};
+
+export const getMemberProfile = async (
+  accountUuid: string
+): Promise<MemberProfileResponse> => {
+  try {
+    const response = await axiosInstance.get<MemberProfileResponse>(
+      `user/profile/${accountUuid}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch member profile:", error);
     throw error;
   }
 };

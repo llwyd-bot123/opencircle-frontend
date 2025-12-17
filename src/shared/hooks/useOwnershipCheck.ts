@@ -29,9 +29,7 @@ export const checkOwnership = ({
       return !!accountId && authUser.account_id === accountId;
 
     case "post":
-      return (
-        "first_name" in authUser && !!ownerId && authUser.account_id === ownerId
-      );
+      return !!ownerId && authUser.account_id === ownerId;
 
     case "event":
       return "name" in authUser && !!ownerId && authUser.account_id === ownerId;

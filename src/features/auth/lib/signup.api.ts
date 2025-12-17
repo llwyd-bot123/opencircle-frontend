@@ -11,6 +11,7 @@ import type {
   TwoFactorEnableResponse,
   TwoFactorEnableRequest,
   TwoFactorDisableResponse,
+  TwoFactorDisableRequest,
 } from "@src/features/auth/schema/auth.types";
 import { objectToFormData } from "@src/shared/utils/formDataConverter";
 import type {
@@ -142,10 +143,14 @@ export const enableTwoFA = async (
   }
 };
 
-export const disableTwoFA = async (): Promise<AxiosResponse<TwoFactorDisableResponse>> => {
+export const disableTwoFA = async (
+  data: TwoFactorDisableRequest
+): Promise<AxiosResponse<TwoFactorDisableResponse>> => {
   try {
+    const formData = objectToFormData(data);
     const response = await axiosInstance.post<TwoFactorDisableResponse>(
-      "/2fa/disable"
+      "/2fa/disable",
+      formData
     );
     return response;
   } catch (error) {

@@ -52,6 +52,9 @@ export const usePostComment = () => {
           queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.COMMENT_ANALYTICS_SUMMARY],
+        });
       }
     },
     onError: (error) => {

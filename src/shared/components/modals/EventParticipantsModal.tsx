@@ -45,8 +45,9 @@ export function EventParticipantsModal({
   } = useConfirmationModal();
 
   // Use the mutation hooks
-  const acceptRequestMutation = useAcceptRsvpRequest();
+  const rsvpStatusMutation = useAcceptRsvpRequest();
   const declineRequestMutation = useDeclineRsvpRequest();
+
 
   const handleRemoveMember = (rsvpId: number) => {
     openConfirmationModal({
@@ -66,7 +67,7 @@ export function EventParticipantsModal({
         "This action will approve the user's participation in the event. Are you sure you want to accept?",
       confirmButtonText: "Accept",
       confirmButtonVariant: "primary",
-      onConfirm: () => acceptRequestMutation.mutateAsync(rsvpId),
+      onConfirm: () => rsvpStatusMutation.mutateAsync({ rsvpId, status: "joined" }),
     });
   };
 
@@ -77,7 +78,7 @@ export function EventParticipantsModal({
         "By declining, this user will not be able to participate in the event. Do you wish to continue?",
       confirmButtonText: "Decline",
       confirmButtonVariant: "primary",
-      onConfirm: () => declineRequestMutation.mutateAsync(rsvpId),
+      onConfirm: () => rsvpStatusMutation.mutateAsync({ rsvpId, status: "rejected" }),
     });
   };
 
@@ -88,6 +89,7 @@ export function EventParticipantsModal({
     eventRsvps?.rsvps.filter((rsvp) => rsvp.status === "pending") || [];
 
   return (
+    <>
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
       {/* Loading State */}
       {isLoading && (
@@ -232,8 +234,9 @@ export function EventParticipantsModal({
                         <div className="flex space-x-3">
                           <PrimaryButton
                             label={
-                              acceptRequestMutation.isPending &&
-                              acceptRequestMutation.variables === request.rsvp_id
+                              rsvpStatusMutation.isPending &&
+                              rsvpStatusMutation.variables?.rsvpId === request.rsvp_id &&
+                              rsvpStatusMutation.variables?.status === "joined"
                                 ? "Accepting..."
                                 : "Accept"
                             }
@@ -267,18 +270,19 @@ export function EventParticipantsModal({
           </div>
         </>
       )}
-      {/* Confirmation Modal */}
-      {modalConfig && (
-        <ConfirmationModal
-          isOpen={isConfirmModalOpen}
-          onClose={closeConfirmationModal}
-          onConfirm={modalConfig.onConfirm}
-          title={modalConfig.title}
-          message={modalConfig.message}
-          confirmButtonText={modalConfig.confirmButtonText}
-          confirmButtonVariant={modalConfig.confirmButtonVariant}
-        />
-      )}
     </Modal>
+    {/* Confirmation Modal rendered outside to stack above parent modal */}
+    {modalConfig && (
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={closeConfirmationModal}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmButtonText={modalConfig.confirmButtonText}
+        confirmButtonVariant={modalConfig.confirmButtonVariant}
+      />
+    )}
+    </>
   );
 }

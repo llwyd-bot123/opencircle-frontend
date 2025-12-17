@@ -17,6 +17,7 @@ import memberNavLogo from "@src/assets/navbar/members.svg";
 import activeHomeIcon from "@src/assets/navbar/active_home.svg";
 import activeProfileIcon from "@src/assets/navbar/active_profile.svg";
 import activeMemberIcon from "@src/assets/navbar/active_org.svg";
+import dashboardIcon from "@src/assets/shared/dashboard_icon.png";
 
 export default function MainLayout() {
   const redirect = useNavigate();
@@ -36,6 +37,13 @@ export default function MainLayout() {
       icon: homeNavLogo,
       activeIcon: activeHomeIcon,
       redirectPage: "/home",
+    },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: dashboardIcon,
+      activeIcon: dashboardIcon,
+      redirectPage: "/dashboard",
     },
     {
       id: "profile",
@@ -88,8 +96,10 @@ export default function MainLayout() {
   const getActiveMenuItem = (): string => {
     const currentPath = location.pathname;
     
-    // Don't set any activeItem when a member visits the URL "organization/{id}"
-    if (userRole === "member" && /^\/organization\/[^/]+$/.test(currentPath)) {
+    const shouldClearActive =
+      /^\/organization\/[^/]+$/.test(currentPath) ||
+      /^\/member\/[^/]+$/.test(currentPath);
+    if (shouldClearActive) {
       return "";
     }
 
@@ -138,6 +148,7 @@ export default function MainLayout() {
             activeItem={getActiveMenuItem()}
           />
         }
+        isAuthenticated={true}
         onButtonClick={() => handleLogout()}
         buttonLabel="Log out"
       />

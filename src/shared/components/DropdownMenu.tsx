@@ -7,6 +7,8 @@ interface DropdownMenuProps {
   className?: string;
   editLabel?: string;
   deleteLabel?: string;
+  showEdit?: boolean;
+  showDelete?: boolean;
 }
 
 export function DropdownMenu({
@@ -15,6 +17,8 @@ export function DropdownMenu({
   className = "",
   editLabel = "Edit",
   deleteLabel = "Delete",
+  showEdit = true,
+  showDelete = true,
 }: DropdownMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -66,20 +70,24 @@ export function DropdownMenu({
       {/* Dropdown menu */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-36 sm:w-40 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-          <button
-            onClick={handleEdit}
-            className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm text-primary hover:bg-gray-100 transition-colors rounded-t-lg flex items-center"
-          >
-            <img src={editIcon} alt="Edit" className="w-4 h-4 mr-2" />
-            {editLabel}
-          </button>
-          <button
-            onClick={handleDelete}
-            className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm text-primary hover:bg-gray-100 transition-colors rounded-b-lg flex items-center"
-          >
-            <img src={deleteIcon} alt="Delete" className="w-4 h-4 mr-2" />
-            {deleteLabel}
-          </button>
+          {showEdit && (
+            <button
+              onClick={handleEdit}
+              className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm text-primary hover:bg-gray-100 transition-colors rounded-t-lg flex items.center"
+            >
+              <img src={editIcon} alt="Edit" className="w-4 h-4 mr-2" />
+              {editLabel}
+            </button>
+          )}
+          {showDelete && (
+            <button
+              onClick={handleDelete}
+              className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm text-primary hover:bg-gray-100 transition-colors rounded-b-lg flex items-center"
+            >
+              <img src={deleteIcon} alt="Delete" className="w-4 h-4 mr-2" />
+              {deleteLabel}
+            </button>
+          )}
         </div>
       )}
     </div>

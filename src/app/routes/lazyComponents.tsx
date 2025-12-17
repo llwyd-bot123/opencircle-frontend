@@ -23,6 +23,9 @@ export const OrganizationProfilePage = lazy(
 export const OrganizationMemberPage = lazy(
   () => import("../../pages/main/organization/OrganizationMember")
 );
+export const OrganizationDashboardPage = lazy(
+  () => import("../../pages/main/organization/OrganizationDashboard")
+);
 
 // Member-specific components
 export const MemberProfilePage = lazy(

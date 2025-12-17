@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useNavigation } from "@src/shared/hooks";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import leaveOrgIcon from "@src/assets/shared/leave_org_icon.svg";
 import avatarImage from "@src/assets/shared/avatar.png";
@@ -33,6 +34,7 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuthStore();
   const accountUuid = user?.uuid || "";
+  const { onOrganizationClick } = useNavigation();
 
   // Fetch organization memberships
   const {
@@ -179,16 +181,33 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
               `}
                       >
                         <div className="flex md:items-center md:space-x-2 sm:space-x-3">
-                          <div
-                            className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 ${
-                              selectedOrgId === org.organization_id &&
-                              "border-2 border-secondary lg:border-0"
-                            }`}
-                          >
-                            {org.organization_name.charAt(0)}
-                          </div>
+                          {org.organization_logo ? (
+                            <img
+                              src={getImageUrl(
+                                org.organization_logo?.directory,
+                                org.organization_logo?.filename
+                              )}
+                              alt={`${org.organization_name} logo`}
+                              className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary ${
+                                selectedOrgId === org.organization_id ? "border-2 border-secondary lg:border-0" : ""
+                              }`}
+                              onClick={onOrganizationClick(org.organization_id)}
+                            />
+                          ) : (
+                            <div
+                              className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary ${
+                                selectedOrgId === org.organization_id && "border-2 border-secondary lg:border-0"
+                              }`}
+                              onClick={onOrganizationClick(org.organization_id)}
+                            >
+                              {org.organization_name.charAt(0)}
+                            </div>
+                          )}
                           <div className="flex-1 min-w-0 hidden md:block">
-                            <h3 className="text-responsive-xs mb-1 truncate font-medium">
+                            <h3
+                              className="text-responsive-xs mb-1 truncate font-medium hover:underline cursor-pointer"
+                              onClick={onOrganizationClick(org.organization_id)}
+                            >
                               {org.organization_name}
                             </h3>
                             <div className="text-responsive-xxs text-primary-75">
@@ -244,8 +263,8 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
                         <div className="flex items-center space-x-2 sm:space-x-3">
                           <img
                             src={getImageUrl(
-                              member.profile_picture.directory,
-                              member.profile_picture.filename,
+                              member.profile_picture?.directory,
+                              member.profile_picture?.filename,
                               avatarImage
                             )}
                             alt={`${member.first_name} ${member.last_name} avatar`}

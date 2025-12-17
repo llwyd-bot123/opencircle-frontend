@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigation } from "@src/shared/hooks";
 import { useImageUrl } from "@src/shared/hooks/useImageUrl";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
@@ -22,6 +23,7 @@ export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
   onDecline,
 }) => {
   const { getImageUrl } = useImageUrl();
+  const { onMemberClick } = useNavigation();
 
   return (
     <div className="h-full overflow-y-auto">
@@ -42,7 +44,7 @@ export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
           {memberRequests.map((request) => (
             <div
               key={request.user_id}
-              className="flex items-center justify-between p-3"
+              className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
@@ -57,11 +59,15 @@ export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
                         : avatarImage
                     }
                     alt={`${request.first_name || "User"}'s profile picture`}
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer"
+                    onClick={onMemberClick(request.account_uuid)}
                   />
                 </div>
                 <div>
-                  <h3 className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold">
+                  <h3
+                    className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold hover:underline cursor-pointer"
+                    onClick={onMemberClick(request.account_uuid)}
+                  >
                     {request.first_name} {request.last_name}
                   </h3>
                 </div>

@@ -6,7 +6,8 @@ import { useMemberLoginDeferred, useOrganizationLogin } from "../model";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../schema/auth.schema";
-import type { MemberLoginResponse, OrganizationLoginResponse } from "../schema/auth.types";
+import type { MemberLoginResponse, MemberLoginSuccess, OrganizationLoginResponse, OrganizationLoginSuccess } from "../schema/auth.types";
+import { useAuthStore } from "@src/shared/store";
 
 export default function LoginInterface() {
   const [loginType, setLoginType] = useState<"member" | "organization">(
@@ -15,6 +16,7 @@ export default function LoginInterface() {
   const navigate = useNavigate();
   const memberLoginMutation = useMemberLoginDeferred();
   const organizationLoginMutation = useOrganizationLogin();
+  const authStore = useAuthStore();
 
   // Initialize React Hook Form with Zod validation
   const {
@@ -35,35 +37,60 @@ export default function LoginInterface() {
     loginResponse: MemberLoginResponse | OrganizationLoginResponse,
     formData: LoginFormData
   ) => {
-    let is2FARequired = false;
-
     if (loginTypeValue === "member") {
       if ("requires_2fa" in loginResponse) {
-        is2FARequired = true;
-      } else if ("user" in loginResponse) {
-        const { user } = loginResponse;
-        is2FARequired = user.two_factor_enabled === 1 || user.bypass_two_factor === 1;
-      }
-
-      if (is2FARequired) {
         navigate("/otp-signin-verification", {
           state: { email: formData.login, loginType: loginTypeValue },
         });
-      } else {
-        navigate("/two-factor-setup", { state: { loginResponse } });
+        return;
       }
+
+      if ("user" in loginResponse) {
+        const { user } = loginResponse;
+        const requiresOtpNow = user.two_factor_enabled === 1 && user.bypass_two_factor === 1;
+        const shouldSkipOtp = user.two_factor_enabled !== 1 && user.bypass_two_factor === 1;
+
+        if (requiresOtpNow) {
+          navigate("/otp-signin-verification", {
+            state: { email: formData.login, loginType: loginTypeValue },
+          });
+        } else if (shouldSkipOtp) {
+          authStore.login(loginResponse as MemberLoginSuccess);
+          navigate("/member-profile");
+        } else {
+          navigate("/two-factor-setup", { state: { loginResponse, loginType: loginTypeValue } });
+        }
+        return;
+      }
+
+      navigate("/two-factor-setup", { state: { loginResponse, loginType: loginTypeValue } });
     } else {
       if ("requires_2fa" in loginResponse) {
-        is2FARequired = true;
-      }
-
-      if (is2FARequired) {
         navigate("/otp-signin-verification", {
           state: { email: formData.login, loginType: loginTypeValue },
         });
-      } else {
-        navigate("/organization-profile");
+        return;
       }
+
+      if ("organization" in loginResponse) {
+        const org = loginResponse.organization;
+        const requiresOtpNow = org?.two_factor_enabled === 1 && org?.bypass_two_factor === 1;
+        const shouldSkipOtp = org?.two_factor_enabled !== 1 && org?.bypass_two_factor === 1;
+
+        if (requiresOtpNow) {
+          navigate("/otp-signin-verification", {
+            state: { email: formData.login, loginType: loginTypeValue },
+          });
+        } else if (shouldSkipOtp) {
+          authStore.login(loginResponse as OrganizationLoginSuccess);
+          navigate("/organization-profile");
+        } else {
+          navigate("/two-factor-setup", { state: { loginResponse, loginType: loginTypeValue } });
+        }
+        return;
+      }
+
+      navigate("/two-factor-setup", { state: { loginResponse, loginType: loginTypeValue } });
     }
   };
 
@@ -95,7 +122,7 @@ export default function LoginInterface() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-56 px-8 pb-24">
+        <div className="bg-white rounded-[50px] px-8 pb-24">
           {/* Brand Logo */}
           <div className="flex justify-center ">
             <Link to="/">

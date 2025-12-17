@@ -2,6 +2,7 @@ export { CommentsSection } from "../../features/comments/ui/CommentsSection";
 export { CustomDateField } from "./CustomDateField";
 export { CustomInputField } from "./CustomInputField";
 export { CustomSelectField } from "./CustomSelectField";
+export { IconDropdown } from "./IconDropdown";
 export { DropdownMenu } from "./DropdownMenu";
 export { ErrorBoundaryComponent } from "./ErrorBoundaryComponent";
 export { EventTabContent } from "./EventTabContent";
