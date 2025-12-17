@@ -95,8 +95,6 @@ export default function SignUpMemberInterface() {
         formattedData as MemberSignupFormData
       );
 
-      console.log("signup data", response.verification_required, response.email)
-
       if (response.verification_required && response.email) {
 
         sessionStorage.setItem("pendingEmailSignup", response.email);

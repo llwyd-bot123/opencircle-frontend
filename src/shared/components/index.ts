@@ -9,6 +9,7 @@ export { EventTabContent } from "./EventTabContent";
 export { Modal } from "./Modal";
 export { NavMenuComponent } from "./NavMenuComponent";
 export { PrimaryButton } from "./PrimaryButton";
+export { ProfileAvatar } from "./ProfileAvatar";
 export { UserProfileHeader } from "./UserProfileHeader";
 export { LoadingState, ErrorState } from "./states";
 export { showSuccessToast, showErrorToast, ToastContainer } from "./Toast";

@@ -6,6 +6,7 @@ import { useInfiniteScroll, useImageUrl, useConfirmationModal } from "@src/share
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
 import avatarImage from "@src/assets/shared/avatar.png";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { CommentsModal, EventFormModal, PostFormModal, ConfirmationModal } from "@src/shared/components/modals";
 import { IconDropdown } from "@src/shared/components";
 import { useInfiniteContentComments } from "@src/features/comments/model/comment.infinite.query";
@@ -68,6 +69,8 @@ export default function ActiveEventsList({ accountUuid }: ActiveEventsListProps)
 
   const activeEvents =
     infiniteEventsData?.pages.flatMap((page) => page.active_events) || [];
+
+  console.log("data here", activeEvents);
 
   const {
     data: infiniteCommentsData,
@@ -171,10 +174,14 @@ export default function ActiveEventsList({ accountUuid }: ActiveEventsListProps)
         <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
           <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
             <div className="flex-shrink-0">
-              <img
+              <ProfileAvatar
                 src={currentAvatar}
                 alt="User Avatar"
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14"
+                type={isOrganization(user) ? "organization" : "member"}
+                isOwner={false}
+                memberUuid={isMember(user) ? user?.uuid : undefined}
+                organizationId={isOrganization(user) ? user?.id : undefined}
               />
             </div>
 

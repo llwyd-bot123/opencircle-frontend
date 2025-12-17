@@ -232,7 +232,6 @@ export default function EventComponent({ accountUuid }: EventComponentProps) {
       onConfirm: async () => {
         try {
           await rsvpEventMutation.mutateAsync(eventId);
-          console.log("Successfully RSVPed to event:", eventId);
         } catch (error) {
           console.error("Failed to RSVP to event:", error);
         }
@@ -250,7 +249,6 @@ export default function EventComponent({ accountUuid }: EventComponentProps) {
       onConfirm: async () => {
         try {
           await deleteRsvpMutation.mutateAsync(rsvpId);
-          console.log("Successfully cancelled RSVP:", rsvpId);
         } catch (error) {
           console.error("Failed to cancel RSVP:", error);
         }

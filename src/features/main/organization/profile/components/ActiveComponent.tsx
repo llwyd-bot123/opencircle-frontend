@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
 import avatarImage from "@src/assets/shared/avatar.png";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useInfiniteMemberPosts } from "@src/features/main/member/profile/model/post.infinite.query";
 import { MemberPost } from "@src/features/main/member/profile/components/subcomponents/MemberPost";
 import { useDeletePost } from "@src/features/main/member/profile/model/post.mutation";
@@ -167,10 +168,14 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
           <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
             {/* Avatar Column */}
             <div className="flex-shrink-0">
-              <img
+              <ProfileAvatar
                 src={currentAvatar}
                 alt="User Avatar"
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14"
+                type={isOrganization(user) ? "organization" : "member"}
+                isOwner={false}
+                memberUuid={isMember(user) ? user?.uuid : undefined}
+                organizationId={isOrganization(user) ? user?.id : undefined}
               />
             </div>
 

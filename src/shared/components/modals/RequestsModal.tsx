@@ -1,4 +1,5 @@
 import { Modal } from "../Modal";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 
 interface Request {
   id: string;
@@ -55,19 +56,20 @@ export function RequestsModal({
                 className="flex items-center justify-between p-4 bg-athens_gray rounded-xl"
               >
                 <div className="flex items-center space-x-3">
-                  <img
+                  <ProfileAvatar
                     src={request.avatar}
                     alt={`${request.name} avatar`}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-primary font-medium text-responsive-xs">
-                      {request.name}
-                    </p>
+                    className="w-12 h-12"
+                    type="member"
+                    isOwner={false}
+                    memberUuid={request.id}
+                    name={request.name}
+                    nameClassName="text-primary font-medium text-responsive-xs"
+                  >
                     <p className="text-placeholderbg text-responsive-xxs">
                       {request.requestedAt}
                     </p>
-                  </div>
+                  </ProfileAvatar>
                 </div>
                 <div className="flex space-x-3">
                   <button

@@ -4,6 +4,8 @@ import joinIcon from "@src/assets/shared/join_icon.svg";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import { useFormatDate } from "@src/shared/hooks";
 import { useImageUrl } from "@src/shared/hooks/useImageUrl";
+import { useLightbox } from "@src/shared/hooks/useLightbox";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 
@@ -32,6 +34,7 @@ export const MemberEvents = ({
 }: MemberActiveEventProps) => {
   const { formatRelativeTime, formatDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
+  const { openLightbox, LightboxViewer } = useLightbox();
   const isPastEvent = status === "Past";
 
   const handleViewMoreComments = () => {
@@ -43,7 +46,7 @@ export const MemberEvents = ({
       {/* 1. Header with Avatar, Name, Time and 3-dot menu */}
       <div className="flex flex-row items-start justify-between mb-4">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-          <img
+          <ProfileAvatar
             src={
               event.organization?.logo
                 ? getImageUrl(
@@ -54,19 +57,23 @@ export const MemberEvents = ({
                 : "https://placehold.co/40x40/29465b/ffffff?text=O"
             }
             alt="Event Creator"
-            className="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover"
-          />
-          <div className="flex flex-col">
-            <h4 className="text-primary text-responsive-xs font-bold">
-              {event.organization?.name}{" "}
+            className="w-10 h-10 sm:w-14 sm:h-14"
+            type="organization"
+            isOwner={false}
+            organizationId={event.organization_id}
+            name={event.organization?.name}
+            nameClassName="text-primary text-responsive-xs font-bold"
+          >
+            <span className="text-primary text-responsive-xs font-bold">
+              {" "}
               <span className="text-authlayoutbg font-normal">
                 posted an event
               </span>
-            </h4>
+            </span>
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(event.created_date)}
             </p>
-          </div>
+          </ProfileAvatar>
         </div>
 
         <div className="flex items-start space-x-2">
@@ -190,7 +197,19 @@ export const MemberEvents = ({
       </div>
 
       {/* 6. Event Image */}
-      <div className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] overflow-hidden mt-4">
+      <button
+        type="button"
+        className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] overflow-hidden mt-4 cursor-pointer"
+        onClick={() =>
+          openLightbox(0, [
+            {
+              src: event.image
+                ? getImageUrl(event.image.directory, event.image.filename)
+                : "",
+            },
+          ])
+        }
+      >
         <img
           src={
             event.image
@@ -200,7 +219,7 @@ export const MemberEvents = ({
           alt={event.title}
           className="w-full h-full object-cover"
         />
-      </div>
+      </button>
 
       <hr className="my-4 text-gainsboro" />
 
@@ -213,6 +232,7 @@ export const MemberEvents = ({
         currentUserAvatar={currentUserAvatar}
         onViewMoreComments={handleViewMoreComments}
       />
+      <LightboxViewer />
     </div>
   );
 };

@@ -3,9 +3,10 @@ import type { EventData } from "@src/features/main/organization/profile/schema/e
 import type { AllMemberPostData } from "@src/features/main/member/profile/schema/post.types";
 import { SharedEventPost } from "@src/features/share/components/SharedEventPost";
 import { SharedMemberPost } from "@src/features/share/components/SharedMemberPost";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useFormatDate, useConfirmationModal, useImageUrl } from "@src/shared/hooks";
 import { ConfirmationModal } from "@src/shared/components/modals";
-import { useJoinOrganization } from "@src/features/home/model/home.mutation";
+import { useJoinOrganization, useRsvpEvent, useDeleteRsvp } from "@src/features/home/model/home.mutation";
 import { useLeaveOrganization } from "@src/features/main/member/organization/model/organization.mutation";
 import avatarImage from "@src/assets/shared/avatar.png";
 
@@ -18,12 +19,16 @@ export const SharedCard = ({ share }: SharedCardProps) => {
   const { getImageUrl } = useImageUrl();
   const joinOrganizationMutation = useJoinOrganization();
   const leaveOrganizationMutation = useLeaveOrganization();
+  const rsvpEventMutation = useRsvpEvent();
+  const deleteRsvpMutation = useDeleteRsvp();
   const {
     isConfirmModalOpen,
     modalConfig,
     openConfirmationModal,
     closeConfirmationModal,
   } = useConfirmationModal();
+
+  console.log("share data from member post", share);
 
   const handleJoinOrganization = (orgId: number) => {
     openConfirmationModal({
@@ -74,12 +79,46 @@ export const SharedCard = ({ share }: SharedCardProps) => {
     });
   };
 
+  const handleRsvpEvent = (eventId: number) => {
+    openConfirmationModal({
+      title: "Reserve Your Spot",
+      message:
+        "Are you sure you want to reserve your spot for this event? You will receive a confirmation once your reservation is completed.",
+      confirmButtonText: "Reserve",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await rsvpEventMutation.mutateAsync(eventId);
+        } catch {
+          // Error handled by mutation
+        }
+      },
+    });
+  };
+
+  const handleDeleteRsvpEvent = (rsvpId: number) => {
+    openConfirmationModal({
+      title: "Cancel Reservation",
+      message:
+        "Are you sure you want to cancel your reservation for this event?",
+      confirmButtonText: "Cancel Reservation",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await deleteRsvpMutation.mutateAsync(rsvpId);
+        } catch {
+          // Error handled by mutation
+        }
+      },
+    });
+  };
+
   const account = share.account;
-  const isOrganization = account?.type === "organization";
+  const isOrganizationAccount = account?.type === "organization";
 
   const avatarSrc = (() => {
     if (!account) return avatarImage;
-    if (isOrganization) {
+    if (isOrganizationAccount) {
       return getImageUrl(
         account.logo?.directory,
         account.logo?.filename,
@@ -93,12 +132,9 @@ export const SharedCard = ({ share }: SharedCardProps) => {
     );
   })();
 
-
-  console.log("shared post data", share)
-
   const displayName = (() => {
     if (!account) return "User";
-    if (isOrganization) {
+    if (isOrganizationAccount) {
       return account.name || "Organization";
     }
     return `${account.first_name || "User"} ${account.last_name || ""}`;
@@ -108,13 +144,25 @@ export const SharedCard = ({ share }: SharedCardProps) => {
     <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 w-full">
       <div className="flex flex-row items-start justify-between mb-3">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-          <img src={avatarSrc} alt="Sharer" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
-          <div className="flex flex-col">
-            <h4 className="text-primary text-responsive-xs">
-              <span className="text-primary">{displayName} shared {share.content_type === 2 ? "an event" : "a post"}</span>
-            </h4>
-            <p className="text-placeholderbg text-responsive-xxs">{formatRelativeTime(share.date_created)}</p>
-          </div>
+          <ProfileAvatar
+            src={avatarSrc}
+            alt="Sharer"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
+            type={isOrganizationAccount ? "organization" : "member"}
+            isOwner={false}
+            memberUuid={!isOrganizationAccount ? share?.account_uuid : undefined}
+            organizationId={isOrganizationAccount ? account?.id : undefined}
+            name={displayName}
+            nameClassName="text-primary text-responsive-xs font-bold"
+          >
+            <span className="text-primary text-responsive-xs">
+              {" "}
+              shared {share.content_type === 2 ? "an event" : "a post"}
+            </span>
+            <p className="text-placeholderbg text-responsive-xxs">
+              {formatRelativeTime(share.date_created)}
+            </p>
+          </ProfileAvatar>
         </div>
       </div>
 
@@ -130,6 +178,8 @@ export const SharedCard = ({ share }: SharedCardProps) => {
           onJoinOrganization={handleJoinOrganization}
           onCancelJoiningOrganization={handleCancelJoiningOrganization}
           onLeaveOrganization={handleLeaveOrganization}
+          onRsvpEvent={handleRsvpEvent}
+          onDeleteRsvpEvent={handleDeleteRsvpEvent}
         />
       ) : (
         <SharedMemberPost post={share.content_details as AllMemberPostData} />

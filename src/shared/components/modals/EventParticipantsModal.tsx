@@ -10,6 +10,7 @@ import {
   LoadingState,
   ErrorState,
   PrimaryButton,
+  ProfileAvatar,
 } from "@src/shared/components";
 import { useImageUrl, useConfirmationModal } from "@src/shared/hooks";
 import avatarImage from "@src/assets/shared/avatar.png";
@@ -124,19 +125,23 @@ export function EventParticipantsModal({
                       : "text-placeholderbg hover:text-primary"
                   }`}
                 >
-                  Members
+                  Participants
                 </button>
-                <span className="text-responsive-base">|</span>
-                <button
-                  onClick={() => setActiveTab("requests")}
-                  className={`text-responsive-sm font-bold transition-colors ${
-                    activeTab === "requests"
-                      ? "text-primary"
-                      : "text-placeholderbg hover:text-primary"
-                  }`}
-                >
-                  Requests Received
-                </button>
+                {!isUserMember && (
+                  <>
+                    <span className="text-responsive-base">|</span>
+                    <button
+                      onClick={() => setActiveTab("requests")}
+                      className={`text-responsive-sm font-bold transition-colors ${
+                        activeTab === "requests"
+                          ? "text-primary"
+                          : "text-placeholderbg hover:text-primary"
+                      }`}
+                    >
+                      Requests Received
+                    </button>
+                  </>
+                )}
               </div>
               <PrimaryButton
                 label="Close"
@@ -157,7 +162,7 @@ export function EventParticipantsModal({
                       className="flex items-center justify-between p-4 bg-athens_gray rounded-xl"
                     >
                       <div className="flex items-center space-x-3">
-                        <img
+                        <ProfileAvatar
                           src={
                             member.profile_picture
                               ? getImageUrl(
@@ -168,16 +173,17 @@ export function EventParticipantsModal({
                               : avatarImage
                           }
                           alt={`${member.first_name} ${member.last_name} avatar`}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                        <div>
-                          <p className="text-primary font-medium text-responsive-xs">
-                            {member.first_name} {member.last_name}
-                          </p>
+                          className="w-12 h-12"
+                          type="member"
+                          isOwner={false}
+                          memberUuid={member.uuid}
+                          name={`${member.first_name} ${member.last_name}`}
+                          nameClassName="text-primary font-medium text-responsive-xs"
+                        >
                           <p className="text-placeholderbg text-responsive-xxs">
                             {/* Joined {formatFriendlyDateTime(member.created_at)} */}
                           </p>
-                        </div>
+                        </ProfileAvatar>
                       </div>
                       {!isUserMember && (
                         <PrimaryButton
@@ -199,7 +205,7 @@ export function EventParticipantsModal({
             )}
 
             {/* Requests Tab Content */}
-            {activeTab === "requests" && (
+            {!isUserMember && activeTab === "requests" && (
               <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-[calc(85vh-180px)]">
                 {requestsRsvps.length > 0 ? (
                   requestsRsvps.map((request) => (
@@ -208,7 +214,7 @@ export function EventParticipantsModal({
                       className="flex items-center justify-between p-4 bg-athens_gray rounded-xl"
                     >
                       <div className="flex items-center space-x-3">
-                        <img
+                        <ProfileAvatar
                           src={
                             request.profile_picture
                               ? getImageUrl(
@@ -219,16 +225,17 @@ export function EventParticipantsModal({
                               : avatarImage
                           }
                           alt={`${request.first_name} ${request.last_name} avatar`}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                        <div>
-                          <p className="text-primary font-medium text-responsive-xs">
-                            {request.first_name} {request.last_name}
-                          </p>
+                          className="w-12 h-12"
+                          type="member"
+                          isOwner={false}
+                          memberUuid={request.uuid}
+                          name={`${request.first_name} ${request.last_name}`}
+                          nameClassName="text-primary font-medium text-responsive-xs"
+                        >
                           <p className="text-placeholderbg text-responsive-xxs">
                             {/* {request.requestedAt} */}
                           </p>
-                        </div>
+                        </ProfileAvatar>
                       </div>
                       {!isUserMember && (
                         <div className="flex space-x-3">

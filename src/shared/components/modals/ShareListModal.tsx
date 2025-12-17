@@ -3,6 +3,9 @@ import { useInfiniteSharesByContent } from "@src/features/share/model/share.infi
 import { LoadingState, ErrorState } from "@src/shared/components";
 import { Spinner } from "@src/shared/components/Spinner";
 import { useFormatDate } from "@src/shared/hooks/useFormatDate";
+import { useImageUrl } from "@src/shared/hooks/useImageUrl";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
+import avatarImage from "@src/assets/shared/avatar.png";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { ShareByContentResponse, ShareByContentItem } from "@src/features/share/schema/share.types";
 
@@ -17,6 +20,7 @@ export function ShareListModal({ isOpen, onClose, contentType, contentId }: Shar
   const content_type_num = contentType === "post" ? 1 : 2;
   const { data, isLoading, isError, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteSharesByContent({ content_type: content_type_num, content_id: contentId, limit: 10 });
   const { formatRelativeTime } = useFormatDate();
+  const { getImageUrl } = useImageUrl();
 
   const pagesData = data as InfiniteData<ShareByContentResponse> | undefined;
   const pages = pagesData?.pages || [];
@@ -46,21 +50,43 @@ export function ShareListModal({ isOpen, onClose, contentType, contentId }: Shar
           {!isLoading && !isError ? (
             <>
               {isFetching && <Spinner size="sm" />}
-              {shares.map((s: ShareByContentItem) => (
-                <div key={s.share_id} className="">
-                  <div className=" py-2 rounded-lg bg-white">
-                    <div className="flex items-center justify-between">
-                      <div className="text-primary text-responsive-xs leading-tight">
-                        {/* <span className="font-bold">{s.sharer.organization_name?.trim() || [s.sharer.first_name, s.sharer.last_name].filter(Boolean).join(" ")?.trim() || "Someone"}</span>{` shared this ${contentType}${s.comment ? ` and says "${s.comment}"` : ""}`} */}
-                        <span className="font-bold">{s.sharer.organization_name?.trim() || [s.sharer.first_name, s.sharer.last_name].filter(Boolean).join(" ")?.trim() || "Someone"}</span>
-                      </div>
-                      <div className="text-placeholderbg text-responsive-xxs ml-2 whitespace-nowrap">
-                        {formatRelativeTime(s.date_created)}
-                      </div>
+              {shares.map((s: ShareByContentItem) => {
+
+                const displayName =
+                  s.sharer.organization_name?.trim() ||
+                  [s.sharer.first_name, s.sharer.last_name]
+                    .filter(Boolean)
+                    .join(" ")
+                    ?.trim() ||
+                  "Someone";
+                
+                const avatarSrc = getImageUrl(s.sharer.profile_picture?.directory, s.sharer.profile_picture?.filename,
+                    avatarImage
+                );
+
+                return (
+                  <div key={s.share_id} className="">
+                    <div className=" py-2 rounded-lg bg-white">
+                      <ProfileAvatar
+                        src={avatarSrc}
+                        alt={`${displayName} avatar`}
+                        className="w-10 h-10"
+                        type={"member"}
+                        isOwner={false}
+                        memberUuid={s.sharer.uuid ?? undefined}
+                        organizationId={undefined}
+                        name={displayName}
+                        nameClassName="text-primary text-responsive-xs font-bold"
+                        containerClassName="flex items-center gap-3 w-full"
+                      >
+                         <div className="text-placeholderbg text-responsive-xxs whitespace-nowrap">
+                            {formatRelativeTime(s.date_created)}
+                         </div>
+                      </ProfileAvatar>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {hasNextPage && (
                 <div className="flex justify-center py-2">
                   <button

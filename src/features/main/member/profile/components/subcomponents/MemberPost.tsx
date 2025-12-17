@@ -3,6 +3,7 @@ import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { useImageUrl, useFormatDate, checkOwnership } from "@src/shared/hooks";
 import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { type PostData } from "@src/features/main/member/profile/schema/post.types";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import avatarImage from "@src/assets/shared/avatar.png";
 import { CommentsSection } from "@src/shared/components";
 
@@ -50,29 +51,34 @@ export const MemberPost = ({
     onViewMoreComments?.();
   };
 
-  console.log("post data", post)
-
   return (
     <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 w-full">
       {/* 1. Header with Avatar, Name, Time and 3-dot menu */}
       <div className="flex flex-row items-start justify-between mb-4">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-          <img
+          <ProfileAvatar
             src={authorImageUrl}
-            alt="Event Creator"
-            className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
-          />
-          <div className="flex flex-col">
-            <h4 className="text-primary text-responsive-xs">
-               {post.author.organization_name
+            alt="Post Author"
+            className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14"
+            type={post.author.organization_name ? "organization" : "member"}
+            isOwner={false}
+            memberUuid={!post.author.organization_name ? post.author.uuid : undefined}
+            organizationId={post.author.organization_name ? post.author.id : undefined}
+            name={
+              post.author.organization_name
                 ? post.author.organization_name
-                : `${post.author.first_name} ${post.author.last_name}`} {" "}
+                : `${post.author.first_name} ${post.author.last_name}`
+            }
+            nameClassName="text-primary text-responsive-xs font-bold"
+          >
+            <span className="text-primary text-responsive-xs">
+              {" "}
               <span className="text-authlayoutbg">posted</span>
-            </h4>
+            </span>
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(post.created_date)}
             </p>
-          </div>
+          </ProfileAvatar>
         </div>
 
         {/* Horizontal 3-dot menu - only show if the post is from the authenticated user */}
@@ -89,8 +95,8 @@ export const MemberPost = ({
       </div>
 
       {/* 5. Description */}
-      <div className="bg-athens_gray p-3 sm:p-4 rounded-lg sm:rounded-xl text-responsive-xs text-primary leading-relaxed">
-        <p>{post.description}</p>
+      <div className="p-3 sm:p-4 text-primary leading-relaxed">
+        <p className="text-responsive-xs">{post.description}</p>
       </div>
 
       {imageUrls.length > 0 && (

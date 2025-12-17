@@ -33,10 +33,10 @@ const mapToShareItem = (item: AllSharesItem): ShareItem => {
   const contentType = item.content.type === "event" ? 2 : 1;
   const profile_picture = item.sharer.profile_picture as ProfilePicture | null;
   const account = item.sharer.org_name
-    ? { type: "organization" as const, id: 0, name: item.sharer.org_name || "", logo: null }
+    ? { type: "organization" as const, id: item.sharer.organization_id, name: item.sharer.org_name || "", logo: null }
     : {
         type: "user" as const,
-        id: 0,
+        id: item.sharer.id,
         first_name: item.sharer.first_name || "",
         last_name: item.sharer.last_name || "",
         profile_picture,
