@@ -16,6 +16,7 @@ import {
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
 import avatarImage from "@src/assets/shared/avatar.png";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useInfiniteOrganizationPastEvents } from "../model/event.infinite.query";
 import { useDeleteEvent } from "../model/event.mutation";
 import { LoadingState, ErrorState } from "@src/shared/components";
@@ -179,10 +180,14 @@ export default function PastEventsComponent({ accountUuid }: PastEventsComponent
         <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
           <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
             <div className="flex-shrink-0">
-              <img
+              <ProfileAvatar
                 src={currentAvatar}
                 alt="User Avatar"
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14"
+                type={isOrganization(user) ? "organization" : "member"}
+                isOwner={false}
+                memberUuid={isMember(user) ? user?.uuid : undefined}
+                organizationId={isOrganization(user) ? user?.id : undefined}
               />
             </div>
 

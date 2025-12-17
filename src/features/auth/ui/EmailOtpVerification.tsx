@@ -32,8 +32,6 @@ export default function VerifyEmailOtpInterface() {
   const onSubmit = handleSubmit(async (data: OtpSignupVerificationFormData) => {
 
     try {
-
-        console.log(email, data.otp_code)
       const response = await verifyMutation.mutateAsync({
         email,
         otp_code: data.otp_code,

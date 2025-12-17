@@ -1,4 +1,5 @@
 import { Modal } from "../Modal";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 
 interface Member {
   id: string;
@@ -49,19 +50,20 @@ export function MembersModal({
                 className="flex items-center justify-between p-4 bg-athens_gray rounded-xl"
               >
                 <div className="flex items-center space-x-3">
-                  <img
+                  <ProfileAvatar
                     src={member.avatar}
                     alt={`${member.name} avatar`}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-primary font-medium text-responsive-xs">
-                      {member.name}
-                    </p>
+                    className="w-12 h-12"
+                    type="member"
+                    isOwner={false}
+                    memberUuid={member.id}
+                    name={member.name}
+                    nameClassName="text-primary font-medium text-responsive-xs"
+                  >
                     <p className="text-placeholderbg text-responsive-xxs">
                       Joined {member.joinedAt}
                     </p>
-                  </div>
+                  </ProfileAvatar>
                 </div>
                 {onRemoveMember && (
                   <button

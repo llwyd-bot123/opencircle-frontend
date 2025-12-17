@@ -1,3 +1,4 @@
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useEffect, useState, useRef, useMemo } from "react";
 import type { DefaultComment } from "@src/features/comments/schema/comment.types";
 import type { KeyboardEvent } from "react";
@@ -206,7 +207,7 @@ export function CommentsModal({
                 <div key={comment.id} className="">
                   <div className="bg-athens_gray p-4 rounded-xl flex justify-between items-start">
                     <div className="flex space-x-3 flex-1">
-                      <img
+                      <ProfileAvatar
                         src={getImageUrl(
                           comment.role === "member"
                             ? comment?.profile_picture?.directory
@@ -221,18 +222,23 @@ export function CommentsModal({
                           avatarImage
                         )}
                         alt={`${comment.author} avatar`}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                      <div className="flex-1">
-                        <p className="text-primary font-medium text-responsive-xs mb-2">
-                          {comment.role === "member"
+                        className="w-12 h-12"
+                        type={comment.role === "organization" ? "organization" : "member"}
+                        isOwner={false}
+                        memberUuid={comment.role === "user" ? comment.account_uuid : undefined}
+                        organizationId={comment.role === "organization" ? Number(comment.author) : undefined}
+                        name={
+                          comment.role === "member"
                             ? `${comment.user_first_name} ${comment.user_last_name}`
                             : comment.role === "organization"
                             ? comment.organization_name
-                            : `${comment.user_first_name} ${comment.user_last_name}`}
-                        </p>
+                            : `${comment.user_first_name} ${comment.user_last_name}`
+                        }
+                        nameClassName="text-primary font-medium text-responsive-xs mb-2 block"
+                        containerClassName="flex items-start gap-3 w-full"
+                      >
                         {editingCommentId === comment.id ? (
-                          <div className="relative">
+                          <div className="relative w-full">
                             <input
                               ref={editInputRef}
                               type="text"
@@ -254,7 +260,7 @@ export function CommentsModal({
                             {comment.message}
                           </p>
                         )}
-                      </div>
+                      </ProfileAvatar>
                     </div>
                     {checkOwnership({
                       type: "comment",

@@ -1,9 +1,11 @@
 // import { useState } from "react";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
-// import { EventTabContent } from "@src/shared/components/EventTabContent";
+// import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import { useFormatDate, useImageUrl, checkOwnership } from "@src/shared/hooks";
+import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import avatarImage from "@src/assets/shared/avatar.png";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
 import joinedIcon from "@src/assets/shared/joined_icon.svg";
@@ -28,6 +30,7 @@ export const EventActivePost = ({
 }: EventActivePostProps) => {
   // const [activeTab, setActiveTab] = useState<"members" | "request">("members");
   const { formatRelativeTime, formatFriendlyDateTime } = useFormatDate();
+  const { openLightbox, LightboxViewer } = useLightbox();
 
   // Check if user is a member
 
@@ -71,22 +74,26 @@ export const EventActivePost = ({
       {/* 1. Header with Avatar, Name, Time and 3-dot menu */}
       <div className="flex flex-row items-start justify-between mb-4">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-          <img
+          <ProfileAvatar
             src={creatorImageUrl}
             alt="Event Creator"
-            className="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover"
-          />
-          <div className="flex flex-col">
-            <h4 className="text-primary text-responsive-xs font-bold">
-              {event.organization.name}{" "}
+            className="w-10 h-10 sm:w-14 sm:h-14"
+            type="organization"
+            isOwner={false}
+            organizationId={event.organization.id}
+            name={event.organization.name}
+            nameClassName="text-primary text-responsive-xs font-bold"
+          >
+            <span className="text-primary text-responsive-xs font-bold">
+              {" "}
               <span className="text-authlayoutbg font-normal">
                 posted an event
               </span>
-            </h4>
+            </span>
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(event.created_date)}
             </p>
-          </div>
+          </ProfileAvatar>
         </div>
 
         <div className="flex items-start space-x-2">
@@ -212,7 +219,7 @@ export const EventActivePost = ({
           )}
 
           {/* Show Cancel RSVP button if user has RSVPed and status is approved */}
-          {event.user_rsvp && event.user_rsvp.status === "approved" && (
+          {event.user_rsvp && event.user_rsvp.status === "joined" && (
             <PrimaryButton
               variant={"activeEventButton"}
               label={"Cancel RSVP"}
@@ -228,13 +235,17 @@ export const EventActivePost = ({
       </div>
 
       {/* 6. Event Image */}
-      <div className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] overflow-hidden mt-4">
+      <button
+        type="button"
+        className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] overflow-hidden mt-4 cursor-pointer"
+        onClick={() => openLightbox(0, [{ src: eventImageUrl }])}
+      >
         <img
           src={eventImageUrl}
           alt={event.title}
           className="w-full h-full object-cover"
         />
-      </div>
+      </button>
 
       {/* <hr className="my-4 text-gainsboro" /> */}
 
@@ -293,6 +304,7 @@ export const EventActivePost = ({
         participantsCount={event.total_pending_rsvps}
         contentId={event.id}
       />
+      <LightboxViewer />
     </div>
   );
 };

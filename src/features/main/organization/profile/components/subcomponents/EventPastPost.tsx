@@ -6,6 +6,7 @@ import {
   useImageUrl,
   checkOwnership,
 } from "@src/shared/hooks";
+import { useLightbox } from "@src/shared/hooks/useLightbox";
 // import { ConfirmationModal } from "@src/shared/components/modals";
 import avatarImage from "@src/assets/shared/avatar.png";
 import type { EventData } from "../../schema/event.type";
@@ -36,6 +37,7 @@ export const EventPastPost = ({
 
   const { formatRelativeTime, formatDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
+  const { openLightbox, LightboxViewer } = useLightbox();
 
   const handleEdit = () => {
     onEdit?.(event.id);
@@ -166,13 +168,17 @@ export const EventPastPost = ({
       </div>
 
       {/* 6. Event Image */}
-      <div className="w-full h-40 sm:h-48 md:h-56 lg:h-64 rounded-xl overflow-hidden mt-3 sm:mt-4">
+      <button
+        type="button"
+        className="w-full h-40 sm:h-48 md:h-56 lg:h-64 rounded-xl overflow-hidden mt-3 sm:mt-4 cursor-pointer"
+        onClick={() => openLightbox(0, [{ src: eventImageUrl }])}
+      >
         <img
           src={eventImageUrl}
           alt={event.title}
           className="w-full h-full object-cover"
         />
-      </div>
+      </button>
 
       <hr className="my-3 sm:my-4 text-gainsboro" />
 
@@ -247,6 +253,7 @@ export const EventPastPost = ({
         contentType="event"
         currentUserAvatar={currentUserAvatar} // Provide default avatar for comment input
       />
+      <LightboxViewer />
 
       {/* Confirmation Modal */}
       {/* {modalConfig && (

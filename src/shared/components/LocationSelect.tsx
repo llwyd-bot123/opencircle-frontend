@@ -148,9 +148,6 @@ export const LocationSelect = ({
     // Always reset city and barangay options when region changes
     resetCityOptions(null);
     resetBarangayOptions(null);
-
-    // Log for debugging
-    console.log("Region changed:", { value, label });
   };
 
   // Handle province change
@@ -164,8 +161,6 @@ export const LocationSelect = ({
     resetCityOptions(null);
     resetBarangayOptions(null);
 
-    // Log for debugging
-    console.log("Province changed:", { value, label });
   };
 
   // Handle city change
@@ -175,8 +170,6 @@ export const LocationSelect = ({
     onBarangayChange("barangay", "", "");
     resetBarangayOptions(null);
 
-    // Log for debugging
-    console.log("City changed:", { value, label });
   };
 
   // We'll use the original options arrays and let the CustomSelectField handle empty states

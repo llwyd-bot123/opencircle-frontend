@@ -1,10 +1,11 @@
 import { Modal } from "@src/shared/components/Modal";
 import { useNotifications } from "@src/features/notification/model/notification.query";
-import { useMarkNotificationAsRead, useDeleteNotification } from "@src/features/notification/model/notification.mutation";
+import { useMarkNotificationAsRead, useDeleteNotification, useMarkAllNotificationsAsRead } from "@src/features/notification/model/notification.mutation";
 import { LoadingState, ErrorState } from "@src/shared/components";
 import { Spinner } from "@src/shared/components/Spinner";
 import { useState } from "react";
 import { useFormatDate } from "@src/shared/hooks/useFormatDate";
+import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import deleteIcon from "@src/assets/shared/delete_icon.svg";
 
 type NotificationModalProps = {
@@ -18,6 +19,11 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
   const { formatRelativeTime } = useFormatDate();
   const markOneMutation = useMarkNotificationAsRead();
   const deleteMutation = useDeleteNotification();
+  const markAllMutation = useMarkAllNotificationsAsRead();
+
+  const handleMarkAllAsRead = () => {
+    markAllMutation.mutate();
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const next = Number(e.target.value);
@@ -38,6 +44,12 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
             <span className="text-responsive-xs text-primary">Showing {data?.notifications.length || 0} of {limit}</span>
           </div>
           <div className="flex items-center space-x-3">
+            <PrimaryButton
+              label="Mark all as read"
+              variant="linkXsButton"
+              contentClass="text-responsive-xxs"
+              onClick={handleMarkAllAsRead}
+            />
             <select
             value={limit}
             onChange={handleChange}

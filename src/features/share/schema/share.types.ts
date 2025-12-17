@@ -50,6 +50,7 @@ export type ShareByContentSharer = {
   organization_name?: string | null;
   first_name: string | null;
   last_name: string | null;
+  profile_picture: ProfilePicture | null;
 };
 
 export type ShareByContentItem = {
@@ -101,6 +102,8 @@ export type ShareAuthorMinimal = {
 };
 
 export type ShareSharer = {
+  id: number;
+  organization_id: number;
   uuid: string;
   email: string;
   first_name: string | null;

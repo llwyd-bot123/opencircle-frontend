@@ -170,8 +170,6 @@ export default function HomeInterface() {
   const sharesInfinite = sharesData as InfiniteData<{ shares: ShareItem[] }> | undefined;
   const shares: ShareItem[] = sharesInfinite?.pages?.flatMap((page) => page.shares) || [];
 
-  console.log("default share data", shares)
-
   // Define union type for combined content items
   type CombinedContentItem =
     | { type: "event"; data: EventData; date: Date }

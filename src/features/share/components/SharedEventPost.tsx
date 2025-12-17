@@ -1,20 +1,20 @@
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 import { checkOwnership, useFormatDate, useImageUrl } from "@src/shared/hooks";
-import { useNavigation } from "@src/shared/hooks/useNavigation";
 import { useAuthStore } from "@src/shared/store/auth";
 import { isMember } from "@src/shared/utils";
 import avatarImage from "@src/assets/shared/avatar.png";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
 import joinedIcon from "@src/assets/shared/joined_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 
 interface SharedEventPostProps {
   event: EventData;
   onJoinOrganization?: (orgId: number) => void;
   onCancelJoiningOrganization?: (orgId: number) => void;
   onLeaveOrganization?: (orgId: number) => void;
-  onRsvpEvent?: (eventId: number) => void;
+  onRsvpEvent: (eventId: number) => void;
   onDeleteRsvpEvent?: (rsvpId: number) => void;
 }
 
@@ -23,10 +23,11 @@ export const SharedEventPost = ({
   onJoinOrganization,
   onCancelJoiningOrganization,
   onLeaveOrganization,
+  onRsvpEvent,
+  onDeleteRsvpEvent,
 }: SharedEventPostProps) => {
   const { formatRelativeTime, formatFriendlyDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
-  const { onOrganizationClick } = useNavigation();
   const { user } = useAuthStore();
   const userRole = isMember(user) ? "member" : "organization";
   const isOwner = checkOwnership({ type: "event", ownerId: event.organization?.account_id });
@@ -46,23 +47,26 @@ export const SharedEventPost = ({
     <div className="bg-athens_gray rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 w-full">
       <div className="flex flex-row items-start justify-between mb-4">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-          <img
+          <ProfileAvatar
             src={creatorImageUrl}
             alt="Event Creator"
-            className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover ${
-              isOwner ? "" : "border border-transparent hover:border-secondary cursor-pointer"
-            }`}
-            onClick={isOwner ? undefined : onOrganizationClick(event.organization_id)}
-          />
-          <div className="flex flex-col">
-            <h4 className="text-primary text-responsive-xs">
-              {event.organization_name} {" "}
-              <span className="text-authlayoutbg font-normal">posted an event</span>
-            </h4>
+            className="w-10 h-10 sm:w-14 sm:h-14"
+            type="organization"
+            isOwner={isOwner}
+            organizationId={event.organization_id}
+            name={event.organization_name}
+            nameClassName="text-primary text-responsive-xs font-bold"
+          >
+            <span className="text-primary text-responsive-xs font-bold">
+               {" "}
+              <span className="text-authlayoutbg font-normal">
+                posted an event
+              </span>
+            </span>
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(event.created_date)}
             </p>
-          </div>
+          </ProfileAvatar>
         </div>
         <div className="flex items-start space-x-2">
           {userRole === "member" && (
@@ -139,6 +143,38 @@ export const SharedEventPost = ({
           {formatFriendlyDateTime(event.event_date)}
         </span>
       </div>
+
+      {/* Only show RSVP button for members, not for organizations */}
+      {userRole === "member" && (
+        <div className="mb-4">
+          {/* Show RSVP button if user hasn't RSVPed yet */}
+          {!event.user_rsvp && (
+            <PrimaryButton
+              variant={"rsvpButton"}
+              label={"RSVP"}
+              onClick={() => onRsvpEvent?.(event.id)}
+            />
+          )}
+
+          {/* Show Pending button if user has RSVPed and status is pending */}
+          {event.user_rsvp && event.user_rsvp.status === "pending" && (
+            <PrimaryButton
+              variant={"pendingEventButton"}
+              label={"Pending"}
+              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+            />
+          )}
+
+          {/* Show Cancel RSVP button if user has RSVPed and status is joined */}
+          {event.user_rsvp && event.user_rsvp.status === "joined" && (
+            <PrimaryButton
+              variant={"activeEventButton"}
+              label={"Cancel RSVP"}
+              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+            />
+          )}
+        </div>
+      )}
 
       <div className="bg-white p-3 sm:p-4 rounded-xl text-responsive-xs text-primary leading-relaxed">
         <p>{event.description}</p>
