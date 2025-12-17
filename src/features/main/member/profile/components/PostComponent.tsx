@@ -19,11 +19,16 @@ import { LoadingState, ErrorState } from "@src/shared/components";
 import { useInfinitePostComments } from "@src/features/comments/model/comment.infinite.query";
 import type { CommentsResponse } from "@src/features/comments/schema/comment.types";
 import { useInfiniteMemberPosts } from "../model/post.infinite.query";
+import { useInfiniteUserShares } from "@src/features/share/model/share.infinite.query";
+import { SharedCard } from "@src/features/share/ui/SharedCard";
+import type { ShareItem, UserSharesResponse } from "@src/features/share/schema/share.types";
+import type { InfiniteData } from "@tanstack/react-query";
 import { useDeletePost } from "../model/post.mutation";
 import type { MemberPostsResponse } from "../schema/post.types";
 import type { PostFormMode } from "../schema/post.schema";
 
-export default function PostComponent() {
+type PostComponentProps = { accountUuid?: string };
+export default function PostComponent({ accountUuid }: PostComponentProps) {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [isPostFormModalOpen, setIsPostFormModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
@@ -39,6 +44,7 @@ export default function PostComponent() {
 
   const { user } = useAuthStore();
   const { getImageUrl } = useImageUrl();
+  const isVisiting = !!accountUuid && accountUuid !== user?.uuid;
 
   // Get current user avatar URL
   const currentAvatar = getImageUrl(
@@ -55,6 +61,8 @@ export default function PostComponent() {
     avatarImage
   );
 
+  const userUuid = accountUuid || user?.uuid || "";
+
   // Only fetch posts if user is logged in using infinite query
   const {
     data: infinitePostsData,
@@ -65,16 +73,28 @@ export default function PostComponent() {
     isFetchingNextPage: isFetchingNextPostsPage,
     isError: isPostsError,
   } = useInfiniteMemberPosts({
-    uid: user?.uuid || "",
+    uid: userUuid,
     limit: 5,
   });
+
+  const {
+    data: infiniteSharesData,
+    isLoading: isSharesLoading,
+    error: sharesError,
+    fetchNextPage: fetchNextSharesPage,
+    hasNextPage: hasNextSharesPage,
+    isFetchingNextPage: isFetchingNextSharesPage,
+  } = useInfiniteUserShares({ account_uuid: userUuid, limit: 5 });
+
+ 
 
   // Ensure fetchNextPostsPage is properly typed
   const handleFetchNextPage = () => {
     if (fetchNextPostsPage) {
       fetchNextPostsPage();
-    } else {
-      console.error("fetchNextPostsPage function is not available");
+    }
+    if (fetchNextSharesPage) {
+      fetchNextSharesPage();
     }
   };
 
@@ -83,6 +103,26 @@ export default function PostComponent() {
     infinitePostsData?.pages?.flatMap(
       (page: MemberPostsResponse) => page.posts
     ) || [];
+
+  const sharesInfinite = infiniteSharesData as InfiniteData<UserSharesResponse> | undefined;
+  const shares: ShareItem[] = sharesInfinite?.pages?.flatMap((page) => page.shares) || [];
+
+  type CombinedContentItem =
+    | { type: "post"; data: typeof postsData[number]; date: Date }
+    | { type: "share"; data: ShareItem; date: Date };
+
+  const combinedContent: CombinedContentItem[] = [
+    ...postsData.map((post) => ({
+      type: "post" as const,
+      data: post,
+      date: new Date(post.created_date),
+    })),
+    ...shares.map((share) => ({
+      type: "share" as const,
+      data: share,
+      date: new Date(share.date_created),
+    })),
+  ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   const {
     data: infiniteCommentsData,
@@ -141,8 +181,8 @@ export default function PostComponent() {
 
   const { sentinelRef } = useInfiniteScroll({
     onLoadMore: handleFetchNextPage,
-    hasMore: !!hasNextPostsPage,
-    isLoading: isFetchingNextPostsPage,
+    hasMore: !!hasNextPostsPage || !!hasNextSharesPage,
+    isLoading: isFetchingNextPostsPage || isFetchingNextSharesPage,
     rootMargin: "0px 0px 100px 0px", // Increase detection area
     threshold: 0,
     enabled: true, // Always enable
@@ -151,30 +191,28 @@ export default function PostComponent() {
   return (
     <div className="w-full lg:w-1/2 mx-auto p-8">
       <>
-        {/* Comment Card */}
-        <div className="bg-white rounded-xl h-auto sm:h-[104px] p-3 py-2 sm:p-4 shadow-sm border border-gray-100 mb-6">
-          <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
-            {/* Avatar Column */}
-            <div className="flex-shrink-0">
-              <img
-                src={currentAvatar}
-                alt="User Avatar"
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
-              />
-            </div>
-
-            {/* Input Column */}
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Whats on your mind? ..."
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs sm:text-responsive-sm cursor-pointer"
-                onClick={handleOpenCreatePostModal}
-                readOnly
-              />
+        {!isVisiting && (
+          <div className="bg-white rounded-xl h-auto sm:h-[104px] p-3 py-2 sm:p-4 shadow-sm border border-gray-100 mb-6">
+            <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
+              <div className="flex-shrink-0">
+                <img
+                  src={currentAvatar}
+                  alt="User Avatar"
+                  className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+                />
+              </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Whats on your mind? ..."
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs sm:text-responsive-sm cursor-pointer"
+                  onClick={handleOpenCreatePostModal}
+                  readOnly
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Post Form Modal (Create/Edit) */}
         <PostFormModal
@@ -192,44 +230,51 @@ export default function PostComponent() {
           <ErrorState message="Failed to load posts. Please try again later." />
         )}
 
-        {/* No Posts State */}
-        {!isPostsLoading && !postsError && postsData?.length === 0 && (
+        {/* No Content State */}
+        {!isPostsLoading && !postsError && !isSharesLoading && !sharesError && postsData?.length === 0 && shares.length === 0 && (
           <div className="text-center py-8">
             <p className="text-placeholderbg text-responsive-sm">
-              No posts yet. Be the first to share something!
+              No content yet. Be the first to share something!
             </p>
           </div>
         )}
 
-        {/* Posts List */}
-        {!isPostsLoading &&
+        {/* Combined Feed: Posts + Shares */}
+        {(!isPostsLoading || !isSharesLoading) &&
           !postsError &&
-          postsData &&
-          postsData.length > 0 && (
+          !sharesError && (
             <div className="space-y-6">
-              {postsData.map((post) => (
-                <MemberPost
-                  key={post.id}
-                  post={post}
-                  currentUserAvatar={currentAvatar}
-                  onViewMoreComments={() => handleViewMoreComments(post.id)}
-                  onDeletePost={handleDeletePost}
-                  onEditPost={handleEditPost}
-                />
-              ))}
+              {combinedContent.map((item, idx) => {
+                if (item.type === "post") {
+                  const post = item.data;
+                  return (
+                    <MemberPost
+                      key={`post-${post.id}-${idx}`}
+                      post={post}
+                      currentUserAvatar={currentAvatar}
+                      onViewMoreComments={() => handleViewMoreComments(post.id)}
+                      onDeletePost={handleDeletePost}
+                      onEditPost={handleEditPost}
+                    />
+                  );
+                }
+                return (
+                  <SharedCard key={`share-${item.data.shared_id}-${idx}`} share={item.data} />
+                );
+              })}
 
               {/* Infinite scroll sentinel element */}
               <div className="w-full my-4">
-                {isFetchingNextPostsPage && (
+                {(isFetchingNextPostsPage || isFetchingNextSharesPage) && (
                   <LoadingState
-                    message="Loading more posts..."
+                    message="Loading more content..."
                     className="py-4 text-center"
                   />
                 )}
-                {isPostsError && !isFetchingNextPostsPage && (
+                {(isPostsError || sharesError) && !(isFetchingNextPostsPage || isFetchingNextSharesPage) && (
                   <div className="flex flex-col items-center py-4">
                     <ErrorState
-                      message="Failed to load more posts."
+                      message="Failed to load more content."
                       className="mb-2 text-center"
                     />
                     <button
@@ -243,7 +288,7 @@ export default function PostComponent() {
                 {/* Always render sentinel element but with different heights */}
                 <div
                   ref={sentinelRef}
-                  className={`w-full ${hasNextPostsPage ? "h-20" : "h-4"}`}
+                  className={`w-full ${hasNextPostsPage || hasNextSharesPage ? "h-20" : "h-4"}`}
                   style={{ marginBottom: "20px" }}
                 />
               </div>

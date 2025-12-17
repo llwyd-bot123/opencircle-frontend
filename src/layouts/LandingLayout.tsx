@@ -170,6 +170,7 @@ export default function LandingLayout() {
         brandName="OpenCircle"
         transparent={!isScrolled}
         onButtonClick={handleButtonClick}
+        isAuthenticated={isAuthenticated}
         buttonLabel={isAuthenticated ? "Log out" : "Log in"}
         navMenu={navMenu}
       />

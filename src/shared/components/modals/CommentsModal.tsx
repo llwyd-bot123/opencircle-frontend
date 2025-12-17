@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import type { DefaultComment } from "@src/features/comments/schema/comment.types";
 import type { KeyboardEvent } from "react";
 import { Modal } from "../Modal";
@@ -63,6 +63,12 @@ export function CommentsModal({
   const deleteCommentMutation = useDeleteComment();
   const editCommentMutation = useEditComment();
   const { formatRelativeTime } = useFormatDate();
+
+  const sortedComments = useMemo(() => {
+    return [...comments].sort(
+      (a, b) => new Date(b.last_modified_date).getTime() - new Date(a.last_modified_date).getTime()
+    );
+  }, [comments]);
 
   const handleEditComment = (comment: DefaultComment) => {
     setEditingCommentId(comment.id);
@@ -196,7 +202,7 @@ export function CommentsModal({
 
           {!isLoading && !error && comments.length > 0 ? (
             <>
-              {comments.map((comment) => (
+              {sortedComments.map((comment) => (
                 <div key={comment.id} className="">
                   <div className="bg-athens_gray p-4 rounded-xl flex justify-between items-start">
                     <div className="flex space-x-3 flex-1">
@@ -206,12 +212,12 @@ export function CommentsModal({
                             ? comment?.profile_picture?.directory
                             : comment.role === "organization"
                             ? comment?.organization_logo?.directory
-                            : avatarImage,
+                            : '',
                           comment.role === "member"
                             ? comment?.profile_picture?.filename
                             : comment.role === "organization"
                             ? comment?.organization_logo?.filename
-                            : avatarImage,
+                            : '',
                           avatarImage
                         )}
                         alt={`${comment.author} avatar`}

@@ -57,8 +57,11 @@ export interface CommentsSectionProps {
   totalComments?: number;
   currentUserAvatar?: string;
   onViewMoreComments?: () => void;
+  onViewParticipants?: () => void;
   contentId: number;
   contentType: "post" | "event";
+  participantsCount?: number;
+  sharesCount?: number;
 }
 
 // Interface for the response from posting a comment

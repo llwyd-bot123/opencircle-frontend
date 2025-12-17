@@ -2,6 +2,7 @@ import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { checkOwnership, useFormatDate, useImageUrl } from "@src/shared/hooks";
+import { useNavigation } from "@src/shared/hooks/useNavigation";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import avatarImage from "@src/assets/shared/avatar.png";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
@@ -41,15 +42,17 @@ export const PublicEventPost = ({
 
   const { formatRelativeTime, formatFriendlyDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
+  const { onOrganizationClick } = useNavigation();
+  const isOwner = checkOwnership({ type: "event", ownerId: event.organization?.account_id });
 
   const creatorImageUrl = getImageUrl(
-    event.organization.logo.directory,
-    event.organization.logo.filename,
+    event.organization?.logo?.directory,
+    event.organization?.logo?.filename,
     avatarImage
   );
   const eventImageUrl = getImageUrl(
-    event.image.directory,
-    event.image.filename,
+    event.image?.directory,
+    event.image?.filename,
     avatarImage
   );
 
@@ -61,11 +64,15 @@ export const PublicEventPost = ({
           <img
             src={creatorImageUrl}
             alt="Event Creator"
-            className="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover"
+          className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover ${
+              isOwner ? "" : "border border-transparent hover:border-secondary cursor-pointer"
+            }`}
+            onError={(e) => (e.currentTarget.src = avatarImage)}
+            onClick={isOwner ? undefined : onOrganizationClick(event.organization_id)}
           />
           <div className="flex flex-col">
-            <h4 className="text-primary text-responsive-xs font-bold">
-              {event.organization.name}{" "}
+            <h4 className="text-primary text-responsive-xs">
+              {event.organization?.name}{" "}
               <span className="text-authlayoutbg font-normal">
                 posted an event
               </span>
@@ -78,10 +85,7 @@ export const PublicEventPost = ({
 
         <div className="flex items-start space-x-2">
           {/* Horizontal 3-dot menu - only show if user is the owner */}
-          {checkOwnership({
-            type: "event",
-            ownerId: event.organization?.account_id,
-          }) && (
+          {isOwner && (
             <DropdownMenu
               onEdit={() => onEdit?.(event.id)}
               onDelete={() => onDelete?.(event.id)}
@@ -152,8 +156,8 @@ export const PublicEventPost = ({
           />
         </svg>
         <span className="text-primary text-responsive-xs">
-          {event.address.province}, {event.address.city},{" "}
-          {event.address.barangay},
+          {event.address?.province}, {event.address?.city},{" "}
+          {event.address?.barangay},
         </span>
       </div>
 
@@ -183,7 +187,7 @@ export const PublicEventPost = ({
             <PrimaryButton
               variant={"rsvpButton"}
               label={"RSVP"}
-              onClick={() => onRsvpEvent?.(event.id)}
+              onClick={() => onRsvpEvent(event.id)}
             />
           )}
 
@@ -192,7 +196,7 @@ export const PublicEventPost = ({
             <PrimaryButton
               variant={"pendingEventButton"}
               label={"Pending"}
-              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+              onClick={() => onDeleteRsvpEvent(event.user_rsvp.rsvp_id)}
             />
           )}
 
@@ -201,7 +205,7 @@ export const PublicEventPost = ({
             <PrimaryButton
               variant={"activeEventButton"}
               label={"Cancel RSVP"}
-              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+              onClick={() => onDeleteRsvpEvent(event.user_rsvp.rsvp_id)}
             />
           )}
         </div>
@@ -218,10 +222,9 @@ export const PublicEventPost = ({
           src={eventImageUrl}
           alt={event.title}
           className="w-full h-full object-cover"
+          onError={(e) => (e.currentTarget.src = avatarImage)}
         />
       </div>
-
-      <hr className="my-4 text-gainsboro" />
 
       {/* Comments Section */}
       <CommentsSection

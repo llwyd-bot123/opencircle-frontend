@@ -5,13 +5,17 @@ type Variant =
   | "activeEventButton"
   | "pendingEventButton"
   | "joinStatusButton"
+  | "joinStatusButton2"
   | "rsvpButton"
   | "leaveOrgButton"
   | "acceptButton"
   | "declineButton"
   | "removeButton"
   | "iconButton"
-  | "viewMoreButton";
+  | "viewMoreButton"
+  | "shareButton" 
+  | "linkXsButton"
+  | "noStyle";
 
 interface ButtonProps {
   label: string;
@@ -23,6 +27,7 @@ interface ButtonProps {
   iconClass?: string; // New prop for custom icon styling
   type?: "button" | "submit" | "reset";
   onClick?: () => void;
+  contentClass?: string;
 }
 
 const variantClasses: Record<Variant, string> = {
@@ -38,6 +43,8 @@ const variantClasses: Record<Variant, string> = {
     "border-2 py-1 px-6 border-secondary text-secondary text-responsive-xxs rounded-full",
   joinStatusButton:
     "bg-primary text-white py-[6px] px-6 rounded-full flex items-center text-responsive-xxs",
+  joinStatusButton2:
+    "text-primary py-[2px] rounded-full flex items-center text-responsive-xxs",
   rsvpButton:
     "border-2 py-1 px-6 border-primary text-primary text-responsive-xxs rounded-full",
   leaveOrgButton: "text-red-700 text-responsive-xxs",
@@ -50,6 +57,9 @@ const variantClasses: Record<Variant, string> = {
   iconButton:
     "bg-primary text-white p-2 rounded-full flex items-center text-responsive-xxs",
   viewMoreButton: "text-authlayoutbg text-responsive-xxs",
+  shareButton: "text-primary font-semibold text-responsive-xs hover:underline",
+  linkXsButton: "text-authlayoutbg text-responsive-xxss hover:underline bg-transparent p-0",
+  noStyle: ""
 };
 
 // Default icon classes for each position
@@ -68,6 +78,7 @@ export function PrimaryButton({
   iconClass, // Custom icon class
   type = "button",
   onClick,
+  contentClass,
 }: ButtonProps) {
   const baseClass = "btn";
   const combinedClass =
@@ -88,7 +99,7 @@ export function PrimaryButton({
       onClick={onClick}
       style={{ cursor: "pointer" }}
     >
-      <span className="flex justify-center items-center w-full text-responsive-xs text-center">
+      <span className={`flex justify-center items-center w-full ${contentClass ?? "text-responsive-xs"} text-center`}>
         {icon && iconPosition === "left" && (
           <img src={icon} alt="icon" className={getIconClass()} />
         )}

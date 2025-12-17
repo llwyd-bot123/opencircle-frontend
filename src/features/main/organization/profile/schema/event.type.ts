@@ -108,6 +108,7 @@ export interface EventData {
   total_members: number;
   total_pending_rsvps: number;
   organization: Organization;
+  organization_name: string;
   address: EventAddress;
   members: EventParticipant[];
   pending_rsvps: EventParticipant[];
@@ -208,4 +209,20 @@ export type PastEventsResponse = {
 export interface InfinitePastEventsResponse {
   pages: PastEventsResponse[];
   pageParams: number[];
+}
+
+export interface EventActivePostProps {
+  event: EventData;
+  currentUserAvatar: string;
+  isUserMember?: boolean;
+  onViewMoreComments?: (eventId: number) => void;
+  onViewMoreMembers?: (eventId: number) => void;
+  onViewMoreRequests?: (eventId: number) => void;
+  onEdit?: (eventId: number) => void;
+  onDelete?: (eventId: number) => void;
+  onJoinOrganization?: (orgId: number) => void;
+  onCancelJoiningOrganization?: (orgId: number) => void;
+  onLeaveOrganization?: (orgId: number) => void;
+  onRsvpEvent?: (eventId: number) => void;
+  onDeleteRsvpEvent?: (rsvpId: number) => void;
 }

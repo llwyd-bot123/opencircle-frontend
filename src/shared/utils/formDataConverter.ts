@@ -11,6 +11,7 @@ export const objectToFormData = (
     "avatar",
     "photo",
     "profile_picture",
+    "images",
   ]
 ): FormData => {
   const formData = new FormData();
@@ -20,22 +21,21 @@ export const objectToFormData = (
       if (value instanceof File) {
         formData.append(key, value);
       } else if (Array.isArray(value)) {
-        value.forEach((item, index) => {
-          formData.append(`${key}[${index}]`, String(item));
-        });
+        const allFiles = value.every((item) => item instanceof File);
+        if (allFiles) {
+          (value as File[]).forEach((file) => {
+            formData.append(key, file);
+          });
+        }
       } else if (typeof value === "object") {
         formData.append(key, JSON.stringify(value));
       } else {
         formData.append(key, String(value));
       }
     } else {
-      // Check if this field is expected to be a file
-      if (fileFields.includes(key)) {
-        const emptyFile = new File([], "", {
-          type: "application/octet-stream",
-        });
-        formData.append(key, emptyFile);
-      } else {
+      // For undefined/null values, avoid appending empty blobs for file fields
+      // This prevents unintended clearing of existing files during updates
+      if (!fileFields.includes(key)) {
         formData.append(key, "");
       }
     }

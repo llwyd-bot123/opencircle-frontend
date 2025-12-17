@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useDropzone } from "react-dropzone";
 import addImageIcon from "@src/assets/shared/add_image_icon.svg";
 import { Modal } from "../Modal";
 import { useForm } from "react-hook-form";
@@ -29,7 +30,11 @@ export const PostFormModal = ({
   mode = "create",
   postId,
 }: PostFormModalProps) => {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImagePreviews, setExistingImagePreviews] = useState<string[]>([]);
+  const [existingImagesMeta, setExistingImagesMeta] = useState<{ directory: string; filename: string }[]>([]);
+  const existingLoadedRef = useRef(false);
+  const [imagesError, setImagesError] = useState<string>("");
   const [error, setError] = useState("");
   const createPostMutation = useCreatePost();
   const updatePostMutation = useUpdatePost();
@@ -39,7 +44,6 @@ export const PostFormModal = ({
     postId || 0,
     mode === "edit" && !!postId
   );
-
   // Track previous mode to detect changes
   const [prevMode, setPrevMode] = useState<PostFormMode>(mode);
 
@@ -49,6 +53,7 @@ export const PostFormModal = ({
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors },
   } = useForm<PostFormData>({
     resolver: zodResolver(
@@ -56,7 +61,7 @@ export const PostFormModal = ({
     ),
     defaultValues: {
       description: "",
-      image: undefined,
+      images: undefined,
     },
     mode: "onChange",
   });
@@ -70,14 +75,21 @@ export const PostFormModal = ({
     // Reset React Hook Form fields
     reset({
       description: "",
-      image: undefined,
+      images: undefined,
     });
 
     // Clear image preview
-    setImagePreview(null);
+    setImagePreviews((prev) => {
+      prev.forEach((url) => URL.revokeObjectURL(url));
+      return [];
+    });
+    setExistingImagePreviews([]);
+    setExistingImagesMeta([]);
 
     // Clear any error messages
     setError("");
+    setImagesError("");
+    existingLoadedRef.current = false;
   }, [reset]);
 
   // Reset form when modal closes or when switching between create/edit modes
@@ -87,6 +99,8 @@ export const PostFormModal = ({
       resetForm();
       return;
     }
+
+    existingLoadedRef.current = false;
 
     // If mode changed from edit to create, reset the form
     if (prevMode === "edit" && mode === "create") {
@@ -99,38 +113,73 @@ export const PostFormModal = ({
 
   // Set form values when post data is loaded in edit mode
   useEffect(() => {
-    if (mode === "edit" && postData) {
+    if (mode === "edit" && postData && !existingLoadedRef.current) {
       setValue("description", postData.description);
 
-      // Set image preview if available
-      if (
-        postData.image &&
-        postData.image.directory &&
-        postData.image.filename
-      ) {
-        const imageUrl = getImageUrl(
-          postData.image.directory,
-          postData.image.filename,
-          "avatar"
-        );
-        setImagePreview(imageUrl);
-      }
+      const existing = (postData.images || []).filter(
+        (img) => !!img?.directory && !!img?.filename
+      );
+      const urls = existing.map((img) =>
+        getImageUrl(img.directory, img.filename, "avatar")
+      );
+      setExistingImagesMeta(existing.map((img) => ({ directory: img.directory, filename: img.filename })));
+      setExistingImagePreviews(urls);
+      existingLoadedRef.current = true;
     }
   }, [mode, postData, setValue, getImageUrl]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Set the file in the form
-      setValue("image", file);
+  const {
+    getInputProps,
+    open,
+  } = useDropzone({
+    accept: { "image/*": [] },
+    multiple: true,
+    maxFiles: 10,
+    noClick: true,
+    onDrop: (files) => {
+      const currentFiles = (watch("images") as File[] | undefined) || [];
+      const totalCurrent = currentFiles.length + existingImagesMeta.length;
+      const availableSlots = 10 - totalCurrent;
+      const filesToAdd = files.slice(0, Math.max(0, availableSlots));
 
-      // Create image preview
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setImagePreview(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (files.length > availableSlots) {
+        setImagesError("You can upload up to 10 images");
+      } else {
+        setImagesError("");
+      }
+
+      const newPreviews = filesToAdd.map((file) => URL.createObjectURL(file));
+      setImagePreviews((prev) => [...prev, ...newPreviews]);
+
+      const updated = [...currentFiles, ...filesToAdd];
+      setValue("images", updated as unknown as File[], { shouldValidate: true });
+    },
+    onDropRejected: (rejections) => {
+      const tooMany = rejections.some((r) => r.errors.some((e) => e.code === "too-many-files"));
+      if (tooMany) {
+        setImagesError("You can upload up to 10 images only");
+      }
+    },
+  });
+
+  const removeImageAtIndex = (index: number) => {
+    setImagePreviews((prev) => {
+      const url = prev[index];
+      if (url) URL.revokeObjectURL(url);
+      const next = prev.filter((_, i) => i !== index);
+      return next;
+    });
+    const current = (watch("images") as File[] | undefined) || [];
+    const updated = current.filter((_, i) => i !== index);
+    setValue("images", updated as unknown as File[], { shouldValidate: true });
+    if (updated.length <= 10) {
+      setImagesError("");
     }
+  };
+
+  const removeExistingImageAtIndex = (index: number) => {
+    setExistingImagePreviews((prev) => prev.filter((_, i) => i !== index));
+    setExistingImagesMeta((prev) => prev.filter((_, i) => i !== index));
   };
 
   /**
@@ -145,21 +194,37 @@ export const PostFormModal = ({
         // Wait for the post creation mutation to complete
         await createPostMutation.mutateAsync(data);
       } else if (mode === "edit" && postId) {
-        // For edit mode, only include the image if a new one was selected
-        // This prevents the backend from removing the existing image when only description is changed
-        const postDataToUpdate = { ...data };
-
-        // If no new image was selected, remove the image field completely
-        // to prevent the backend from clearing the existing image
-        if (data.image === undefined) {
-          delete postDataToUpdate.image;
+        const newFiles = ((data.images as unknown as File[]) || []) as File[];
+        const combinedCount = newFiles.length + existingImagesMeta.length;
+        if (combinedCount > 10) {
+          setImagesError("You can upload up to 10 images");
+          return;
         }
 
-        // Wait for the post update mutation to complete
-        await updatePostMutation.mutateAsync({
-          postId,
-          postData: postDataToUpdate,
-        });
+        if (existingImagesMeta.length === 0) {
+          const postDataToUpdate = {
+            ...data,
+            images: (newFiles.length === 0 ? [] : (newFiles as unknown as File[])),
+          };
+          await updatePostMutation.mutateAsync({ postId, postData: postDataToUpdate });
+        } else {
+       const existingFiles = await Promise.all(
+          existingImagesMeta.map(async (img) => {
+            const url = getImageUrl(img.directory, img.filename, "avatar");
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const name = img.filename || "image.jpg";
+            const type = blob.type || "image/jpeg";
+
+            return new File([blob], name, { type });
+          })
+        );
+
+        const combined = [...existingFiles, ...newFiles];
+        const postDataToUpdate = { ...data, images: combined as unknown as File[] };
+
+        await updatePostMutation.mutateAsync({ postId, postData: postDataToUpdate });
+        }
       }
 
       // Reset form after successful operation
@@ -178,14 +243,14 @@ export const PostFormModal = ({
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+    <Modal isOpen={isOpen} onClose={() => { resetForm(); onClose(); }} size="2xl">
       {/* Header */}
       <div className="relative p-6 border-b border-gray-100">
         <h2 className="text-responsive-base font-bold text-primary text-center">
           {mode === "create" ? "Create Post" : "Edit Post"}
         </h2>
         <button
-          onClick={onClose}
+          onClick={() => { resetForm(); onClose(); }}
           className="absolute right-6 top-1/2 transform -translate-y-1/2 text-placeholderbg hover:text-primary transition-colors text-responsive-xs"
         >
           Close
@@ -214,27 +279,72 @@ export const PostFormModal = ({
 
         {/* Add Image */}
         <div className="text-center">
-          <label className="inline-flex items-center cursor-pointer text-primary hover:text-opacity-80 transition-colors">
+          <input {...getInputProps()} className="hidden" />
+          <label className="inline-flex items-center cursor-pointer text-primary hover:text-opacity-80 transition-colors" onClick={() => open()}>
             <img src={addImageIcon} alt="Add Image" className="w-5 h-5 mr-1" />
             <span className="font-bold text-responsive-xs">Add Image</span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
           </label>
-          {imagePreview && (
-            <div className="mt-4">
-              <img
-                src={imagePreview}
-                alt="Image Preview"
-                className="h-64 w-full mx-auto rounded-lg object-cover border border-gray-200"
-              />
+          {imagePreviews.length > 0 ? (
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {imagePreviews.map((src, idx) => (
+                <div key={idx} className="relative">
+                  <img
+                    src={src}
+                    alt={`Image Preview ${idx + 1}`}
+                    className="h-32 w-full mx-auto rounded-lg object-cover border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-1 right-1 bg-white/80 text-red-600 rounded px-2 text-responsive-xxs cursor-pointer" 
+                    onClick={() => removeImageAtIndex(idx)}
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+             
             </div>
+          ) : (
+            existingImagePreviews.length > 0 && (
+              <div className="mt-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {existingImagePreviews.map((src, idx) => (
+                    <div key={idx} className="relative">
+                      <img
+                        src={src}
+                        alt={`Existing Image ${idx + 1}`}
+                        className="h-32 w-full mx-auto rounded-lg object-cover border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1 right-1 bg-white/80 text-red-600 rounded px-2 text-responsive-xxs cursor-pointer"
+                        onClick={() => removeExistingImageAtIndex(idx)}
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {/* <div className="mt-2 flex justify-end">
+                  <button
+                    type="button"
+                    className="px-3 py-1 text-responsive-xxs text-primary border border-primary rounded-2xl"
+                  onClick={() => {
+                    setExistingImagePreviews([]);
+                    setValue("images", [], { shouldValidate: true });
+                  }}
+                  >
+                    Clear Selection
+                  </button>
+                </div> */}
+              </div>
+            )
           )}
-          {errors.image && (
-            <p className="mt-1 text-responsive-xxs text-red-600">{errors.image.message}</p>
+          {errors.images && (
+            <p className="mt-1 text-responsive-xxs text-red-600">{errors.images.message}</p>
+          )}
+          {imagesError && (
+            <p className="mt-1 text-responsive-xxs text-red-600">{imagesError}</p>
           )}
         </div>
 

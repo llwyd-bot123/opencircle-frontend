@@ -19,7 +19,7 @@ import type {
   TwoFactorEnableResponse,
   TwoFactorEnableRequest,
 } from "@src/features/auth/schema/auth.types";
-import type { TwoFactorDisableResponse } from "@src/features/auth/schema/auth.types";
+import type { TwoFactorDisableResponse, TwoFactorDisableRequest } from "@src/features/auth/schema/auth.types";
 
 import type {
   MemberSignupFormData,
@@ -122,9 +122,9 @@ export function useDisableTwoFA() {
   return useMutation<
     import("axios").AxiosResponse<TwoFactorDisableResponse>,
     Error,
-    void
+    TwoFactorDisableRequest
   >({
-    mutationFn: () => disableTwoFA(),
+    mutationFn: (payload) => disableTwoFA(payload),
     onSuccess: (response) => {
       const msg = response?.data?.message || "2FA disabled";
       showSuccessToast(msg);

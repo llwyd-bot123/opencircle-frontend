@@ -23,11 +23,12 @@ interface EventWithCommentsParams {
 }
 
 export const acceptRsvpRequest = async (
-  rsvpId: number
+  rsvpId: number,
+  status: "joined" | "rejected"
 ): Promise<{ success: boolean; message?: string }> => {
   try {
     // Convert status data to FormData using utility function
-    const formData = objectToFormData({ status: "joined" });
+    const formData = objectToFormData({ status });
 
     const response = await axiosInstance.put(
       `/rsvp/status/${rsvpId}`,

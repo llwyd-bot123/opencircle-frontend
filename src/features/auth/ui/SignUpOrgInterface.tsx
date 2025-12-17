@@ -16,7 +16,6 @@ import { useTitleCase } from "@src/shared/hooks";
 
 export default function SignUpOrgInterface() {
   const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState("");
   const organizationSignupMutation = useOrganizationSignup();
   const navigate = useNavigate();
 
@@ -76,8 +75,6 @@ export default function SignUpOrgInterface() {
     // Clear preview
     setPreview(null);
 
-    // Clear errors
-    setError("");
   };
 
   // Handle form submission
@@ -85,8 +82,6 @@ export default function SignUpOrgInterface() {
   const { toTitleCase } = useTitleCase();
 
   const onSubmit = async (data: OrganizationSignupFormData) => {
-    // Clear errors
-    setError("");
 
     try {
       // Apply title case to organization name
@@ -95,7 +90,14 @@ export default function SignUpOrgInterface() {
         name: toTitleCase(data.name),
       };
 
-      const response = await organizationSignupMutation.mutateAsync(formattedData);
+      // Remove profile_picture if it's empty or undefined
+      if (!formattedData.logo) {
+        delete formattedData.logo;
+      }
+
+      const response = await organizationSignupMutation.mutateAsync(
+        formattedData as OrganizationSignupFormData
+      );
 
       if (response.verification_required && response.email) {
         sessionStorage.setItem("pendingEmailSignup", response.email);
@@ -108,19 +110,14 @@ export default function SignUpOrgInterface() {
 
       resetForm();
     } catch (error: unknown) {
-      // Handle signup errors without navigating
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError(String(error)); // fallback in case it's not an Error object
-      }
+      console.log(error)
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-56 px-8 pb-24">
+        <div className="bg-white rounded-[50px] px-8 pb-24">
           <form
             onSubmit={handleSubmit(onSubmit, (error) =>
               console.log("error:", error)
@@ -356,9 +353,6 @@ export default function SignUpOrgInterface() {
                 information to OpenCircle.
               </p>
             </div>
-
-            {/* API Error Message */}
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
             {/* Signup Buttons */}
             <div className="mb-6 flex flex-col space-y-3">

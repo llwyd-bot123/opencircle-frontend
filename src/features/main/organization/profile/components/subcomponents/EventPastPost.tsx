@@ -1,12 +1,12 @@
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import {
-  useConfirmationModal,
+  // useConfirmationModal,
   useFormatDate,
   useImageUrl,
   checkOwnership,
 } from "@src/shared/hooks";
-import { ConfirmationModal } from "@src/shared/components/modals";
+// import { ConfirmationModal } from "@src/shared/components/modals";
 import avatarImage from "@src/assets/shared/avatar.png";
 import type { EventData } from "../../schema/event.type";
 
@@ -27,12 +27,12 @@ export const EventPastPost = ({
   onViewMoreMembers,
   onViewMoreComments,
 }: EventPastPostProps) => {
-  const {
-    isConfirmModalOpen,
-    modalConfig,
-    openConfirmationModal,
-    closeConfirmationModal,
-  } = useConfirmationModal();
+  // const {
+  //   isConfirmModalOpen,
+  //   modalConfig,
+  //   openConfirmationModal,
+  //   closeConfirmationModal,
+  // } = useConfirmationModal();
 
   const { formatRelativeTime, formatDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
@@ -42,14 +42,7 @@ export const EventPastPost = ({
   };
 
   const handleDelete = () => {
-    openConfirmationModal({
-      title: "Delete this event",
-      message:
-        "Are you sure you want to delete this past event? This action cannot be undone and all event data will be permanently removed.",
-      confirmButtonText: "Delete Event",
-      confirmButtonVariant: "primary",
-      onConfirm: () => onDelete?.(event.id),
-    });
+    onDelete?.(event.id)
   };
 
   const handleViewMoreMembers = () => {
@@ -107,7 +100,7 @@ export const EventPastPost = ({
           <DropdownMenu
             onEdit={handleEdit}
             onDelete={handleDelete}
-            editLabel="Edit Event"
+            showEdit={false}
             deleteLabel="Delete Event"
           />
         )}
@@ -256,7 +249,7 @@ export const EventPastPost = ({
       />
 
       {/* Confirmation Modal */}
-      {modalConfig && (
+      {/* {modalConfig && (
         <ConfirmationModal
           isOpen={isConfirmModalOpen}
           onClose={closeConfirmationModal}
@@ -266,7 +259,7 @@ export const EventPastPost = ({
           confirmButtonText={modalConfig.confirmButtonText}
           confirmButtonVariant={modalConfig.confirmButtonVariant}
         />
-      )}
+      )} */}
     </div>
   );
 };

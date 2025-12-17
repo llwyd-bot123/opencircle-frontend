@@ -12,8 +12,10 @@ function TwoFactorSetupContent() {
   const location = useLocation();
   const authStore = useAuthStore();
   const pendingLogin = location.state?.loginResponse;
+  const loginType: "member" | "organization" = location.state?.loginType || "member";
   const [isWaiting, setIsWaiting] = useState(false);
   const [showEnableForm, setShowEnableForm] = useState(false);
+  const [formMode, setFormMode] = useState<"none" | "enable" | "disable">("none");
   const [otpCode, setOtpCode] = useState("");
   const setupMutation = useInitiateTwoFASetup();
   const enableMutation = useEnableTwoFA();
@@ -53,25 +55,14 @@ function TwoFactorSetupContent() {
 
   const handleEnable = () => {
     setShowEnableForm(true);
+    setFormMode("enable");
   };
 
   const handleDisable = () => {
-  disableMutation.mutate(undefined, {
-    onSuccess: () => {
-      bypassMutation.mutate(
-        { bypass_status: true },
-        {
-          onSuccess: () => {
-            if (pendingLogin) {
-              authStore.login(pendingLogin);
-              navigate("/member-profile");
-            }
-          },
-        }
-      );
-    },
-  });
-};
+    setShowEnableForm(true);
+    setFormMode("disable");
+    setOtpCode("");
+  };
 
 
   const handleSubmitEnable = () => {
@@ -81,16 +72,43 @@ function TwoFactorSetupContent() {
         console.log(msg);
         if (pendingLogin) {
           authStore.login(pendingLogin);
-          navigate("/member-profile");
+          navigate(loginType === "member" ? "/member-profile" : "/organization-profile");
         }
       },
     });
   };
 
+  const handleSubmitDisable = () => {
+    bypassMutation.mutate({ bypass_status: true }, {
+      onSuccess: (response) => {
+        const msg = response?.data?.message || "Two-factor disabled";
+        console.log(msg);
+        if (pendingLogin) {
+          authStore.login(pendingLogin);
+          navigate(loginType === "member" ? "/member-profile" : "/organization-profile");
+        }
+      },
+    });
+  };
+
+  const handleSubmitTwoFA = () => {
+    if (formMode === "enable") {
+      enableMutation.mutate(
+        { totp_token: otpCode },
+        { onSuccess: () => handleSubmitEnable() }
+      );
+    } else if (formMode === "disable") {
+      disableMutation.mutate(
+        { totp_token: otpCode },
+        { onSuccess: () => handleSubmitDisable() }
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full">
-        <div className="bg-white rounded-56 px-8 pb-24">
+        <div className="bg-white rounded-[50px] px-8 pb-24">
           <div className="flex justify-center items-center relative">
             <Link to="/">
               <img
@@ -136,21 +154,33 @@ function TwoFactorSetupContent() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <PrimaryButton
-              variant="button3"
-              label="Enable"
-              buttonClass="w-full"
-              onClick={handleEnable}
-            />
-            <PrimaryButton
-              variant="declineButton"
-              label="Disable"
-              buttonClass="w-full"
-              onClick={handleDisable}
-            />
+          {setupMutation.data?.qr_code && (
+            <div className="flex justify-center mb-6">
+            <div className="flex gap-4 w-full max-w-md">
+              <button
+                className={`flex-1 py-3 px-6 text-responsive-xs text-center rounded-full border ${
+                  formMode === "enable"
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white text-primary border-primary"
+                }`}
+                onClick={handleEnable}
+              >
+                Enable
+              </button>
+              <button
+                className={`flex-1 py-3 px-6 text-responsive-xs text-center rounded-full border ${
+                  formMode === "disable"
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white text-primary border-primary"
+                }`}
+                onClick={handleDisable}
+              >
+                Disable
+              </button>
+            </div>
           </div>
-
+          )}
+          
           {showEnableForm && (
             <div className="mt-6">
               <label className=" text-responsive-xs text-primary mb-2 block">
@@ -164,27 +194,37 @@ function TwoFactorSetupContent() {
                 className="w-full px-3 py-2 border border-primary rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="- - - - - -"
               />
-              <div className="mt-4">
-                <PrimaryButton
-                  variant="button3"
-                  label={enableMutation.isPending ? "Submitting..." : "Submit"}
-                  buttonClass="w-full"
-                  onClick={() =>
-                    enableMutation.mutate(
-                      { totp_token: otpCode },
-                      { onSuccess: () => handleSubmitEnable() }
-                    )
-                  }
-                />
-              </div>
-              {enableMutation.error && (
+               <div className="mt-4">
+                 <PrimaryButton
+                   variant="button3"
+                   label={
+                     formMode === "enable"
+                       ? enableMutation.isPending
+                         ? "Submitting..."
+                         : "Submit"
+                       : disableMutation.isPending
+                         ? "Submitting..."
+                         : "Submit"
+                   }
+                   buttonClass="w-full"
+                   onClick={handleSubmitTwoFA}
+                 />
+               </div>
+              {formMode === "enable" && enableMutation.error && (
                 <p className="text-center text-base text-red-600 mt-2">Failed to enable 2FA.</p>
               )}
-              {enableMutation.isSuccess && (
+              {formMode === "enable" && enableMutation.isSuccess && (
                 <p className="text-center text-base text-green-600 mt-2">2FA enabled successfully.</p>
+              )}
+              {formMode === "disable" && disableMutation.error && (
+                <p className="text-center text-base text-red-600 mt-2">Failed to disable 2FA.</p>
+              )}
+              {formMode === "disable" && disableMutation.isSuccess && (
+                <p className="text-center text-base text-green-600 mt-2">2FA disabled successfully.</p>
               )}
             </div>
           )}
+          
         </div>
       </div>
     </div>

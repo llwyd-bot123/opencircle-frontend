@@ -15,7 +15,6 @@ import { useTitleCase } from "@src/shared/hooks";
 
 export default function SignUpMemberInterface() {
   const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState("");
   const memberSignupMutation = useMemberSignup();
   const navigate = useNavigate();
 
@@ -70,8 +69,6 @@ export default function SignUpMemberInterface() {
     // Clear preview
     setPreview(null);
 
-    // Clear errors
-    setError("");
   };
 
   // Handle form submission
@@ -79,8 +76,7 @@ export default function SignUpMemberInterface() {
   const { toTitleCase } = useTitleCase();
 
   const onSubmit = handleSubmit(async (data) => {
-    // Clear errors
-    setError("");
+
 
     try {
       // Format names with title case
@@ -90,7 +86,11 @@ export default function SignUpMemberInterface() {
         last_name: toTitleCase(data.last_name),
       };
 
-      // Wait for the signup mutation to complete
+      // Remove profile_picture if it's empty or undefined
+      if (!formattedData.profile_picture) {
+        delete formattedData.profile_picture;
+      }
+
       const response = await memberSignupMutation.mutateAsync(
         formattedData as MemberSignupFormData
       );
@@ -115,11 +115,7 @@ export default function SignUpMemberInterface() {
       resetForm();
     } catch (error: unknown) {
       // Handle signup errors
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError(String(error)); // fallback in case it's not an Error object
-      }
+      console.log(error)
     }
   });
 
@@ -132,7 +128,7 @@ export default function SignUpMemberInterface() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-56 px-8 pb-24">
+        <div className="bg-white rounded-[50px] px-8 pb-24">
           <form onSubmit={onSubmit}>
             {/* Brand Logo */}
             <div className="flex justify-center items-center relative">
@@ -326,9 +322,6 @@ export default function SignUpMemberInterface() {
                 information to OpenCircle.
               </p>
             </div>
-
-            {/* API Error Message */}
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
             {/* Signup Buttons */}
             <div className="mb-6 flex flex-col space-y-3">

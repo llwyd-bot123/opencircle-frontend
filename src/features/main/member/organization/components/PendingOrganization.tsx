@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@src/shared/hooks";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
@@ -51,11 +51,10 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
     setSearchQuery(value);
   };
   
-  const navigate = useNavigate();
+  const { onOrganizationClick, navigateToOrganization } = useNavigation();
   
   const handleCardClick = (orgId: number) => {
-    // Navigate to organization profile page with the organization ID
-    navigate(`/organization/${orgId}`);
+    navigateToOrganization(orgId);
   };
 
   return (
@@ -149,15 +148,22 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
                           org.organization_logo.filename
                         )}
                         alt={`${org.organization_name} logo`}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary"
+                        onClick={onOrganizationClick(org.organization_id)}
                       />
                     ) : (
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0">
+                      <div
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary"
+                        onClick={onOrganizationClick(org.organization_id)}
+                      >
                         {org.organization_name.charAt(0)}
                       </div>
                     )}
                     <div>
-                      <h3 className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold">
+                      <h3
+                        className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold hover:underline cursor-pointer"
+                        onClick={onOrganizationClick(org.organization_id)}
+                      >
                         {org.organization_name}
                       </h3>
                       <p className="text-responsive-xxs text-gray-500">

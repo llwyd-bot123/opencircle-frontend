@@ -35,7 +35,7 @@ export default function OtpSigninVerification() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full">
-        <div className="bg-white rounded-56 px-8 pb-24">
+        <div className="bg-white rounded-[50px] px-8 pb-24">
           <div className="flex justify-center items-center relative">
             <img src={brandLogoDark} alt="Brand Logo" className="w-64 object-cover" />
             <p className="absolute bottom-6 text-center text-base text-primary opacity-75">
@@ -51,7 +51,7 @@ export default function OtpSigninVerification() {
           {useBackup ? 'Enter one of your backup codes' : 'Enter the 6-digit Google Authenticator code'}
         </p>
 
-        <div className="mb-6">
+        <div className="mb-2">
           <label className="block text-responsive-xs text-primary mb-2">
             {useBackup ? 'Backup code' : 'Authenticator code'}
           </label>
@@ -60,26 +60,30 @@ export default function OtpSigninVerification() {
             maxLength={useBackup ? 10 : 6}
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            placeholder={useBackup ? 'xxxxxxxxxx' : '- - - - - -'}
+            placeholder={useBackup ? 'xxxxxxxx' : '- - - - - -'}
             className="w-full px-3 py-2 border border-primary rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className=" text-start">
+          <button
+            type="button"
+            className="text-primary underline text-responsive-xs"
+            onClick={() => {
+              setToken("");
+              setUseBackup((prev) => !prev);
+            }}
+          >
+            {useBackup ? 'Use authenticator code instead' : 'Use backup code instead'}
+          </button>
+        </div>
+
+        <div className="mt-8">
           <PrimaryButton
             variant="button3"
             label={verifyMutation.isPending ? 'Verifying...' : 'Verify'}
             buttonClass="w-full"
             onClick={handleSubmit}
-          />
-          <PrimaryButton
-            variant="button3"
-            label={useBackup ? 'Use authenticator code' : 'Use backup code'}
-            buttonClass="w-full"
-            onClick={() => {
-              setToken("");
-              setUseBackup((prev) => !prev);
-            }}
           />
         </div>
       </div>

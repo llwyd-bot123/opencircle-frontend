@@ -50,7 +50,11 @@ export function CalendarSection(
   const currentYear = currentDate.getFullYear();
 
   // Always call both hooks to maintain consistent hook call order
-  const memberQuery = useMemberCalendarEvents(currentMonth, currentYear);
+  const memberQuery = useMemberCalendarEvents(
+    currentMonth,
+    currentYear,
+    accountUuid || user?.uuid || ""
+  );
   const organizationQuery = useOrganizationCalendarEvents(
     currentMonth,
     currentYear,

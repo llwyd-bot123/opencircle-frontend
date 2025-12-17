@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@src/shared/hooks";
 import type { DirectOrganizationSearchItem } from "../schema/organization.types";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
@@ -12,7 +13,7 @@ import {
 import { useAuthStore } from "@src/shared/store/auth";
 import leaveOrgIcon from "@src/assets/shared/leave_org_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
-// SearchInput is not a real component, we'll implement it inline
+import AllOrganizationMemberList from "./AllOrganizationMemberList";
 
 interface AllOrganizationListProps {
   selectedOrgId: number | null;
@@ -58,11 +59,33 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
   };
 
   const navigate = useNavigate();
+  const { onOrganizationClick } = useNavigation();
+  const [showMembersView, setShowMembersView] = useState(false);
+  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
 
   const handleCardClick = (orgId: number) => {
-    // Navigate to organization profile page with the organization ID
-    navigate(`/organization/${orgId}`);
+    setSelectedOrgId(orgId);
+    setShowMembersView(true);
+    navigate({ search: `?orgId=${orgId}` });
   };
+
+  const organizations: DirectOrganizationSearchItem[] = useMemo(() => data ?? [], [data]);
+
+  if (showMembersView) {
+    return (
+      <AllOrganizationMemberList
+        organizations={organizations}
+        initialSelectedOrgId={selectedOrgId}
+        handleJoinOrg={handleJoinOrg}
+        handleLeaveOrg={handleLeaveOrg}
+        getImageUrl={getImageUrl}
+        onBackToAll={() => {
+          setShowMembersView(false);
+          navigate({ search: "" });
+        }}
+      />
+    );
+  }
 
   return (
     <>
@@ -163,15 +186,22 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
                             org.logo.filename
                           )}
                           alt={`${org.name} logo`}
-                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary"
+                          onClick={onOrganizationClick(org.organization_id)}
                         />
                       ) : (
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0">
+                        <div
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary"
+                          onClick={onOrganizationClick(org.organization_id)}
+                        >
                           {org.name.charAt(0)}
                         </div>
                       )}
                       <div>
-                        <h3 className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold">
+                        <h3
+                          className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold hover:underline cursor-pointer"
+                          onClick={onOrganizationClick(org.organization_id)}
+                        >
                           {org.name}
                         </h3>
                         <p className="text-responsive-xxs text-gray-500">

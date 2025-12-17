@@ -19,6 +19,7 @@ export interface OrganizationMembership {
   organization_name: string;
   membership_status: "approved" | "pending";
   members: OrganizationMember[];
+  organization_logo?: ProfilePicture;
 }
 
 export interface OrganizationMembershipsResponse {

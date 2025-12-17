@@ -38,6 +38,12 @@ export const useJoinOrganization = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.CALENDAR_EVENTS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.USER_SHARES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ALL_SHARES_WITH_COMMENTS],
+      });
       showSuccessToast("Successfully requested to join");
     },
     onError: (error: unknown) => {

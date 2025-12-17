@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRedirect } from "../hooks/useNavigate";
 
 export interface MenuItem {
@@ -20,6 +20,10 @@ export function NavMenuComponent({ menuItems, activeItem }: NavMenuProps) {
   const [currentActive, setCurrentActive] = useState<string>(
     activeItem === "" ? "" : (activeItem || menuItems[0]?.id || "")
   );
+
+  useEffect(() => {
+    setCurrentActive(activeItem === "" ? "" : (activeItem || menuItems[0]?.id || ""));
+  }, [activeItem, menuItems]);
 
   const redirect = useRedirect();
 
@@ -47,7 +51,7 @@ export function NavMenuComponent({ menuItems, activeItem }: NavMenuProps) {
             <img
               src={isActive ? item.activeIcon : item.icon}
               alt={`${item.label} icon`}
-              className={`w-6 h-6 transition-all duration-200`}
+              className={`transition-all duration-200 ${item.id === "dashboard" ? "w-5 h-5" : "w-6 h-6"}`}
             />
             <span className="text-responsive-base">{item.label}</span>
             <div

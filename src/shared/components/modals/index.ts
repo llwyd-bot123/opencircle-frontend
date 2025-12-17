@@ -5,3 +5,5 @@ export { MembersModal } from "./MembersModal";
 export { RequestsModal } from "./RequestsModal";
 export { PostFormModal } from "./PostFormModal";
 export { EventParticipantsModal } from "./EventParticipantsModal";
+export { ShareFormModal } from "./ShareFormModal";
+export { TwoFactorCodeModal } from "./TwoFactorCodeModal";

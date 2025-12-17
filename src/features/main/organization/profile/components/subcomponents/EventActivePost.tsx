@@ -1,6 +1,6 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
-import { EventTabContent } from "@src/shared/components/EventTabContent";
+// import { EventTabContent } from "@src/shared/components/EventTabContent";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import { useFormatDate, useImageUrl, checkOwnership } from "@src/shared/hooks";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
@@ -8,30 +8,15 @@ import avatarImage from "@src/assets/shared/avatar.png";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
 import joinedIcon from "@src/assets/shared/joined_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
-import type { EventData } from "../../schema/event.type";
+import type { EventActivePostProps } from "../../schema/event.type";
 
-interface EventActivePostProps {
-  event: EventData;
-  currentUserAvatar: string;
-  isUserMember?: boolean;
-  onViewMoreComments?: (eventId: number) => void;
-  onViewMoreMembers?: (eventId: number) => void;
-  onViewMoreRequests?: (eventId: number) => void;
-  onEdit?: (eventId: number) => void;
-  onDelete?: (eventId: number) => void;
-  onJoinOrganization?: (orgId: number) => void;
-  onCancelJoiningOrganization?: (orgId: number) => void;
-  onLeaveOrganization?: (orgId: number) => void;
-  onRsvpEvent?: (eventId: number) => void;
-  onDeleteRsvpEvent?: (rsvpId: number) => void;
-}
 
 export const EventActivePost = ({
   event,
   currentUserAvatar,
   isUserMember = false,
   onViewMoreComments,
-  onViewMoreMembers,
+  // onViewMoreMembers,
   onViewMoreRequests,
   onEdit,
   onDelete,
@@ -41,21 +26,21 @@ export const EventActivePost = ({
   onRsvpEvent,
   onDeleteRsvpEvent,
 }: EventActivePostProps) => {
-  const [activeTab, setActiveTab] = useState<"members" | "request">("members");
+  // const [activeTab, setActiveTab] = useState<"members" | "request">("members");
   const { formatRelativeTime, formatFriendlyDateTime } = useFormatDate();
 
   // Check if user is a member
 
   const { getImageUrl } = useImageUrl();
   const eventImageUrl = getImageUrl(
-    event.image.directory,
-    event.image.filename,
+    event.image?.directory,
+    event.image?.filename,
     ""
   );
 
   const creatorImageUrl = getImageUrl(
-    event.organization.logo.directory,
-    event.organization.logo.filename,
+    event.organization.logo?.directory,
+    event.organization.logo?.filename,
     avatarImage
   );
 
@@ -73,9 +58,9 @@ export const EventActivePost = ({
     onViewMoreComments?.(event.id);
   };
 
-  const handleViewMoreMembers = () => {
-    onViewMoreMembers?.(event.id);
-  };
+  // const handleViewMoreMembers = () => {
+  //   onViewMoreMembers?.(event.id);
+  // };
 
   const handleViewMoreRequests = () => {
     onViewMoreRequests?.(event.id);
@@ -251,11 +236,10 @@ export const EventActivePost = ({
         />
       </div>
 
-      <hr className="my-4 text-gainsboro" />
+      {/* <hr className="my-4 text-gainsboro" /> */}
 
       {/* 7. Members & Request */}
-      <div className="">
-        {/* Tab Navigation */}
+      {/* <div className="">
         <div className="flex">
           <button
             onClick={() => setActiveTab("members")}
@@ -268,7 +252,6 @@ export const EventActivePost = ({
             Members
           </button>
 
-          {/* Vertical Divider */}
           <div className="w-px bg-primary mx-2 my-1"></div>
 
           <button
@@ -283,7 +266,6 @@ export const EventActivePost = ({
           </button>
         </div>
 
-        {/* Tab Content */}
         <div className="mt-0">
           <EventTabContent
             activeTab={activeTab}
@@ -296,9 +278,9 @@ export const EventActivePost = ({
             onViewMoreRequests={handleViewMoreRequests}
           />
         </div>
-      </div>
+      </div> */}
 
-      <hr className="my-4 text-gainsboro" />
+      {/* <hr className="my-4 text-gainsboro" /> */}
 
       {/* 8. Comments Section */}
       <CommentsSection
@@ -307,6 +289,8 @@ export const EventActivePost = ({
         totalComments={event.total_comments || 0}
         currentUserAvatar={currentUserAvatar}
         onViewMoreComments={handleViewMoreComments}
+        onViewParticipants={handleViewMoreRequests}
+        participantsCount={event.total_pending_rsvps}
         contentId={event.id}
       />
     </div>

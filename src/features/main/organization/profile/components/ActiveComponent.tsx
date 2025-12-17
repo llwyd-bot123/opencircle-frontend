@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  CommentsModal,
-  EventFormModal,
-  ConfirmationModal,
-  EventParticipantsModal,
-} from "@src/shared/components/modals";
-import { EventActivePost } from "./subcomponents/EventActivePost";
+import { CommentsModal, ConfirmationModal, PostFormModal, EventFormModal } from "@src/shared/components/modals";
 import {
   useImageUrl,
   useInfiniteScroll,
@@ -14,14 +8,13 @@ import {
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
 import avatarImage from "@src/assets/shared/avatar.png";
-import { useInfiniteOrganizationEvents } from "../model/event.infinite.query";
-import { useDeleteEvent } from "../model/event.mutation";
+import { useInfiniteMemberPosts } from "@src/features/main/member/profile/model/post.infinite.query";
+import { MemberPost } from "@src/features/main/member/profile/components/subcomponents/MemberPost";
+import { useDeletePost } from "@src/features/main/member/profile/model/post.mutation";
 import { LoadingState, ErrorState } from "@src/shared/components";
 import { useInfiniteContentComments } from "@src/features/comments/model/comment.infinite.query";
+import { IconDropdown } from "@src/shared/components";
 import type { CommentsResponse } from "@src/features/comments/schema/comment.types";
-import { useJoinOrganization } from "@src/features/home/model/home.mutation";
-import { useLeaveOrganization } from "@src/features/main/member/organization/model/organization.mutation";
-import { useRsvpEvent, useDeleteRsvp } from "@src/features/home/model/home.mutation";
 
 interface ActiveComponentProps {
   accountUuid: string;
@@ -30,15 +23,14 @@ interface ActiveComponentProps {
 
 export default function ActiveComponent({ accountUuid, isUserMember = false }: ActiveComponentProps) {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+  const [isPostFormModalOpen, setIsPostFormModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [postFormMode, setPostFormMode] = useState<"create" | "edit">("create");
   const [isEventFormModalOpen, setIsEventFormModalOpen] = useState(false);
-  const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
-  const [participantsModalTab, setParticipantsModalTab] = useState<
-    "members" | "requests"
-  >("members");
-  const [eventFormMode, setEventFormMode] = useState<"create" | "edit">(
-    "create"
-  );
-  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+  const [eventFormMode, setEventFormMode] = useState<"create" | "edit">("create");
+  const [selectedPostType, setSelectedPostType] = useState<"event" | "post">("event");
+
+  
 
   const {
     isConfirmModalOpen,
@@ -50,185 +42,70 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
   const { user } = useAuthStore();
   const { getImageUrl } = useImageUrl();
 
-  // Get current user avatar URL
+  const userUuid = accountUuid || "";
 
-  // Fetch organization events with infinite scrolling
+
   const {
-    data: infiniteEventsData,
-    isLoading: isEventsLoading,
-    error: eventsError,
-    fetchNextPage: fetchNextEventsPage,
-    hasNextPage: hasNextEventsPage,
-    isFetchingNextPage: isFetchingNextEventsPage,
-    isError: isEventsError,
-  } = useInfiniteOrganizationEvents({
-    account_uuid: accountUuid,
-    per_page: 5,
-  });
+    data: infinitePostsData,
+    isLoading: isLoadingPosts,
+    isError: isErrorPosts,
+    error: postsError,
+    fetchNextPage: fetchNextPostsPage,
+    hasNextPage: hasNextPostsPage,
+    isFetchingNextPage: isFetchingNextPostsPage,
+  } = useInfiniteMemberPosts({ uid: userUuid, limit: 5 });
 
-  // Function to handle loading more events
+  // Function to handle loading more posts
   const handleFetchNextPage = () => {
-    if (!isFetchingNextEventsPage && hasNextEventsPage) {
-      fetchNextEventsPage();
+    if (!isFetchingNextPostsPage && hasNextPostsPage) {
+      fetchNextPostsPage();
     }
   };
 
   // Setup infinite scroll
   const { sentinelRef: loadMoreRef } = useInfiniteScroll({
     onLoadMore: handleFetchNextPage,
-    hasMore: !!hasNextEventsPage,
-    isLoading: isFetchingNextEventsPage,
-    enabled: !isEventsLoading && !isEventsError,
+    hasMore: !!hasNextPostsPage,
+    isLoading: isFetchingNextPostsPage,
+    enabled: !(isLoadingPosts || isErrorPosts),
+    rootMargin: "200px",
   });
 
-  // Flatten the paginated events data
-  const eventsData =
-    infiniteEventsData?.pages.flatMap((page) => page.active_events) || [];
+  const posts = infinitePostsData?.pages.flatMap((page) => page.posts) || [];
 
-  const handleEdit = (eventId: number) => {
-    // Edit event
-    setSelectedEventId(eventId);
-    setEventFormMode("edit");
-    setIsEventFormModalOpen(true);
+  const sortedPosts = posts.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime());
+
+  const handleViewPostComments = (postId: number) => {
+    setSelectedPostId(postId);
+    setIsCommentsModalOpen(true);
   };
 
-  const deleteEventMutation = useDeleteEvent();
+  const deletePostMutation = useDeletePost();
 
-  const handleDelete = (eventId: number) => {
-    setSelectedEventId(eventId);
+  const handleDeletePost = (postId: number) => {
+    setSelectedPostId(postId);
     openConfirmationModal({
-      title: "Delete Event",
+      title: "Delete Post",
       message:
-        "This will permanently remove the event and all related details. Proceed?",
+        "This will permanently remove the post and all related details. Proceed?",
       confirmButtonText: "Delete",
       confirmButtonVariant: "primary",
       onConfirm: async () => {
         try {
-          await deleteEventMutation.mutateAsync(eventId);
-          // Event deleted successfully
+          await deletePostMutation.mutateAsync(postId);
         } catch (error) {
-          console.error("Failed to delete event:", error);
+          console.error("Failed to delete post:", error);
         }
       },
     });
   };
 
-  const handleViewMoreComments = (eventId: number) => {
-    setSelectedEventId(eventId);
-    setIsCommentsModalOpen(true);
+  const handleEditPost = (postId: number) => {
+    setPostFormMode("edit");
+    setSelectedPostId(postId);
+    setIsPostFormModalOpen(true);
   };
 
-  const handleViewMoreMembers = (eventId: number) => {
-    setSelectedEventId(eventId);
-    setParticipantsModalTab("members");
-    setIsParticipantsModalOpen(true);
-  };
-
-  const handleViewMoreRequests = (eventId: number) => {
-    setSelectedEventId(eventId);
-    setParticipantsModalTab("requests");
-    setIsParticipantsModalOpen(true);
-  };
-  
-  // Initialize mutations for organization membership and event RSVPs
-  const joinOrganizationMutation = useJoinOrganization();
-  const leaveOrganizationMutation = useLeaveOrganization();
-  const rsvpEventMutation = useRsvpEvent();
-  const deleteRsvpMutation = useDeleteRsvp();
-  
-  // Handler for joining an organization
-  const handleJoinOrganization = (orgId: number) => {
-    setSelectedEventId(orgId);
-    openConfirmationModal({
-      title: "Request to Join",
-      message:
-        "Do you want to join this group? Once you join, you'll be able to access its content, participate in discussions, and receive updates.",
-      confirmButtonText: "Join",
-      confirmButtonVariant: "primary",
-      onConfirm: async () => {
-        try {
-          await joinOrganizationMutation.mutateAsync(orgId);
-        } catch (error) {
-          console.error("Failed to request to join organization:", error);
-        }
-      },
-    });
-  };
-
-  // Handler for canceling a join request
-  const handleCancelJoiningOrganization = (orgId: number) => {
-    setSelectedEventId(orgId);
-    openConfirmationModal({
-      title: "Cancel Join Request",
-      message: "Do you want to cancel your request to join this organization?",
-      confirmButtonText: "Cancel Request",
-      confirmButtonVariant: "primary",
-      onConfirm: async () => {
-        try {
-          await leaveOrganizationMutation.mutateAsync(orgId);
-        } catch (error) {
-          console.error("Failed to cancel join request:", error);
-        }
-      },
-    });
-  };
-
-  // Handler for leaving an organization
-  const handleLeaveOrganization = (orgId: number) => {
-    setSelectedEventId(orgId);
-    openConfirmationModal({
-      title: "Leave Organization",
-      message: "Do you want to leave this organization?",
-      confirmButtonText: "Leave",
-      confirmButtonVariant: "primary",
-      onConfirm: async () => {
-        try {
-          await leaveOrganizationMutation.mutateAsync(orgId);
-        } catch (error) {
-          console.error("Failed to leave organization:", error);
-        }
-      },
-    });
-  };
-
-  // Handler for RSVPing to an event
-  const handleRsvpEvent = (eventId: number) => {
-    setSelectedEventId(eventId);
-    openConfirmationModal({
-      title: "Reserve Your Spot",
-      message:
-        "Are you sure you want to reserve your spot for this event? You will receive a confirmation once your reservation is completed.",
-      confirmButtonText: "Reserve",
-      confirmButtonVariant: "primary",
-      onConfirm: async () => {
-        try {
-          await rsvpEventMutation.mutateAsync(eventId);
-          // Successfully RSVPed to event
-        } catch (error) {
-          console.error("Failed to RSVP to event:", error);
-        }
-      },
-    });
-  };
-
-  // Handler for deleting an RSVP
-  const handleDeleteRsvpEvent = (rsvpId: number) => {
-    openConfirmationModal({
-      title: "Cancel Reservation",
-      message:
-        "Are you sure you want to cancel your reservation for this event?",
-      confirmButtonText: "Cancel Reservation",
-      confirmButtonVariant: "primary",
-      onConfirm: async () => {
-        try {
-          await deleteRsvpMutation.mutateAsync(rsvpId);
-          // Successfully cancelled RSVP
-        } catch (error) {
-          console.error("Failed to cancel RSVP:", error);
-        }
-      },
-    });
-  };
 
   // Fetch comments for the selected event with infinite scrolling
   const {
@@ -239,7 +116,7 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
     hasNextPage: hasNextCommentsPage,
     isFetchingNextPage: isFetchingNextCommentsPage,
   } = useInfiniteContentComments({
-    eventId: selectedEventId || 0,
+    postId: selectedPostId || 0,
     limit: 5,
   });
 
@@ -251,10 +128,21 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
   // Get the total number of comments from the first page
   const totalComments = infiniteCommentsData?.pages?.[0]?.total || 0;
 
+  const handleOpenCreatePostModal = () => {
+    setIsPostFormModalOpen(true);
+  };
+
   const handleOpenCreateEventModal = () => {
-    setSelectedEventId(null);
     setEventFormMode("create");
     setIsEventFormModalOpen(true);
+  };
+
+  const handleCreateActionClick = () => {
+    if (selectedPostType === "event") {
+      handleOpenCreateEventModal();
+    } else {
+      handleOpenCreatePostModal();
+    }
   };
 
   const currentAvatar = getImageUrl(
@@ -286,78 +174,71 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
               />
             </div>
 
-            {/* Input Column */}
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="Post an event..."
+                placeholder={
+                  selectedPostType === "post" ? "Whats on your mind?" : "Post an event"
+                }
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs cursor-pointer"
-                onClick={handleOpenCreateEventModal}
+                onClick={handleCreateActionClick}
                 readOnly
               />
+            </div>
+            <div className="flex-shrink-0">
+              <IconDropdown value={selectedPostType} setValue={setSelectedPostType} />
             </div>
           </div>
         </div>
       )}
 
       {/* Loading State */}
-      {isEventsLoading && <LoadingState message="Loading events..." />}
+      {isLoadingPosts && <LoadingState message="Loading posts..." />}
 
       {/* Error State */}
-      {isEventsError && (
+      {isErrorPosts && (
         <ErrorState
-          message={`Failed to load events. ${
-            eventsError?.message || "Please try again later."
+          message={`Failed to load content. ${
+            postsError?.message || "Please try again later."
           }`}
         />
       )}
 
-      {/* Events List */}
-      {!isEventsLoading && !isEventsError && eventsData.length === 0 && (
+      {/* Empty State */}
+      {!isLoadingPosts && !isErrorPosts && sortedPosts.length === 0 && (
         <div className="text-center py-8">
           <p className="text-placeholderbg text-responsive-sm">
-            No events found. Create your first event!
+            No posts found. Create your first post!
           </p>
         </div>
       )}
 
-      {/* Events List */}
-      {!isEventsLoading &&
-        !isEventsError &&
-        eventsData &&
-        eventsData.length > 0 && (
+      {/* Mixed Content List */}
+      {!isLoadingPosts && !isErrorPosts && sortedPosts && sortedPosts.length > 0 && (
           <div className="space-y-6">
-            {eventsData.map((event) => (
-              <EventActivePost
-                key={event.id}
-                event={event}
+            {sortedPosts.map((post) => (
+              <MemberPost
+                key={`post-${post.id}`}
+                post={post}
                 currentUserAvatar={currentAvatar}
-                isUserMember={isUserMember}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onViewMoreComments={() => handleViewMoreComments(event.id)}
-                onViewMoreMembers={() => handleViewMoreMembers(event.id)}
-                onViewMoreRequests={() => handleViewMoreRequests(event.id)}
-                onJoinOrganization={handleJoinOrganization}
-                onCancelJoiningOrganization={handleCancelJoiningOrganization}
-                onLeaveOrganization={handleLeaveOrganization}
-                onRsvpEvent={handleRsvpEvent}
-                onDeleteRsvpEvent={handleDeleteRsvpEvent}
+                onViewMoreComments={() => handleViewPostComments(post.id)}
+                onDeletePost={handleDeletePost}
+                onEditPost={handleEditPost}
               />
             ))}
 
             {/* Infinite scroll sentinel element */}
             <div className="w-full my-4">
-              {isFetchingNextEventsPage && (
+              {isFetchingNextPostsPage && (
                 <LoadingState
-                  message="Loading more events..."
+                  message="Loading more..."
                   className="py-4 text-center"
                 />
               )}
-              {isEventsError && !isFetchingNextEventsPage && (
+              {isErrorPosts && !isFetchingNextPostsPage && (
                 <div className="flex flex-col items-center py-4">
                   <ErrorState
-                    message="Failed to load more events."
+                    message="Failed to load more content."
                     className="mb-2 text-center"
                   />
                   <button
@@ -368,23 +249,24 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
                   </button>
                 </div>
               )}
-              {/* Always render sentinel element but with different heights */}
-              <div
-                ref={loadMoreRef}
-                className={`w-full ${hasNextEventsPage ? "h-20" : "h-4"}`}
-                style={{ marginBottom: "20px" }}
-              />
+              <div ref={loadMoreRef} className={`w-full ${hasNextPostsPage ? "h-20" : "h-4"}`} style={{ marginBottom: "20px" }} />
             </div>
           </div>
         )}
 
-      {/* Event Form Modal */}
-      <EventFormModal
-        isOpen={isEventFormModalOpen}
-        onClose={() => setIsEventFormModalOpen(false)}
-        mode={eventFormMode}
-        eventId={selectedEventId || undefined}
-      />
+  <PostFormModal
+    isOpen={isPostFormModalOpen}
+    onClose={() => setIsPostFormModalOpen(false)}
+    mode={postFormMode}
+    postId={selectedPostId || undefined}
+  />
+
+  <EventFormModal
+    isOpen={isEventFormModalOpen}
+    onClose={() => setIsEventFormModalOpen(false)}
+    mode={eventFormMode}
+    eventId={undefined}
+  />
 
       {/* Comments Modal */}
       <CommentsModal
@@ -394,7 +276,7 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
         currentUserAvatar={currentAvatar}
         isLoading={isCommentsLoading}
         error={commentsError}
-        eventId={selectedEventId || 0}
+        postId={selectedPostId || 0}
         fetchNextPage={fetchNextCommentsPage}
         hasNextPage={hasNextCommentsPage}
         isFetchingNextPage={isFetchingNextCommentsPage}
@@ -415,15 +297,7 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
       )}
 
       {/* Event Participants Modal */}
-      {selectedEventId && (
-        <EventParticipantsModal
-          isOpen={isParticipantsModalOpen}
-          onClose={() => setIsParticipantsModalOpen(false)}
-          initialTab={participantsModalTab}
-          eventId={selectedEventId}
-          isUserMember={isUserMember}
-        />
-      )}
+
     </div>
   );
 }

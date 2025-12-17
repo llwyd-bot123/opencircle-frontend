@@ -84,8 +84,8 @@ export const useUpdateEvent = () => {
 
 export const useAcceptRsvpRequest = () => {
   const queryClient = useQueryClient();
-  return useMutation<{ success: boolean; message?: string }, Error, number>({
-    mutationFn: (rsvpId) => acceptRsvpRequest(rsvpId),
+  return useMutation<{ success: boolean; message?: string }, Error, { rsvpId: number; status: "joined" | "rejected" }>({
+    mutationFn: ({ rsvpId, status }) => acceptRsvpRequest(rsvpId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ORGANIZATION_ACTIVE_EVENTS],
@@ -93,6 +93,7 @@ export const useAcceptRsvpRequest = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EVENTS_RSVPS],
       });
+      
       showSuccessToast("Successfully accepted");
     },
     onError: (error) => {

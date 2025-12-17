@@ -27,7 +27,7 @@ const imageValidation = z
  */
 export const createPostSchema = z.object({
   ...basePostSchema,
-  image: imageValidation,
+  images: z.array(imageValidation).max(10, { message: "You can upload up to 10 images" }).optional(),
 });
 
 /**
@@ -35,7 +35,7 @@ export const createPostSchema = z.object({
  */
 export const editPostSchema = z.object({
   ...basePostSchema,
-  image: imageValidation.optional(),
+  images: z.array(imageValidation).max(10, { message: "You can upload up to 10 images" }).optional(),
 });
 
 /**
@@ -44,7 +44,7 @@ export const editPostSchema = z.object({
  */
 export const postFormSchema = z.object({
   ...basePostSchema,
-  image: imageValidation.optional(),
+  images: z.array(imageValidation).max(10).optional(),
 });
 
 /**

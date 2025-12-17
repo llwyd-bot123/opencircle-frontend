@@ -48,7 +48,7 @@ export function EventTabContent({
         "This action will approve the user's participation in the event. Are you sure you want to accept?",
       confirmButtonText: "Accept",
       confirmButtonVariant: "primary",
-      onConfirm: () => acceptRsvpMutation.mutateAsync(request.rsvp_id),
+      onConfirm: () => acceptRsvpMutation.mutateAsync({ rsvpId: request.rsvp_id, status: "joined" }),
     });
   };
 

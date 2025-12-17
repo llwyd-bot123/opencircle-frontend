@@ -30,6 +30,10 @@ import { useInfiniteContentComments } from "@src/features/comments/model/comment
 import type { CommentsResponse } from "@src/features/comments/schema/comment.types";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 import type { AllMemberPostData } from "@src/features/main/member/profile/schema/post.types";
+import type { ShareItem } from "@src/features/share/schema/share.types";
+import { useInfiniteAllShares } from "@src/features/share/model/share.infinite.query";
+import { SharedCard } from "@src/features/share/ui/SharedCard";
+import type { InfiniteData } from "@tanstack/react-query";
 
 export default function HomeInterface() {
   // State for modals
@@ -99,12 +103,22 @@ export default function HomeInterface() {
     isFetchingNextPage: isFetchingNextPostsPage,
   } = useInfiniteAllMemberPosts();
 
+  const {
+    data: sharesData,
+    isLoading: isLoadingShares,
+    isError: isErrorShares,
+    error: sharesError,
+    fetchNextPage: fetchNextSharesPage,
+    hasNextPage: hasNextSharesPage,
+    isFetchingNextPage: isFetchingNextSharesPage,
+  } = useInfiniteAllShares();
+
   // Determine if we should load more content (either events or posts)
-  const hasMoreContent = !!hasNextEventsPage || !!hasNextPostsPage;
+  const hasMoreContent = !!hasNextEventsPage || !!hasNextPostsPage || !!hasNextSharesPage;
   const isLoadingMoreContent =
-    isFetchingNextEventsPage || isFetchingNextPostsPage;
-  const isLoading = isLoadingEvents || isLoadingPosts;
-  const isError = isErrorEvents || isErrorPosts;
+    isFetchingNextEventsPage || isFetchingNextPostsPage || isFetchingNextSharesPage;
+  const isLoading = isLoadingEvents || isLoadingPosts || isLoadingShares;
+  const isError = isErrorEvents || isErrorPosts || isErrorShares;
 
   // Set up infinite scrolling
   const { sentinelRef } = useInfiniteScroll({
@@ -115,6 +129,9 @@ export default function HomeInterface() {
       }
       if (hasNextPostsPage && !isFetchingNextPostsPage) {
         fetchNextPostsPage();
+      }
+      if (hasNextSharesPage && !isFetchingNextSharesPage) {
+        fetchNextSharesPage();
       }
     },
     hasMore: hasMoreContent,
@@ -150,10 +167,16 @@ export default function HomeInterface() {
   // Flatten the posts data from all pages
   const posts = postsData?.pages.flatMap((page) => page.posts) || [];
 
+  const sharesInfinite = sharesData as InfiniteData<{ shares: ShareItem[] }> | undefined;
+  const shares: ShareItem[] = sharesInfinite?.pages?.flatMap((page) => page.shares) || [];
+
+  console.log("default share data", shares)
+
   // Define union type for combined content items
   type CombinedContentItem =
     | { type: "event"; data: EventData; date: Date }
-    | { type: "post"; data: AllMemberPostData; date: Date };
+    | { type: "post"; data: AllMemberPostData; date: Date }
+    | { type: "share"; data: ShareItem; date: Date };
 
   // Combine and shuffle events and posts for display
   const combinedContent: CombinedContentItem[] = [
@@ -166,6 +189,11 @@ export default function HomeInterface() {
       type: "post" as const,
       data: post,
       date: new Date(post.created_date),
+    })),
+    ...shares.map((share) => ({
+      type: "share" as const,
+      data: share,
+      date: new Date(share.date_created),
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort by date, newest first
 
@@ -399,10 +427,10 @@ export default function HomeInterface() {
         )}
 
       {/* Error State */}
-      {(isErrorEvents || isErrorPosts) && (
+      {(isErrorEvents || isErrorPosts || isErrorShares) && (
         <ErrorState
-          message={`Failed to load content. ${
-            (eventsError || postsError)?.message || "Please try again later."
+        message={`Failed to load content. ${
+            (eventsError || postsError || sharesError)?.message || "Please try again later."
           }`}
         />
       )}
@@ -410,10 +438,13 @@ export default function HomeInterface() {
       {/* No Content */}
       {!isLoadingEvents &&
         !isLoadingPosts &&
+        !isLoadingShares &&
         !isErrorEvents &&
         !isErrorPosts &&
+        !isErrorShares &&
         events.length === 0 &&
-        posts.length === 0 && (
+        posts.length === 0 &&
+        shares.length === 0 && (
           <div className="text-center py-8">
             <p className="text-placeholderbg text-responsive-xs">
               No content found. Create your first event or post!
@@ -424,9 +455,11 @@ export default function HomeInterface() {
       {/* Content Feed - Events and Posts */}
       {!isLoadingEvents &&
         !isLoadingPosts &&
+        !isLoadingShares &&
         !isErrorEvents &&
         !isErrorPosts &&
-        (events.length > 0 || posts.length > 0) && (
+        !isErrorShares &&
+        (events.length > 0 || posts.length > 0 || shares.length > 0) && (
           <div className="space-y-6">
             {/* Combined and chronologically sorted content */}
             {combinedContent.map((item) => {
@@ -450,7 +483,7 @@ export default function HomeInterface() {
                     onDeleteRsvpEvent={handleDeleteRsvpEvent}
                   />
                 );
-              } else {
+              } else if (item.type === "post") {
                 const post = item.data;
                 return (
                   <PublicMemberPost
@@ -462,13 +495,16 @@ export default function HomeInterface() {
                     onEditPost={() => handleEditPost(post.id)}
                   />
                 );
+              } else if (item.type === "share") {
+                const share = item.data;
+                return <SharedCard key={`share-${share.shared_id}`} share={share} />;
               }
             })}
 
             {/* Infinite scroll sentinel element */}
             <div className="w-full my-4">
               {/* Loading indicator for next page */}
-              {(isFetchingNextEventsPage || isFetchingNextPostsPage) && (
+              {(isFetchingNextEventsPage || isFetchingNextPostsPage || isFetchingNextSharesPage) && (
                 <LoadingState
                   message="Loading more content..."
                   className="py-4 text-center"
@@ -476,9 +512,10 @@ export default function HomeInterface() {
               )}
 
               {/* Error state for next page */}
-              {(isErrorEvents || isErrorPosts) &&
+              {(isErrorEvents || isErrorPosts || isErrorShares) &&
                 !isFetchingNextEventsPage &&
-                !isFetchingNextPostsPage && (
+                !isFetchingNextPostsPage &&
+                !isFetchingNextSharesPage && (
                   <div className="flex flex-col items-center py-4">
                     <ErrorState
                       message="Failed to load more content."

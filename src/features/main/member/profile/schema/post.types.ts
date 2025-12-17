@@ -1,4 +1,3 @@
-import type { Member } from "@src/features/auth/schema/auth.types";
 import type { ContentComment } from "@src/features/comments/schema/comment.types";
 
 // Type definition for image data
@@ -16,14 +15,15 @@ export type ProfilePicture = {
 };
 
 // Type definition for post author
-export type PostAuthor = {
+export type Author = {
   id: number;
   uuid: string;
   email: string;
   first_name: string;
   last_name: string;
   bio: string;
-  profile_picture: ProfilePicture;
+  organization_name: string;
+  profile_picture: ProfilePicture | null;
 };
 
 // Type definition for comment account
@@ -54,8 +54,8 @@ export type LatestComment = {
 
 export interface PostData {
   id: number;
-  author: Member;
-  image: PostImage;
+  author: Author;
+  images: PostImage[];
   description: string;
   created_date: string;
   last_modified_date: string;
@@ -72,8 +72,11 @@ export interface AllMemberPostData {
   author_first_name: string;
   author_last_name: string;
   author_bio: string;
-  author_profile_picture: ProfilePicture;
-  image: PostImage;
+  author_profile_picture: ProfilePicture | null;
+  author_logo: ProfilePicture | null;
+  author_organization_name: string;
+  author_organization_id: number;
+  images: PostImage[];
   description: string;
   created_date: string;
   user_membership_status_with_organizer: string;

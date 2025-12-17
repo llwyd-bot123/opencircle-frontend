@@ -15,6 +15,7 @@ export default function OrganizationMemberInterface() {
 
   // Get organization ID from authenticated user
   const { user } = useAuthStore();
+  
   const organizationId = user?.id || 0;
 
   // Fetch members and member requests data

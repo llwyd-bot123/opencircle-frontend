@@ -77,7 +77,7 @@ export default function VerifyEmailOtpInterface() {
   return (
      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full">
-        <div className="bg-white rounded-56 px-8 pb-24">
+        <div className="bg-white rounded-[50px] px-8 pb-24">
 
           {!isVerified ? (
             <>

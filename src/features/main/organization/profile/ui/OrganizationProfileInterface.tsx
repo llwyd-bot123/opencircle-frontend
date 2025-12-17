@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ActiveComponent from "../components/ActiveComponent";
-import PastEventsComponent from "../components/PastEventsComponent";
+import EventsComponent from "../components/EventsComponent";
 import { UserProfileHeader } from "@src/shared/components/UserProfileHeader";
 import { useAuthStore } from "@src/shared/store/auth";
 import { CalendarSection } from "@src/features/calendar/ui/CalendarSection";
@@ -39,8 +39,8 @@ export default function OrganizationProfileInterface({
   }, [isUserMember, organizationDetails, organizationId, user]);
 
   const profileTabs = [
-    { id: "active", label: "Active" },
-    { id: "past-events", label: "Past Events" },
+    { id: "active", label: "Post" },
+    { id: "events", label: "Events" },
     { id: "calendar", label: "Calendar" },
   ];
 
@@ -52,7 +52,6 @@ export default function OrganizationProfileInterface({
       ? organizationData?.uuid || ""
       : user?.uuid || "";
 
-    // Organization account UUID
 
     switch (activeTab) {
       case "active":
@@ -62,14 +61,14 @@ export default function OrganizationProfileInterface({
             isUserMember={isUserMember}
           />
         );
-      case "past-events":
-        return <PastEventsComponent accountUuid={accountUuid} />;
+      case "events":
+        return <EventsComponent accountUuid={accountUuid} />;
       case "calendar":
         return (
           <CalendarSection userType="organization" accountUuid={accountUuid} />
         );
       default:
-        return <PastEventsComponent accountUuid={accountUuid} />;
+        return <EventsComponent accountUuid={accountUuid} />;
     }
   };
 
@@ -86,7 +85,7 @@ export default function OrganizationProfileInterface({
         />
 
         {/* Menu Section - Fixed at Bottom */}
-        <nav className="flex justify-center px-2 sm:px-4 sm:pb-0">
+        <nav className="flex justify-center px-2 sm:px-4 sm:pb-0 bg-secondary/50">
           <div className="flex overflow-x-auto">
             {profileTabs.map((tab) => (
               <button

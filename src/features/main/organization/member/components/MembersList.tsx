@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigation } from "@src/shared/hooks";
 import { useImageUrl } from "@src/shared/hooks/useImageUrl";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
@@ -20,6 +21,7 @@ export const MembersList: React.FC<MembersListProps> = ({
   onRemove,
 }) => {
   const { getImageUrl } = useImageUrl();
+  const { onMemberClick } = useNavigation();
 
   return (
     <div className="h-full overflow-y-auto px-4 my-2">
@@ -38,7 +40,7 @@ export const MembersList: React.FC<MembersListProps> = ({
           {members.map((member) => (
             <div
               key={member.user_id}
-              className="flex items-center justify-between p-3"
+              className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="flex items-center space-x-3">
                 {member.profile_picture ? (
@@ -49,15 +51,22 @@ export const MembersList: React.FC<MembersListProps> = ({
                       "/assets/images/avatar.png"
                     )}
                     alt={`${member.first_name || "User"}'s profile picture`}
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer"
+                    onClick={onMemberClick(member.account_uuid)}
                   />
                 ) : (
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0">
+                  <div
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 cursor-pointer"
+                    onClick={onMemberClick(member.account_uuid)}
+                  >
                     {(member.first_name || "U").charAt(0)}
                   </div>
                 )}
                 <div>
-                  <h3 className="text-responsive-xs md:text-responsive-sm font-medium text-primary">
+                  <h3
+                    className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold hover:underline cursor-pointer"
+                    onClick={onMemberClick(member.account_uuid)}
+                  >
                     {member.first_name} {member.last_name}
                   </h3>
                 </div>
