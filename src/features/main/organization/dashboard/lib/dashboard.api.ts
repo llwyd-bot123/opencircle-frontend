@@ -8,8 +8,15 @@ import type {
   PostCommentAnalyticsSummaryResponse,
 } from "@src/features/main/organization/dashboard/schema/dashboard.types";
 
-export const getMembershipAnalytics = async (): Promise<MembershipAnalyticsResponse> => {
-  const response = await axiosInstance.get<MembershipAnalyticsResponse>("/report/membership-analytics");
+export const getMembershipAnalytics = async (
+  params?: { start_date?: string | null; end_date?: string | null }
+): Promise<MembershipAnalyticsResponse> => {
+  const response = await axiosInstance.get<MembershipAnalyticsResponse>("/report/membership-analytics", {
+    params: {
+      ...(params?.start_date ? { start_date: params.start_date } : {}),
+      ...(params?.end_date ? { end_date: params.end_date } : {}),
+    },
+  });
   return response.data;
 };
 

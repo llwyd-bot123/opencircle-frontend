@@ -273,35 +273,33 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
     eventId={undefined}
   />
 
-      {/* Comments Modal */}
-      <CommentsModal
-        isOpen={isCommentsModalOpen}
-        onClose={() => setIsCommentsModalOpen(false)}
-        comments={comments}
-        currentUserAvatar={currentAvatar}
-        isLoading={isCommentsLoading}
-        error={commentsError}
-        postId={selectedPostId || 0}
-        fetchNextPage={fetchNextCommentsPage}
-        hasNextPage={hasNextCommentsPage}
-        isFetchingNextPage={isFetchingNextCommentsPage}
-        totalComments={totalComments}
+    {/* Comments Modal */}
+    <CommentsModal
+      isOpen={isCommentsModalOpen}
+      onClose={() => setIsCommentsModalOpen(false)}
+      comments={comments}
+      currentUserAvatar={currentAvatar}
+      isLoading={isCommentsLoading}
+      error={commentsError}
+      postId={selectedPostId || 0}
+      fetchNextPage={fetchNextCommentsPage}
+      hasNextPage={hasNextCommentsPage}
+      isFetchingNextPage={isFetchingNextCommentsPage}
+      totalComments={totalComments}
+    />
+
+    {/* Confirmation Modal */}
+    {modalConfig && (
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={closeConfirmationModal}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmButtonText={modalConfig.confirmButtonText}
+        confirmButtonVariant={modalConfig.confirmButtonVariant}
       />
-
-      {/* Confirmation Modal */}
-      {modalConfig && (
-        <ConfirmationModal
-          isOpen={isConfirmModalOpen}
-          onClose={closeConfirmationModal}
-          onConfirm={modalConfig.onConfirm}
-          title={modalConfig.title}
-          message={modalConfig.message}
-          confirmButtonText={modalConfig.confirmButtonText}
-          confirmButtonVariant={modalConfig.confirmButtonVariant}
-        />
-      )}
-
-      {/* Event Participants Modal */}
+    )}
 
     </div>
   );

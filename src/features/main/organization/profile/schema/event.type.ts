@@ -116,6 +116,7 @@ export interface EventData {
   latest_comments: ContentComment[];
   user_membership_status_with_organizer: string;
   user_rsvp: RSVPData;
+  logo: ProfilePicture | null;
 }
 
 /**

@@ -47,6 +47,9 @@ export const useLeaveOrganization = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MEMBER_JOINED_ORGANIZATIONS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.USER_SHARES],
+      });
       
       showSuccessToast("Successfully left");
     },

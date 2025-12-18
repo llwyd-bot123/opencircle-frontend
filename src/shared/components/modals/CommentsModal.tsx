@@ -174,8 +174,6 @@ export function CommentsModal({
     enabled: isOpen, // Only enable when modal is open
   });
 
-  console.log("sortedComments", sortedComments);
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
       {/* Header */}

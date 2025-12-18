@@ -24,6 +24,7 @@ export type Author = {
   bio: string;
   organization_name: string;
   profile_picture: ProfilePicture | null;
+  logo: ProfilePicture | null;
 };
 
 // Type definition for comment account
@@ -83,6 +84,7 @@ export interface AllMemberPostData {
   user_rsvp: string;
   latest_comments: ContentComment[];
   total_comments: number;
+  logo: ProfilePicture | null;
 }
 
 // Type definition for paginated member posts response

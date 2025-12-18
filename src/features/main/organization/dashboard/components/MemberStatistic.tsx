@@ -1,14 +1,18 @@
-import type { StatusCounts } from "@src/features/main/organization/dashboard/schema/dashboard.types";
+import { useMembershipAnalytics } from "@src/features/main/organization/dashboard/model/dashboard.query";
+import { useState } from "react";
 
-type MemberStatisticProps = {
-  counts?: StatusCounts;
-  approved?: number;
-  pending?: number;
-  rejected?: number;
-  left?: number;
-};
+export default function MemberStatistic() {
+  const today = new Date().toISOString().split("T")[0];
 
-export default function MemberStatistic({ counts }: MemberStatisticProps) {
+  const [startDate, setStartDate] = useState(`${today} 00:00`);
+  const [endDate, setEndDate] = useState(`${today} 23:59`);
+
+  const { data: membership } = useMembershipAnalytics({
+    start_date: startDate,
+    end_date: endDate,
+  });
+  const counts = membership?.membership_analytics?.status_counts;
+
   const emptyCount = 0;
   const items = [
     { label: "Approved", value: counts?.approved ?? emptyCount },
@@ -19,7 +23,24 @@ export default function MemberStatistic({ counts }: MemberStatisticProps) {
 
   return (
     <section className="mb-12">
-      <h2 className="text-responsive-base font-bold text-primary mb-3">Members</h2>
+      <div className="flex justify-between items-center mb-4">
+         <h2 className="text-responsive-base font-bold text-primary">Members</h2>
+         <div className="flex gap-2">
+           <input
+              type="datetime-local"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
+            />
+           <input
+              type="datetime-local"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
+            />
+         </div>
+      </div>
+     
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {items.map((item) => (
           <div key={item.label} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">

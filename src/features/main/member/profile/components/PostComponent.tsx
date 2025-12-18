@@ -86,8 +86,6 @@ export default function PostComponent({ accountUuid }: PostComponentProps) {
     isFetchingNextPage: isFetchingNextSharesPage,
   } = useInfiniteUserShares({ account_uuid: userUuid, limit: 5 });
 
- 
-
   // Ensure fetchNextPostsPage is properly typed
   const handleFetchNextPage = () => {
     if (fetchNextPostsPage) {
@@ -123,6 +121,8 @@ export default function PostComponent({ accountUuid }: PostComponentProps) {
       date: new Date(share.date_created),
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  console.log("dataaaaa", sharesInfinite)
 
   const {
     data: infiniteCommentsData,

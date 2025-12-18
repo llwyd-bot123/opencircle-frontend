@@ -168,10 +168,10 @@ export default function LoginInterface() {
                 htmlFor="email"
                 className="block text-responsive-sm text-primary mb-2"
               >
-                Email
+                Email/Username
               </label>
               <input
-                type="email"
+                type="text"
                 id="email"
                 className={`w-full px-3 py-2 border ${
                   errors.login ? "border-red-500" : "border-primary"
