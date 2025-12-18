@@ -187,7 +187,7 @@ export function CommentsSection({
         )}
       </div>
       {contentType === "event" ? (
-        <div className={`flex ${isUserMember ? "justify-between" : "justify-around"} items-center mb-2 sm:mb-3 md:mb-4`}>
+        <div className={`flex justify-around items-center mb-2 sm:mb-3 md:mb-4`}>
           <div className="flex items-center space-x-2">
             <img src={commentIcon} alt="Comments" className="w-4 h-4" />
             <h4 className="text-responsive-xs font-semibold text-primary">Comments</h4>
