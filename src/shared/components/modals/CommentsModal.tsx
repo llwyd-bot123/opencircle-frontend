@@ -174,6 +174,8 @@ export function CommentsModal({
     enabled: isOpen, // Only enable when modal is open
   });
 
+  console.log("sortedComments", sortedComments);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
       {/* Header */}
@@ -209,12 +211,12 @@ export function CommentsModal({
                     <div className="flex space-x-3 flex-1">
                       <ProfileAvatar
                         src={getImageUrl(
-                          comment.role === "member"
+                          comment.role === "user"
                             ? comment?.profile_picture?.directory
                             : comment.role === "organization"
                             ? comment?.organization_logo?.directory
                             : '',
-                          comment.role === "member"
+                          comment.role === "user"
                             ? comment?.profile_picture?.filename
                             : comment.role === "organization"
                             ? comment?.organization_logo?.filename

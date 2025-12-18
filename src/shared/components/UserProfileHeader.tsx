@@ -34,8 +34,6 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [isOrganizationsModalOpen, setIsOrganizationsModalOpen] = useState(false);
 
-  console.log("profile", profile);
-
   const handleJoinOrganization = (orgId: number) => {
     openConfirmationModal({
       title: "Request to Join",

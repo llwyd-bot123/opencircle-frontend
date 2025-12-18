@@ -70,8 +70,6 @@ export default function ActiveEventsList({ accountUuid }: ActiveEventsListProps)
   const activeEvents =
     infiniteEventsData?.pages.flatMap((page) => page.active_events) || [];
 
-  console.log("data here", activeEvents);
-
   const {
     data: infiniteCommentsData,
     isLoading: isCommentsLoading,
