@@ -130,7 +130,6 @@ export const SharedCard = ({ share }: SharedCardProps) => {
     );
   })();
 
-  console.log("share me:", share);
   const displayName = (() => {
     if (!account && !share) return "User";
     if (isOrganizationAccount) {

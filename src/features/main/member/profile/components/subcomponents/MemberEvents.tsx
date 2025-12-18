@@ -221,8 +221,6 @@ export const MemberEvents = ({
         />
       </button>
 
-      <hr className="my-4 text-gainsboro" />
-
       {/* 8. Comments Section */}
       <CommentsSection
         contentType="event"

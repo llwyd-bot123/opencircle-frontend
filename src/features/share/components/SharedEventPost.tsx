@@ -63,6 +63,8 @@ export const SharedEventPost = ({
     avatarImage
   );
 
+  console.log("share", share)
+
   return (
     <>
       <div 
