@@ -20,6 +20,10 @@ export type ProfileData =
       email?: string;
       bio?: string;
       avatarUrl?: string;
+      user_membership_status?: string;
+      id: number;
+      organizer_view_user_membership?: string;
+      uuid?: string;
     };
 
 // Type guard functions for ProfileData type (which can include custom profile objects)

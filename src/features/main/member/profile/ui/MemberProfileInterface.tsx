@@ -13,7 +13,6 @@ type MemberProfileInterfaceProps = {
 };
 
 export default function MemberProfileInterface({ accountUuid }: MemberProfileInterfaceProps) {
-  // Initialize with stored tab or default to "post"
   const [activeTab, setActiveTab] = useState(() => {
     const storedTab = localStorage.getItem("memberProfileActiveTab");
     return storedTab || "post";
@@ -26,7 +25,9 @@ export default function MemberProfileInterface({ accountUuid }: MemberProfileInt
 
   const headerProfile = visitedProfile
     ? {
+        id: visitedProfile.id,
         name: `${visitedProfile.first_name} ${visitedProfile.last_name}`,
+        role_id: 1,
         role: "member",
         bio: visitedProfile.bio,
         username: visitedProfile.username,
@@ -35,10 +36,11 @@ export default function MemberProfileInterface({ accountUuid }: MemberProfileInt
           visitedProfile.profile_picture?.filename,
           avatarImage
         ),
+        organizer_view_user_membership: visitedProfile.organizer_view_user_membership || "",
+        uuid: visitedProfile.uuid,
       }
     : user;
 
-  // Save active tab to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("memberProfileActiveTab", activeTab);
   }, [activeTab]);
@@ -63,12 +65,9 @@ export default function MemberProfileInterface({ accountUuid }: MemberProfileInt
   };
   return (
     <div className="w-full min-h-screen">
-      {/* Profile Header Section */}
       <div className="w-full h-auto sm:h-64 md:h-72 bg-white relative flex flex-col">
-        {/* Profile Details Section - Centered */}
         <UserProfileHeader profile={headerProfile} />
 
-        {/* Menu Section - Fixed at Bottom */}
         <nav className="flex justify-center px-2 sm:px-4 sm:pb-0">
           <div className="flex overflow-x-auto" >
             {profileTabs.map((tab) => (
@@ -82,7 +81,6 @@ export default function MemberProfileInterface({ accountUuid }: MemberProfileInt
                 }`}
               >
                 {tab.label}
-                {/* Active indicator */}
                 {activeTab === tab.id && (
                   <div className="absolute border-2 sm:border-3 md:border-4 bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
                 )}
@@ -92,7 +90,6 @@ export default function MemberProfileInterface({ accountUuid }: MemberProfileInt
         </nav>
       </div>
 
-      {/* Dynamic Content Section */}
       <div className="w-full">{renderActiveComponent()}</div>
     </div>
   );

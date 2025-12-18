@@ -4,7 +4,23 @@ import type {
   PendingOrganizationMembershipsResponse,
   DirectOrganizationSearchResponse,
   OrganizationSearchResponse,
+  MemberJoinedOrganizationsResponse,
 } from "../schema/organization.types";
+
+export const getMemberJoinedOrganizations = async (
+  accountUuid: string
+): Promise<MemberJoinedOrganizationsResponse> => {
+  try {
+    const response = await axiosInstance.get<MemberJoinedOrganizationsResponse>(
+      `/organization/user/joined?account_uuid=${accountUuid}`
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch member joined organizations:", error);
+    throw error;
+  }
+};
 
 export const getOrganizationMemberships = async (
   accountUuid: string

@@ -1,5 +1,7 @@
 import { useNavigation } from "@src/shared/hooks/useNavigation";
 import avatarImage from "@src/assets/shared/avatar.png";
+import { useAuthStore } from "@src/shared/store/auth";
+import { RoleId } from "@src/features/auth/schema/auth.types";
 
 interface ProfileAvatarProps {
   src: string;
@@ -29,9 +31,21 @@ export const ProfileAvatar = ({
   children,
 }: ProfileAvatarProps) => {
   const { onMemberClick, onOrganizationClick } = useNavigation();
+  const { user, isAuthenticated } = useAuthStore();
+
+  const isAuthUser =
+    isAuthenticated &&
+    ((type === "member" &&
+      user?.role_id === RoleId.Member &&
+      user?.uuid === memberUuid) ||
+      (type === "organization" &&
+        user?.role_id === RoleId.Organization &&
+        user?.id === organizationId));
+
+  const isOwnerOrAuth = isOwner || isAuthUser;
 
   const handleClick = (e: React.MouseEvent) => {
-    if (isOwner) return;
+    if (isOwnerOrAuth) return;
 
     if (type === "organization") {
       if (organizationId) {
@@ -55,12 +69,12 @@ export const ProfileAvatar = ({
       src={src}
       alt={alt}
       className={`rounded-full object-cover ${
-        isOwner
+        isOwnerOrAuth
           ? ""
           : "border border-transparent hover:border-secondary cursor-pointer"
       } ${className}`}
       onError={(e) => (e.currentTarget.src = avatarImage)}
-      onClick={isOwner ? undefined : handleClick}
+      onClick={isOwnerOrAuth ? undefined : handleClick}
     />
   );
 
@@ -75,9 +89,9 @@ export const ProfileAvatar = ({
         {name && (
           <span
             className={`${nameClassName} ${
-              isOwner ? "" : "hover:underline cursor-pointer"
+              isOwnerOrAuth ? "" : "hover:underline cursor-pointer"
             }`}
-            onClick={isOwner ? undefined : handleClick}
+            onClick={isOwnerOrAuth ? undefined : handleClick}
           >
             {name}
           </span>

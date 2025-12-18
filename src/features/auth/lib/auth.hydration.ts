@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type {
   MemberLoginResponse,
   OrganizationLoginResponse,
+  MemberLoginSuccess,
+  OrganizationLoginSuccess,
 } from "../schema/auth.types";
 import { fetchAuthUser } from "./auth.api";
 
@@ -75,7 +77,7 @@ export const validateSession = async (): Promise<{
     }
 
     // Update auth store with user data
-    authStore.login(loginData as AuthUserResponse);
+    authStore.login(loginData as MemberLoginSuccess | OrganizationLoginSuccess);
 
     return { isValid: true };
   } catch (error) {

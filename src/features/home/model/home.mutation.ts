@@ -44,6 +44,9 @@ export const useJoinOrganization = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ALL_SHARES_WITH_COMMENTS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEMBER_JOINED_ORGANIZATIONS],
+      });
       showSuccessToast("Successfully requested to join");
     },
     onError: (error: unknown) => {

@@ -19,6 +19,8 @@ export type Member = {
   role_id: number; // Role ID for RBAC (1 = member)
   two_factor_enabled: 0 | 1;
   bypass_two_factor: 0 | 1;
+  user_membership_status: string;
+  organizer_view_user_membership: string;
 };
 
 // Authenticated organization user type
@@ -35,6 +37,8 @@ export type Organization = {
   role_id: number; // Role ID for RBAC (2 = organization)
   two_factor_enabled: 0 | 1;
   bypass_two_factor: 0 | 1;
+  user_membership_status: string;
+  organizer_view_user_membership: string;
 };
 
 // Authenticated user (either Member or Organization)

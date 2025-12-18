@@ -66,7 +66,7 @@ export function ShareListModal({ isOpen, onClose, contentType, contentId }: Shar
 
                 return (
                   <div key={s.share_id} className="">
-                    <div className=" py-2 rounded-lg bg-white">
+                    <div className=" py-1 px-6 lg:py-1 lg:px-12">
                       <ProfileAvatar
                         src={avatarSrc}
                         alt={`${displayName} avatar`}

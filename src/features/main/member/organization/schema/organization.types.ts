@@ -57,3 +57,28 @@ export interface DirectOrganizationSearchItem {
 
 // Type for direct organization search response
 export type DirectOrganizationSearchResponse = DirectOrganizationSearchItem[];
+
+export interface MemberJoinedOrganization {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  logo: ProfilePicture;
+  organization_created_date: string;
+  membership_date: string;
+  membership_modified_date: string;
+  account_uuid: string;
+  email: string;
+  stats: {
+    member_count: number;
+    recent_events_count: number;
+  };
+  user_membership_status?: string;
+  visitor_membership_status?: string;
+}
+
+export interface MemberJoinedOrganizationsResponse {
+  user_account_uuid: string;
+  joined_organizations_count: number;
+  organizations: MemberJoinedOrganization[];
+}

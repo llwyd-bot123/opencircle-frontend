@@ -6,6 +6,7 @@ import {
   useImageUrl,
   useConfirmationModal,
 } from "@src/shared/hooks";
+import { useLightbox } from "@src/shared/hooks/useLightbox";
 import avatarImage from "@src/assets/shared/avatar.png";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
@@ -32,8 +33,8 @@ interface EventDetailsModalProps {
   onJoinOrganization?: (orgId: number) => void;
   onCancelJoiningOrganization?: (orgId: number) => void;
   onLeaveOrganization?: (orgId: number) => void;
-  onRsvpEvent?: (eventId: number) => void;
-  onDeleteRsvpEvent?: (rsvpId: number) => void;
+  onRsvpEvent: (eventId: number) => void;
+  onDeleteRsvpEvent: (rsvpId: number) => void;
 }
 
 /**
@@ -65,7 +66,7 @@ export function EventDetailsModal({
     openConfirmationModal,
     closeConfirmationModal,
   } = useConfirmationModal();
-
+  const { openLightbox, LightboxViewer } = useLightbox();
   // Fetch event data with comments using React Query
   const {
     data: event,
@@ -121,29 +122,6 @@ export function EventDetailsModal({
       confirmButtonText: "Leave",
       confirmButtonVariant: "primary",
       onConfirm: () => onLeaveOrganization?.(orgId),
-    });
-  };
-
-  // Confirmation modal handlers for RSVP actions
-  const handleRsvpEvent = (eventId: number) => {
-    openConfirmationModal({
-      title: "RSVP to Event",
-      message:
-        "Do you want to RSVP to this event? You'll be added to the participant list.",
-      confirmButtonText: "RSVP",
-      confirmButtonVariant: "primary",
-      onConfirm: () => onRsvpEvent?.(eventId),
-    });
-  };
-
-  const handleDeleteRsvpEvent = (rsvpId: number) => {
-    openConfirmationModal({
-      title: "Cancel RSVP",
-      message:
-        "Are you sure you want to cancel your RSVP? You will be removed from the participant list.",
-      confirmButtonText: "Cancel RSVP",
-      confirmButtonVariant: "primary",
-      onConfirm: () => onDeleteRsvpEvent?.(rsvpId),
     });
   };
 
@@ -305,17 +283,15 @@ export function EventDetailsModal({
               </span>
             </div>
 
-            {/* Only show RSVP button for members, not for organizations, and only for future events */}
-            {userRole === "member" &&
-              event &&
-              new Date(event.event_date) > new Date() && (
+            {/* Only show RSVP button for members, not for organizations */}
+            {userRole === "member" && (
                 <div className="mb-4">
                   {/* Show RSVP button if user hasn't RSVPed yet */}
                   {!event.user_rsvp && (
                     <PrimaryButton
                       variant={"rsvpButton"}
                       label={"RSVP"}
-                      onClick={() => handleRsvpEvent(Number(event.id))}
+                      onClick={() => onRsvpEvent(event.id)}
                     />
                   )}
 
@@ -325,21 +301,19 @@ export function EventDetailsModal({
                       variant={"pendingEventButton"}
                       label={"Pending"}
                       onClick={() =>
-                        handleDeleteRsvpEvent(Number(event.user_rsvp?.rsvp_id))
+                        onDeleteRsvpEvent(event.user_rsvp?.rsvp_id)
                       }
                     />
                   )}
 
                   {/* Show Cancel RSVP button if user has RSVPed and status is approved */}
                   {event.user_rsvp &&
-                    event.user_rsvp?.status === "approved" && (
+                    event.user_rsvp?.status === "joined" && (
                       <PrimaryButton
                         variant={"activeEventButton"}
                         label={"Cancel RSVP"}
                         onClick={() =>
-                          handleDeleteRsvpEvent(
-                            Number(event.user_rsvp?.rsvp_id)
-                          )
+                          onDeleteRsvpEvent(event.user_rsvp?.rsvp_id)
                         }
                       />
                     )}
@@ -353,7 +327,21 @@ export function EventDetailsModal({
 
             {/* 6. Event Image */}
             {event.image && (
-              <div className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] overflow-hidden mb-4">
+              <button
+                type="button"
+                className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] overflow-hidden mb-4 cursor-pointer block"
+                onClick={() =>
+                  openLightbox(0, [
+                    {
+                      src: getImageUrl(
+                        event.image.directory,
+                        event.image.filename,
+                        ""
+                      ),
+                    },
+                  ])
+                }
+              >
                 <img
                   src={getImageUrl(
                     event.image.directory,
@@ -363,7 +351,7 @@ export function EventDetailsModal({
                   alt={event.title}
                   className="w-full h-full object-cover"
                 />
-              </div>
+              </button>
             )}
 
             <hr className="my-4 text-gainsboro" />
@@ -380,6 +368,8 @@ export function EventDetailsModal({
           </div>
         )}
       </Modal>
+
+      <LightboxViewer />
 
       {/* Comments Modal for viewing all comments */}
       {event && (

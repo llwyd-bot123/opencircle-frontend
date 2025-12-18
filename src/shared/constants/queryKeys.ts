@@ -32,6 +32,7 @@ export const QUERY_KEYS = {
   MEMBER_EVENTS_BY_RSVP_STATUS: "member-events-by-rsvp-status",
   MEMBER_PAST_EVENTS: "member-past-events",
   ORGANIZATION_MEMBERSHIP: "organization-membership",
+  MEMBER_JOINED_ORGANIZATIONS: "member-joined-organizations",
 
   // CALENDAR
   CALENDAR_EVENTS: "calendar-events",

@@ -1,5 +1,16 @@
 import avatarImage from "@src/assets/shared/avatar.png";
-import { useProfileData, type ProfileData } from "@src/shared/hooks";
+import { useState } from "react";
+import { useConfirmationModal, useProfileData, type ProfileData } from "@src/shared/hooks";
+import { PrimaryButton } from "./PrimaryButton";
+import { ConfirmationModal, MemberOrganizationsModal, OrganizationMembersModal } from "./modals";
+import { isMember as isUserMember, isOrganization as isUserOrganization } from "../utils";
+import { useAuthStore } from "../store";
+import { useJoinOrganization } from "@src/features/home/model/home.mutation";
+import { useLeaveOrganization } from "@src/features/main/member/organization/model/organization.mutation";
+import { useUpdateMemberRequestStatus } from "@src/features/main/organization/member/model/member.mutation";
+import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
+import joinedIcon from "@src/assets/shared/joined_icon.svg";
+import joinIcon from "@src/assets/shared/join_icon.svg";
 
 interface UserProfileHeaderProps {
   profile?: ProfileData | null; // Make profile optional and allow null
@@ -7,8 +18,108 @@ interface UserProfileHeaderProps {
 
 export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
   // Use the custom hook to get profile utility functions
-  const { getName, getRole, getBio, getImageUrl, getUsername, isOrganization } =
+  const { getName, getRole, getBio, getImageUrl, getUsername, isOrganization, isMember } =
     useProfileData(profile);
+
+  const { user } = useAuthStore();
+  const joinOrganizationMutation = useJoinOrganization();
+  const leaveOrganizationMutation = useLeaveOrganization();
+  const updateStatusMutation = useUpdateMemberRequestStatus();
+  const {
+    isConfirmModalOpen,
+    modalConfig,
+    openConfirmationModal,
+    closeConfirmationModal,
+  } = useConfirmationModal();
+  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
+  const [isOrganizationsModalOpen, setIsOrganizationsModalOpen] = useState(false);
+
+  console.log("profile", profile);
+
+  const handleJoinOrganization = (orgId: number) => {
+    openConfirmationModal({
+      title: "Request to Join",
+      message:
+        "Do you want to join this group? Once you join, you'll be able to access its content, participate in discussions, and receive updates.",
+      confirmButtonText: "Join",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await joinOrganizationMutation.mutateAsync(orgId);
+        } catch (error) {
+          console.error("Failed to request to join organization:", error);
+        }
+      },
+    });
+  };
+
+  const handleCancelJoiningOrganization = (orgId: number) => {
+    openConfirmationModal({
+      title: "Cancel Join Request",
+      message: "Do you want to cancel your request to join this organization?",
+      confirmButtonText: "Cancel Request",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await leaveOrganizationMutation.mutateAsync(orgId);
+        } catch (error) {
+          console.error("Failed to cancel join request:", error);
+        }
+      },
+    });
+  };
+
+  const handleLeaveOrganization = (orgId: number) => {
+    openConfirmationModal({
+      title: "Leave Organization",
+      message: "Do you want to leave this organization?",
+      confirmButtonText: "Leave",
+      confirmButtonVariant: "primary",
+      onConfirm: async () => {
+        try {
+          await leaveOrganizationMutation.mutateAsync(orgId);
+        } catch (error) {
+          console.error("Failed to leave organization:", error);
+        }
+      },
+    });
+  };
+
+  const handleAcceptRequest = (userId: number) => {
+    openConfirmationModal({
+      title: "Accept Member Request",
+      message: `Are you sure you want to accept this member's request to join the organization?`,
+      confirmButtonText: "Accept",
+      confirmButtonVariant: "primary",
+      onConfirm: () => {
+        updateStatusMutation.mutate({ userId, status: "approved" });
+      },
+    });
+  };
+
+  const handleDeclineRequest = (userId: number) => {
+    openConfirmationModal({
+      title: "Decline Member Request",
+      message: `Are you sure you want to decline this member's request to join the organization?`,
+      confirmButtonText: "Decline",
+      confirmButtonVariant: "primary",
+      onConfirm: () => {
+        updateStatusMutation.mutate({ userId, status: "rejected" });
+      },
+    });
+  };
+
+  const handleRemoveMember = (userId: number) => {
+    openConfirmationModal({
+      title: "Remove Member",
+      message: `Are you sure you want to remove this member from the organization?`,
+      confirmButtonText: "Remove",
+      confirmButtonVariant: "primary",
+      onConfirm: () => {
+        updateStatusMutation.mutate({ userId, status: "rejected" });
+      },
+    });
+  };
 
   // Handle null/undefined profile case
   if (!profile) {
@@ -32,16 +143,36 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
             <p className="text-responsive-sm text-primary mb-1">User</p>
             <p className="text-responsive-xs text-primary leading-relaxed line-clamp-3 sm:line-clamp-none">
               Profile information is loading...
-            </p>
+            </p>ProfileData
           </div>
         </div>
       </div>
     );
   }
 
-  // Get email from the hook
   // const email = getEmail();
   const username = getUsername();
+  const isVisitorMember = isUserMember(user);
+  const isVisitorOrganizer = isUserOrganization(user)
+  
+  const membershipStatus = profile?.user_membership_status;
+  const orgId = profile?.id;
+
+  const isOwnProfile =
+    user &&
+    profile &&
+    profile.uuid === user.uuid
+
+  const isMemberVisitingOrganization =
+    isVisitorMember && isOrganization && !isOwnProfile;
+
+  const isOrganizationVisitingMember =
+    isVisitorOrganizer && isMember && !isOwnProfile;
+
+  const isMemberVisitingAnotherMember =
+    isVisitorMember && isMember && !isOwnProfile;
+
+  const userMembershipStatusWithOrganizer = profile?.organizer_view_user_membership
 
   return (
     <div className={`flex-1 flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:pt-8 ${isOrganization ? "bg-secondary/50" : ""}`}>
@@ -56,11 +187,116 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
         </div>
 
         {/* Profile Info */}
-        <div className="text-center sm:text-left flex-1 max-w-full sm:max-w-none overflow-hidden">
-          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary mb-1 truncate">
-            {getName()}
-          </h1>
-          <p className="text-responsive-xs text-primary mb-1">{getRole()}</p>
+        <div className="text-center sm:text-left flex-1 max-w-full sm:max-w-none overflow-hidden w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-1">
+            <div className="sm:col-span-8 lg:col-span-9 flex justify-center sm:justify-start">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary truncate">
+                {getName()}
+              </h1>
+            </div>
+            
+            {isMemberVisitingOrganization && (
+              <div className="sm:col-span-4 lg:col-span-3 flex justify-center">
+                {(!membershipStatus || membershipStatus === "rejected") && (
+                  <PrimaryButton
+                    variant="joinStatusButton"
+                    iconClass="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
+                    label="Join Organization"
+                    responsiveLabel="Join"
+                    icon={joinIcon}
+                    onClick={() => handleJoinOrganization(orgId)}
+                  />
+                )}
+
+                {membershipStatus === "pending" && (
+                  <PrimaryButton
+                    variant="iconButton"
+                    iconClass="w-4 h-4 sm:w-5 sm:h-5"
+                    label=""
+                    icon={pendingIcon}
+                    buttonClass="p-1"
+                    onClick={() => handleCancelJoiningOrganization(orgId)}
+                  />
+                )}
+
+                {membershipStatus === "approved" && (
+                  <PrimaryButton
+                    variant="iconButton"
+                    iconClass="w-4 h-4 sm:w-5 sm:h-5"
+                    label=""
+                    icon={joinedIcon}
+                    onClick={() => handleLeaveOrganization(orgId)}
+                  />
+                )}
+              </div>
+            )}
+
+            {isOrganizationVisitingMember && (
+              <div className="sm:col-span-4 lg:col-span-3 flex justify-center space-x-2">
+                {userMembershipStatusWithOrganizer === "pending" && (
+                  <>
+                    <PrimaryButton
+                      variant="acceptButton"
+                      label="Accept"
+                      onClick={() =>
+                        handleAcceptRequest(profile.id)
+                      }
+                    />
+                    <PrimaryButton
+                      variant="declineButton"
+                      label="Decline"
+                      onClick={() =>
+                        handleDeclineRequest(profile.id)
+                      }
+                    />
+                  </>
+                )}
+
+                {userMembershipStatusWithOrganizer === "approved" && (
+                  <PrimaryButton
+                    label="Remove"
+                    variant="removeButton"
+                    onClick={() =>
+                      handleRemoveMember(profile.id)
+                    }
+                  />
+                )}
+
+                {userMembershipStatusWithOrganizer !== "pending" &&
+                  userMembershipStatusWithOrganizer !== "approved" && (
+                    <p className="text-placeholderbg text-responsive-xs">
+                      Not a member
+                    </p>
+                  )}
+              </div>
+            )}
+
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <div className="sm:col-span-8 lg:col-span-9 flex justify-center sm:justify-start">
+              <p className="text-responsive-xs text-primary">{getRole()}</p>
+            </div>
+            
+              <div className="sm:col-span-4 lg:col-span-3 flex justify-center">
+                {isMemberVisitingOrganization && (
+                    <PrimaryButton
+                      variant="shareButton"
+                      label="View all members"
+                      onClick={() => setIsMembersModalOpen(true)}
+                    />
+                  )}
+
+                  {isOrganizationVisitingMember || isMemberVisitingAnotherMember &&(
+                    <PrimaryButton
+                      variant="shareButton"
+                      label="View all organizations"
+                      onClick={() => setIsOrganizationsModalOpen(true)}
+                    />
+                  )}
+              </div>
+          </div>
+
           {/* {email && (
             <p className="text-responsive-xs text-placeholderbg mb-1 truncate">
               @ {email}
@@ -76,6 +312,38 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
           </p>
         </div>
       </div>
+      
+      {isMembersModalOpen && profile.id && (
+        <OrganizationMembersModal
+          isOpen={isMembersModalOpen}
+          onClose={() => setIsMembersModalOpen(false)}
+          organizationId={profile.id}
+        />
+      )}
+
+      {isOrganizationsModalOpen && profile.uuid && (
+        <MemberOrganizationsModal
+          isOpen={isOrganizationsModalOpen}
+          onClose={() => setIsOrganizationsModalOpen(false)}
+          isMemberVisitingAnotherMember={isMemberVisitingAnotherMember}
+          profileUuid={profile?.uuid}
+          onJoinOrganization={handleJoinOrganization}
+          onCancelJoinRequest={handleCancelJoiningOrganization}
+          onLeaveOrganization={handleLeaveOrganization}
+        />
+      )}
+
+      {modalConfig && (
+        <ConfirmationModal
+          isOpen={isConfirmModalOpen}
+          onClose={closeConfirmationModal}
+          onConfirm={modalConfig.onConfirm}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          confirmButtonText={modalConfig.confirmButtonText}
+          confirmButtonVariant={modalConfig.confirmButtonVariant}
+        />
+      )}
     </div>
   );
 }

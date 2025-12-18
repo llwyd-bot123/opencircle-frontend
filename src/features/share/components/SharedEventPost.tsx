@@ -2,12 +2,14 @@ import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 import { checkOwnership, useFormatDate, useImageUrl } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store/auth";
-import { isMember } from "@src/shared/utils";
+import { isMember, isOrganization } from "@src/shared/utils";
 import avatarImage from "@src/assets/shared/avatar.png";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
 import joinedIcon from "@src/assets/shared/joined_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
+import { useState } from "react";
+import { EventDetailsModal } from "@src/shared/components/modals/EventDetailsModal";
 
 interface SharedEventPostProps {
   event: EventData;
@@ -15,7 +17,7 @@ interface SharedEventPostProps {
   onCancelJoiningOrganization?: (orgId: number) => void;
   onLeaveOrganization?: (orgId: number) => void;
   onRsvpEvent: (eventId: number) => void;
-  onDeleteRsvpEvent?: (rsvpId: number) => void;
+  onDeleteRsvpEvent: (rsvpId: number) => void;
 }
 
 export const SharedEventPost = ({
@@ -26,11 +28,26 @@ export const SharedEventPost = ({
   onRsvpEvent,
   onDeleteRsvpEvent,
 }: SharedEventPostProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { formatRelativeTime, formatFriendlyDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
   const { user } = useAuthStore();
   const userRole = isMember(user) ? "member" : "organization";
   const isOwner = checkOwnership({ type: "event", ownerId: event.organization?.account_id });
+
+  const currentAvatar = getImageUrl(
+    isMember(user)
+      ? user?.profile_picture?.directory
+      : isOrganization(user)
+      ? user?.logo?.directory
+      : undefined,
+    isMember(user)
+      ? user?.profile_picture?.filename
+      : isOrganization(user)
+      ? user?.logo?.filename
+      : undefined,
+    avatarImage
+  );
 
   const creatorImageUrl = getImageUrl(
     event.organization?.logo?.directory,
@@ -44,10 +61,17 @@ export const SharedEventPost = ({
   );
 
   return (
-    <div className="bg-athens_gray rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 w-full">
-      <div className="flex flex-row items-start justify-between mb-4">
-        <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-          <ProfileAvatar
+    <>
+      <div 
+        className="bg-athens_gray rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 w-full cursor-pointer hover:shadow-md transition-shadow"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <div className="flex flex-row items-start justify-between mb-4">
+          <div 
+            className="flex flex-row items-center space-x-2 sm:space-x-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ProfileAvatar
             src={creatorImageUrl}
             alt="Event Creator"
             className="w-10 h-10 sm:w-14 sm:h-14"
@@ -68,7 +92,10 @@ export const SharedEventPost = ({
             </p>
           </ProfileAvatar>
         </div>
-        <div className="flex items-start space-x-2">
+        <div 
+          className="flex items-start space-x-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {userRole === "member" && (
             <>
               {(!event.user_membership_status_with_organizer ||
@@ -146,7 +173,10 @@ export const SharedEventPost = ({
 
       {/* Only show RSVP button for members, not for organizations */}
       {userRole === "member" && (
-        <div className="mb-4">
+        <div 
+          className="mb-4"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Show RSVP button if user hasn't RSVPed yet */}
           {!event.user_rsvp && (
             <PrimaryButton
@@ -183,6 +213,21 @@ export const SharedEventPost = ({
       <div className="w-full h-40 sm:h-48 md:h-56 lg:h-[300px] overflow-hidden mt-4">
         <img src={eventImageUrl} alt={event.title} className="w-full h-full object-cover" />
       </div>
-    </div>
+      </div>
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        eventId={event.id}
+        currentUserAvatar={currentAvatar}
+        userRole={userRole}
+        onJoinOrganization={onJoinOrganization}
+        onCancelJoiningOrganization={onCancelJoiningOrganization}
+        onLeaveOrganization={onLeaveOrganization}
+        onRsvpEvent={onRsvpEvent}
+        onDeleteRsvpEvent={onDeleteRsvpEvent}
+      />
+    </>
   );
 };

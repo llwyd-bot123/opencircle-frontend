@@ -3,6 +3,7 @@ import type { OrganizationMembership } from "@src/features/main/member/organizat
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 
 export interface MemberProfileResponse {
+  id: number;
   first_name: string;
   last_name: string;
   username: string;
@@ -13,4 +14,6 @@ export interface MemberProfileResponse {
   recent_shares: AllMemberPostData[];
   organizations: OrganizationMembership[];
   recent_events: EventData[];
+  organizer_view_user_membership: string;
+  uuid: string; 
 }
