@@ -112,11 +112,9 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
       </div>
 
       <div className="flex justify-center items-center h-screen px-4">
-        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-white flex flex-col md:flex-row h-full md:h-screen border shadow-lg border-primary/30">
-          {/* Organizations List - Full width on mobile, left side on larger screens */}
-          <div className="w-full md:w-1/3 bg-gray-100 overflow-hidden flex flex-col h-auto md:h-full">
-            {/* New organization header with filter buttons */}
-            <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200">
+        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-white flex flex-col md:flex-row h-full md:h-screen shadow-sm rounded-xl border-r-4 border-l-4 border-l-primary/20 border-r-primary/20">
+          <div className="w-full md:w-1/3 bg-gray-100 overflow-hidden flex flex-col h-auto md:h-full rounded-tl-xl">
+            <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200 ">
               <div className="flex">
                 <button
                   className={`text-responsive-xxs ${

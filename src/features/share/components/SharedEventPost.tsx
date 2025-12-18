@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
+import type { ShareItem } from "@src/features/share/schema/share.types";
 import { checkOwnership, useFormatDate, useImageUrl } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store/auth";
 import { isMember, isOrganization } from "@src/shared/utils";
@@ -13,6 +14,7 @@ import { EventDetailsModal } from "@src/shared/components/modals/EventDetailsMod
 
 interface SharedEventPostProps {
   event: EventData;
+  share?: ShareItem;
   onJoinOrganization?: (orgId: number) => void;
   onCancelJoiningOrganization?: (orgId: number) => void;
   onLeaveOrganization?: (orgId: number) => void;
@@ -22,6 +24,7 @@ interface SharedEventPostProps {
 
 export const SharedEventPost = ({
   event,
+  share,
   onJoinOrganization,
   onCancelJoiningOrganization,
   onLeaveOrganization,
@@ -178,7 +181,7 @@ export const SharedEventPost = ({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Show RSVP button if user hasn't RSVPed yet */}
-          {!event.user_rsvp && (
+          {!share?.sharer?.user_rsvp && (
             <PrimaryButton
               variant={"rsvpButton"}
               label={"RSVP"}
@@ -187,20 +190,26 @@ export const SharedEventPost = ({
           )}
 
           {/* Show Pending button if user has RSVPed and status is pending */}
-          {event.user_rsvp && event.user_rsvp.status === "pending" && (
+          {share?.sharer?.user_rsvp?.status === "pending" && (
             <PrimaryButton
               variant={"pendingEventButton"}
               label={"Pending"}
-              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+              onClick={() => {
+                const rsvpId = share?.sharer?.user_rsvp?.rsvp_id;
+                if (rsvpId) onDeleteRsvpEvent(rsvpId);
+              }}
             />
           )}
 
           {/* Show Cancel RSVP button if user has RSVPed and status is joined */}
-          {event.user_rsvp && event.user_rsvp.status === "joined" && (
+          {share?.sharer?.user_rsvp?.status === "joined" && (
             <PrimaryButton
               variant={"activeEventButton"}
               label={"Cancel RSVP"}
-              onClick={() => onDeleteRsvpEvent?.(event.user_rsvp.rsvp_id)}
+              onClick={() => {
+                const rsvpId = share?.sharer?.user_rsvp?.rsvp_id;
+                if (rsvpId) onDeleteRsvpEvent(rsvpId);
+              }}
             />
           )}
         </div>

@@ -34,8 +34,8 @@ export const MemberPost = ({
   );
 
   const authorImageUrl = getImageUrl(
-    post.author?.profile_picture?.directory,
-    post.author?.profile_picture?.filename,
+    post.author?.profile_picture?.directory ?? post.author?.logo?.directory,
+    post.author?.profile_picture?.filename ?? post.author?.logo?.filename,
     avatarImage
   );
 

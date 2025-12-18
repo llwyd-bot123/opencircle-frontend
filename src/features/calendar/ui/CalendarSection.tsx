@@ -129,13 +129,11 @@ export function CalendarSection(
     setIsModalOpen(true);
   };
 
-  // Callback functions for EventDetailsModal
   const handleJoinOrganization = (orgId: number) => {
     joinOrganizationMutation.mutate(orgId);
   };
 
   const handleCancelJoiningOrganization = (orgId: number) => {
-    // Cancel joining uses the same API as leaving organization
     leaveOrganizationMutation.mutate(orgId);
   };
 

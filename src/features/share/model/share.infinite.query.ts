@@ -8,9 +8,12 @@ import type {
   AllSharesItem,
   ShareItem,
   ShareByContentResponse,
-  SharesPagination
+  SharesPagination,
+  AccountUserDetails,
+  AccountOrganizationDetails
 } from "@src/features/share/schema/share.types";
-import type { ProfilePicture } from "@src/features/main/member/profile/schema/post.types";
+import type { AllMemberPostData, ProfilePicture } from "@src/features/main/member/profile/schema/post.types";
+import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 
 export const useInfiniteUserShares = ({ account_uuid, content_type, limit = 5 }: SharesQueryParams) => {
   return useInfiniteQuery<UserSharesResponse, Error, UserSharesResponse, unknown[], number>({
@@ -32,15 +35,15 @@ export const useInfiniteUserShares = ({ account_uuid, content_type, limit = 5 }:
 const mapToShareItem = (item: AllSharesItem): ShareItem => {
   const contentType = item.content.type === "event" ? 2 : 1;
   const profile_picture = item.sharer.profile_picture as ProfilePicture | null;
-  const account = item.sharer.org_name
-    ? { type: "organization" as const, id: item.sharer.organization_id, name: item.sharer.org_name || "", logo: null }
-    : {
+  const account = item.sharer.organization_name
+    ? ({ type: "organization" as const, id: item.sharer.organization_id, name: item.sharer.organization_name || "", logo: item.sharer.logo } as AccountOrganizationDetails)
+    : ({
         type: "user" as const,
         id: item.sharer.id,
         first_name: item.sharer.first_name || "",
         last_name: item.sharer.last_name || "",
         profile_picture,
-      };
+      } as AccountUserDetails);
 
   const content_details =
     item.content.type === "post"
@@ -51,14 +54,13 @@ const mapToShareItem = (item: AllSharesItem): ShareItem => {
           author_email: item.content.author.email,
           author_first_name: item.content.author.first_name || "",
           author_last_name: item.content.author.last_name || "",
-          author_bio: "",
           author_profile_picture: item.content.author.profile_picture as ProfilePicture | null,
-          author_logo: null,
-          author_organization_name: "",
+          author_logo: item.content.author.organization_logo as ProfilePicture | null,
+          author_organization_name: item.content.author.organization_name || "",
           images: item.content.images || [],
           description: item.content.description || "",
           created_date: item.content.created_date,
-        } as unknown as import("@src/features/main/member/profile/schema/post.types").AllMemberPostData)
+        } as AllMemberPostData)
       : ({
           id: item.content.id,
           organization_id: item.content.organization_id,
@@ -82,7 +84,7 @@ const mapToShareItem = (item: AllSharesItem): ShareItem => {
                   directory: item.content.organization?.logo.directory,
                   filename: item.content.organization?.logo.filename,
                 }
-              : (null as unknown as import("@src/features/auth/schema/auth.types").ProfilePicture),
+              : null,
             category: item.content.organization?.category ?? "",
           },
           organization_name: item.content.organization?.name ?? "",
@@ -93,8 +95,9 @@ const mapToShareItem = (item: AllSharesItem): ShareItem => {
           },
           user_membership_status_with_organizer:
             item.content.organization?.user_membership_status_with_organizer ?? "",
-        } as unknown as import("@src/features/main/organization/profile/schema/event.type").EventData);
+        } as EventData);
 
+  console.log("account", account);
   return {
     shared_id: item.share_id,
     message: item.share_comment || "",

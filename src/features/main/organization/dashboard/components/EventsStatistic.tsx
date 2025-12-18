@@ -1,18 +1,16 @@
 import ReactApexChart from "react-apexcharts";
-import type { EventsSummaryResponse } from "@src/features/main/organization/dashboard/schema/dashboard.types";
+import { useEventsSummary } from "@src/features/main/organization/dashboard/model/dashboard.query";
 import { DEFAULT_GRAPH_COLORS } from "@src/shared/enums/graphColors";
 import { RSVP_LABELS, buildRsvpSeries } from "@src/shared/enums/rsvp";
 import ActiveAndPastEventsStatistic from "./ActiveAndPastEventsStatistic";
+import { useState } from "react";
 
-type EventsStatisticProps = {
-  data?: EventsSummaryResponse | null;
-  startDate?: string | null;
-  endDate?: string | null;
-  onChangeStart?: (value: string | null) => void;
-  onChangeEnd?: (value: string | null) => void;
-};
+export default function EventsStatistic() {
+  const today = new Date().toISOString().split("T")[0];
+  const [startDate, setStartDate] = useState(`${today} 00:00`);
+  const [endDate, setEndDate] = useState(`${today} 23:59`);
 
-export default function EventsStatistic({ data, startDate, endDate, onChangeStart, onChangeEnd }: EventsStatisticProps) {
+  const { data } = useEventsSummary({ start_date: startDate, end_date: endDate });
   const joined = data?.summary.rsvp_counts.joined ?? 67;
   const pending = data?.summary.rsvp_counts.pending ?? 87;
   const rejected = data?.summary.rsvp_counts.rejected ?? 20;
@@ -47,20 +45,7 @@ export default function EventsStatistic({ data, startDate, endDate, onChangeStar
     stroke: { width: 0 },
   };
 
-  const toInputValue = (value?: string | null) => {
-    if (!value) return "";
-    return value.slice(0, 10);
-  };
-
-  const toStartOfDay = (dateStr: string): string | null => {
-    if (!dateStr) return null;
-    return `${dateStr} 00:00:00`;
-  };
-
-  const toEndOfDay = (dateStr: string): string | null => {
-    if (!dateStr) return null;
-    return `${dateStr} 23:59:59`;
-  };
+ 
 
   const downloadCsv = () => {
     const rows = [
@@ -93,9 +78,9 @@ export default function EventsStatistic({ data, startDate, endDate, onChangeStar
                 <div className="text-responsive-xxs text-primary">From</div>
                 <div className="relative">
                   <input
-                    type="date"
-                    value={toInputValue(startDate)}
-                    onChange={(e) => onChangeStart?.(toStartOfDay(e.target.value))}
+                    type="datetime-local"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
                   />
                 </div>
@@ -104,9 +89,9 @@ export default function EventsStatistic({ data, startDate, endDate, onChangeStar
                 <div className="text-responsive-xxs text-primary">To</div>
                 <div className="relative">
                   <input
-                    type="date"
-                    value={toInputValue(endDate)}
-                    onChange={(e) => onChangeEnd?.(toEndOfDay(e.target.value))}
+                    type="datetime-local"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
                   />
                 </div>

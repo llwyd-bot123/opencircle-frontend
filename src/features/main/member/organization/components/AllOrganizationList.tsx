@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useNavigation } from "@src/shared/hooks";
 import type { DirectOrganizationSearchItem } from "../schema/organization.types";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
@@ -13,7 +13,9 @@ import {
 import { useAuthStore } from "@src/shared/store/auth";
 import leaveOrgIcon from "@src/assets/shared/leave_org_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
+import removeIcon from "@src/assets/shared//remove_icon.png";
 import AllOrganizationMemberList from "./AllOrganizationMemberList";
+import avatarImage from "@src/assets/shared/avatar.png";
 
 interface AllOrganizationListProps {
   selectedOrgId: number | null;
@@ -59,7 +61,6 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
   };
 
   const navigate = useNavigate();
-  const { onOrganizationClick } = useNavigation();
   const [showMembersView, setShowMembersView] = useState(false);
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
 
@@ -120,9 +121,9 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
       </div>
 
       <div className="flex justify-center items-center h-screen px-4">
-        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-gray-100 flex flex-col h-full md:h-screen border shadow-lg border-primary/30">
+        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-gray-100 flex flex-col h-full md:h-screen shadow-sm rounded-xl border-r-4 border-l-4 border-l-primary/20 border-r-primary/20">
           {/* Filter Buttons */}
-          <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200">
+          <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200 rounded-t-xl">
             <div className="flex">
               <button
                 className={`text-responsive-xxs ${
@@ -179,35 +180,25 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
                     onClick={() => handleCardClick(org.organization_id)}
                   >
                     <div className="flex items-center space-x-3">
-                      {org.logo ? (
-                        <img
-                          src={getImageUrl(
-                            org.logo.directory,
-                            org.logo.filename
-                          )}
-                          alt={`${org.name} logo`}
-                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary"
-                          onClick={onOrganizationClick(org.organization_id)}
-                        />
-                      ) : (
-                        <div
-                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary"
-                          onClick={onOrganizationClick(org.organization_id)}
-                        >
-                          {org.name.charAt(0)}
-                        </div>
-                      )}
-                      <div>
-                        <h3
-                          className="text-responsive-xs md:text-responsive-sm font-medium text-primary group-hover:font-bold hover:underline cursor-pointer"
-                          onClick={onOrganizationClick(org.organization_id)}
-                        >
-                          {org.name}
-                        </h3>
+                      <ProfileAvatar
+                        src={
+                          org.logo
+                            ? getImageUrl(org.logo.directory, org.logo.filename)
+                            : avatarImage
+                        }
+                        alt={`${org.name} logo`}
+                        type="organization"
+                        isOwner={false}
+                        organizationId={org.organization_id}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                        name={org.name}
+                        nameClassName="text-responsive-xs md:text-responsive-sm font-medium text-primary"
+                        containerClassName="flex items-center gap-3"
+                      >
                         <p className="text-responsive-xxs text-gray-500">
                           {org.category}
                         </p>
-                      </div>
+                      </ProfileAvatar>
                     </div>
 
                     <div
@@ -225,6 +216,7 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
                         <PrimaryButton
                           variant="removeButton"
                           label="Remove"
+                          icon={removeIcon}
                           iconClass="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                           onClick={() =>
                             handleLeaveOrg &&

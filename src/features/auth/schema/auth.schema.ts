@@ -4,8 +4,7 @@ import { z } from "zod";
 export const loginSchema = z.object({
   login: z
     .string()
-    .min(1, { message: "Email is required" })
-    .pipe(z.email({ message: "Invalid email format" })),
+    .min(1, { message: "Email/Username is required" }),
   password: z
     .string()
     .min(1, { message: "Password is required" })

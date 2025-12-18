@@ -1,5 +1,5 @@
 import type { AllMemberPostData, ProfilePicture } from "@src/features/main/member/profile/schema/post.types";
-import type { EventData, EventImage } from "@src/features/main/organization/profile/schema/event.type";
+import type { EventData, EventImage, RSVPData } from "@src/features/main/organization/profile/schema/event.type";
 
 export interface ShareCreateResponse {
   shared_id: number;
@@ -32,6 +32,7 @@ export interface ShareItem {
   date_created: string;
   content_details: AllMemberPostData | EventData;
   account?: AccountDetails;
+  sharer?: ShareByContentSharer;
 };
 
 export interface SharesPagination {
@@ -50,7 +51,9 @@ export type ShareByContentSharer = {
   organization_name?: string | null;
   first_name: string | null;
   last_name: string | null;
-  profile_picture: ProfilePicture | null;
+  profile_picture?: ProfilePicture | null;
+  logo?: ProfilePicture | null;
+  user_rsvp?: RSVPData;
 };
 
 export type ShareByContentItem = {
@@ -98,7 +101,9 @@ export type ShareAuthorMinimal = {
   email: string;
   first_name: string | null;
   last_name: string | null;
-  profile_picture: ProfilePicture | null;
+  organization_name?: string | null;
+  profile_picture?: ProfilePicture | null;
+  organization_logo?: ProfilePicture | null;
 };
 
 export type ShareSharer = {
@@ -108,8 +113,9 @@ export type ShareSharer = {
   email: string;
   first_name: string | null;
   last_name: string | null;
-  org_name: string | null;
+  organization_name: string | null;
   profile_picture: ProfilePicture | null;
+  logo?: ProfilePicture | null;
 };
 
 export type ShareContentPost = {

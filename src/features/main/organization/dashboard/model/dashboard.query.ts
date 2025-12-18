@@ -3,10 +3,14 @@ import { QUERY_KEYS } from "@src/shared/constants/queryKeys";
 import { getMembershipAnalytics, getEventsSummary, getEventRespondents, getCommentAnalyticsSummary, getEventCommentAnalyticsSummary, getPostCommentAnalyticsSummary } from "@src/features/main/organization/dashboard/lib/dashboard.api";
 import type { MembershipAnalyticsResponse, EventsSummaryResponse, EventsRespondentsResponse, CommentAnalyticsSummaryResponse, EventCommentAnalyticsSummaryResponse, PostCommentAnalyticsSummaryResponse } from "@src/features/main/organization/dashboard/schema/dashboard.types";
 
-export const useMembershipAnalytics = () => {
+export const useMembershipAnalytics = (params?: { start_date?: string | null; end_date?: string | null }) => {
   return useQuery<MembershipAnalyticsResponse, Error>({
-    queryKey: [QUERY_KEYS.MEMBERSHIP_ANALYTICS],
-    queryFn: async () => await getMembershipAnalytics(),
+    queryKey: [
+      QUERY_KEYS.MEMBERSHIP_ANALYTICS,
+      params?.start_date ?? null,
+      params?.end_date ?? null,
+    ],
+    queryFn: async () => await getMembershipAnalytics(params),
     staleTime: 60 * 1000,
   });
 };

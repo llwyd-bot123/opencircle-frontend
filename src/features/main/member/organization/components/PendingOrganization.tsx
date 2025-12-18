@@ -5,6 +5,7 @@ import { ErrorState } from "@src/shared/components/states/ErrorState";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
 import { useAuthStore } from "@src/shared/store/auth";
 import { usePendingOrganizationMembershipsQuery } from "../model/organization.query";
+import removeIcon from "@src/assets/shared//remove_icon.png";
 
 interface PendingOrganizationProps {
   selectedOrgId: number | null;
@@ -90,8 +91,8 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
       </div>
 
       <div className="flex justify-center items-center h-screen px-4">
-        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-gray-100 flex flex-col h-full md:h-screen border shadow-lg border-primary/30">
-        <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200">
+        <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-gray-100 flex flex-col h-full md:h-screen shadow-sm rounded-xl border-r-4 border-l-4 border-l-primary/20 border-r-primary/20" >
+        <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200 rounded-t-xl">
           <div className="flex">
             <button
               className={`text-responsive-xxs ${
@@ -182,6 +183,7 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
                     <PrimaryButton
                       variant="removeButton"
                       label="Remove"
+                      icon={removeIcon}
                       iconClass="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                       onClick={() => handleLeaveOrg(org.organization_id)}
                     />

@@ -4,8 +4,9 @@ import { useCommentAnalyticsSummary } from "@src/features/main/organization/dash
 import { DEFAULT_GRAPH_COLORS } from "@src/shared/enums/graphColors";
 
 export default function MemberInteractionStatistic() {
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
+  const today = new Date().toISOString().split("T")[0];
+  const [startDate, setStartDate] = useState(`${today} 00:00`);
+  const [endDate, setEndDate] = useState(`${today} 23:59`);
   const { data } = useCommentAnalyticsSummary({ start_date: startDate, end_date: endDate });
 
   const categories = useMemo(() => {
@@ -36,29 +37,14 @@ export default function MemberInteractionStatistic() {
       },
     },
     colors: [DEFAULT_GRAPH_COLORS[2], DEFAULT_GRAPH_COLORS[1], DEFAULT_GRAPH_COLORS[0]],
-    stroke: { curve: "smooth", width: 2 },
+    stroke: { curve: "smooth", width: 3 },
     dataLabels: { enabled: false },
-    fill: { type: "gradient", gradient: { shadeIntensity: 0.2, opacityFrom: 0.4, opacityTo: 0.1 } },
-    markers: { size: 3 },
+    fill: { type: "solid" },
+    markers: { size: 4, strokeWidth: 0, hover: { size: 9 } },
     xaxis: { categories },
     yaxis: { title: { text: "Comments" } },
     legend: { position: "bottom" },
     grid: { strokeDashArray: 4 },
-  };
-
-  const toInputValue = (value?: string | null) => {
-    if (!value) return "";
-    return value.slice(0, 10);
-  };
-
-  const toStartOfDay = (dateStr: string): string | null => {
-    if (!dateStr) return null;
-    return `${dateStr} 00:00:00`;
-  };
-
-  const toEndOfDay = (dateStr: string): string | null => {
-    if (!dateStr) return null;
-    return `${dateStr} 23:59:59`;
   };
 
   return (
@@ -69,18 +55,18 @@ export default function MemberInteractionStatistic() {
           <div className="relative">
             <div className="text-responsive-xxs text-primary mb-1">Start Date</div>
             <input
-              type="date"
-              value={toInputValue(startDate)}
-              onChange={(e) => setStartDate(toStartOfDay(e.target.value))}
+              type="datetime-local"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
             />
           </div>
           <div className="relative">
             <div className="text-responsive-xxs text-primary mb-1">End Date</div>
             <input
-              type="date"
-              value={toInputValue(endDate)}
-              onChange={(e) => setEndDate(toEndOfDay(e.target.value))}
+              type="datetime-local"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
             />
           </div>

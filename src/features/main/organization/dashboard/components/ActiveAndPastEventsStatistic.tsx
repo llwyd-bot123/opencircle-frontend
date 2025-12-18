@@ -44,7 +44,7 @@ export default function ActiveAndPastEventsStatistic() {
     chart: {
       ...(baseChartOptions.chart as ApexCharts),
       toolbar: {
-        show: true,
+        show: false,
         tools: { download: true, selection: false, zoom: false, zoomin: false, zoomout: false, pan: false, reset: false },
         offsetY: -12,
         offsetX: 0,
@@ -132,7 +132,11 @@ export default function ActiveAndPastEventsStatistic() {
                   <div className="flex-shrink-0">
                     <ReactApexChart options={getChartOptions()} series={series} type="donut" height={100} width={100} />
                   </div>
-                  <div className="flex-1 text-responsive-xs text-primary font-semibold truncate">{ev.event_title}</div>
+                  <div className="flex-1 text-responsive-xs text-primary font-semibold">
+                    {ev.event_title.length > 20
+                      ? ev.event_title.slice(0, 20) + "…"
+                      : ev.event_title}
+                  </div>
                 </div>
               </div>
             );

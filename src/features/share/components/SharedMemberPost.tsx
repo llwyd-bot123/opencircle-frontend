@@ -10,6 +10,7 @@ interface SharedMemberPostProps {
 }
 
 export const SharedMemberPost = ({ post }: SharedMemberPostProps) => {
+
   const { getImageUrl } = useImageUrl();
   const { formatRelativeTime } = useFormatDate();
   const isOwner = checkOwnership({ type: "post", ownerId: post.author_id });

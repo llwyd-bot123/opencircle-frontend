@@ -115,27 +115,28 @@ export const SharedCard = ({ share }: SharedCardProps) => {
   const isOrganizationAccount = account?.type === "organization";
 
   const avatarSrc = (() => {
-    if (!account) return avatarImage;
+    if (!account && !share) return avatarImage;
     if (isOrganizationAccount) {
       return getImageUrl(
-        account.logo?.directory,
-        account.logo?.filename,
+        account?.logo?.directory ?? share.sharer?.logo?.directory,
+        account?.logo?.filename ?? share.sharer?.logo?.filename,
         avatarImage
       );
     }
     return getImageUrl(
-      account.profile_picture?.directory,
-      account.profile_picture?.filename,
+      account?.profile_picture?.directory ?? share.sharer?.profile_picture?.directory,
+      account?.profile_picture?.filename ?? share.sharer?.profile_picture?.filename,
       avatarImage
     );
   })();
 
+  console.log("share me:", share);
   const displayName = (() => {
-    if (!account) return "User";
+    if (!account && !share) return "User";
     if (isOrganizationAccount) {
-      return account.name || "Organization";
+      return account?.name || "Organization";
     }
-    return `${account.first_name || "User"} ${account.last_name || ""}`;
+    return `${account?.first_name || share?.sharer?.first_name || "User"} ${account?.last_name || share?.sharer?.last_name || ""}`;
   })();
 
   return (
@@ -173,6 +174,7 @@ export const SharedCard = ({ share }: SharedCardProps) => {
       {share.content_type === 2 ? (
         <SharedEventPost
           event={share.content_details as EventData}
+          share={share}
           onJoinOrganization={handleJoinOrganization}
           onCancelJoiningOrganization={handleCancelJoiningOrganization}
           onLeaveOrganization={handleLeaveOrganization}

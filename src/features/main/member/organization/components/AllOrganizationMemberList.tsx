@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useNavigation } from "@src/shared/hooks";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useOrganizationMembers } from "@src/features/main/organization/member/model/member.query";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
@@ -40,7 +40,6 @@ const AllOrganizationMemberList: React.FC<AllOrganizationMemberListProps> = ({
   const [filterType, setFilterType] = useState<"all" | "joined" | "approval">("all");
   const { user } = useAuthStore();
   const accountUuid = user?.uuid || "";
-  const { onOrganizationClick, onMemberClick } = useNavigation();
 
   useEffect(() => {
     if (initialSelectedOrgId && initialSelectedOrgId !== selectedOrgId) {
@@ -110,10 +109,10 @@ const AllOrganizationMemberList: React.FC<AllOrganizationMemberListProps> = ({
       </div>
     </div>
     <div className="flex justify-center items-center h-screen px-4">
-      <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-white flex flex-col md:flex-row h-full md:h-screen border shadow-lg border-primary/30">
-        {/* Left: Organizations (reused data) */}
+      <div className="w-full md:w-11/12 lg:w-4/5 xl:w-2/3 bg-white flex flex-col md:flex-row h-full md:h-screen shadow-lg rounded-xl border-r-4 border-l-4 border-l-primary/20 border-r-primary/20">
+
         <div className="w-full md:w-1/3 bg-gray-100 overflow-hidden flex flex-col h-auto md:h-full">
-          <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200">
+          <div className="bg-white padding-responsive-sm flex justify-between items-center border-b border-gray-200 rounded-tl-xl">
             <div className="flex">
               <button
                 className={`text-responsive-xxs ${filterType === "all" ? "text-primary font-medium" : "text-primary-75"}`}
@@ -152,37 +151,29 @@ const AllOrganizationMemberList: React.FC<AllOrganizationMemberListProps> = ({
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    {org.logo ? (
-                      <img
-                        src={getImageUrl(
-                          org.logo.directory,
-                          org.logo.filename
-                        )}
-                        alt={`${org.name} logo`}
-                        className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary ${
-                          selectedOrgId === org.organization_id ? "border-2 border-secondary  hover:border-secondary" : ""
-                        }`}
-                        onClick={onOrganizationClick(org.organization_id)}
-                      />
-                    ) : (
-                      <div
-                        className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary ${
-                          selectedOrgId === org.organization_id && "border-2 border-secondary  hover:border-secondary"
-                        }`}
-                        onClick={onOrganizationClick(org.organization_id)}
-                      >
-                        {org.name.charAt(0)}
+                    <ProfileAvatar
+                      src={
+                        org.logo
+                          ? getImageUrl(org.logo.directory, org.logo.filename)
+                          : avatarImage
+                      }
+                      alt={`${org.name} logo`}
+                      type="organization"
+                      isOwner={false}
+                      organizationId={org.organization_id}
+                      className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full object-cover ${
+                        selectedOrgId === org.organization_id
+                          ? "border-2 border-secondary hover:border-secondary"
+                          : ''
+                      }`}
+                      name={org.name}
+                      nameClassName="text-responsive-xs mb-1 truncate font-medium hover:underline cursor-pointer inline-block"
+                      containerClassName="flex items-center gap-3 w-full"
+                    >
+                      <div className="text-responsive-xxs text-primary-75">
+                        {org.category}
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3
-                        className="text-responsive-xs mb-1 truncate font-medium hover:underline cursor-pointer inline-block"
-                        onClick={onOrganizationClick(org.organization_id)}
-                      >
-                        {org.name}
-                      </h3>
-                      <div className="text-responsive-xxs text-primary-75">{org.category}</div>
-                    </div>
+                    </ProfileAvatar>
                   </div>
                 </div>
               ))}
@@ -256,33 +247,29 @@ const AllOrganizationMemberList: React.FC<AllOrganizationMemberListProps> = ({
                       key={member.user_id}
                       className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex items-center space-x-2 sm:space-x-3">
-                        <img
-                          src={getImageUrl(
-                            member.profile_picture?.directory,
-                            member.profile_picture?.filename,
-                            avatarImage
-                          )}
-                          alt={`${member.first_name} ${member.last_name} avatar`}
-                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover cursor-pointer"
-                          onClick={onMemberClick(member.account_uuid)}
-                        />
-                        <div>
-                          <p
-                            className="text-primary text-responsive-xs font-medium cursor-pointer hover:underline"
-                            onClick={onMemberClick(member.account_uuid)}
-                          >
-                            {member.first_name} {member.last_name}
-                          </p>
-                          <p className="text-responsive-xxs text-placeholderbg">
-                            {member.status?.toLowerCase() === "approved"
-                              ? ""
-                              : member.status?.toLowerCase() === "pending"
-                              ? "Pending"
-                              : "Unknown"}
-                          </p>
-                        </div>
-                      </div>
+                      <ProfileAvatar
+                        src={getImageUrl(
+                          member.profile_picture?.directory,
+                          member.profile_picture?.filename,
+                          avatarImage
+                        )}
+                        alt={`${member.first_name} ${member.last_name} avatar`}
+                        type="member"
+                        isOwner={false}
+                        memberUuid={member.account_uuid}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                        name={`${member.first_name} ${member.last_name}`}
+                        nameClassName="text-primary text-responsive-xs font-medium"
+                        containerClassName="flex items-center space-x-2 sm:space-x-3"
+                      >
+                        <p className="text-responsive-xxs text-placeholderbg">
+                          {member.status?.toLowerCase() === "approved"
+                            ? ""
+                            : member.status?.toLowerCase() === "pending"
+                            ? "Pending"
+                            : "Unknown"}
+                        </p>
+                      </ProfileAvatar>
                     </div>
                   ))
                 ) : (
