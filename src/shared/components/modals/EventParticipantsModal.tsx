@@ -159,7 +159,7 @@ export function EventParticipantsModal({
                   membersRsvps.map((member) => (
                     <div
                       key={member.rsvp_id}
-                      className="flex items-center justify-between p-4 bg-athens_gray rounded-xl"
+                      className="flex items-center justify-between sm:py-1 px-6 lg:py-2 lg:px-12"
                     >
                       <div className="flex items-center space-x-3">
                         <ProfileAvatar

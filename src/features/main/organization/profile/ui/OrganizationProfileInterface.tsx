@@ -24,11 +24,15 @@ export default function OrganizationProfileInterface({
     null
   );
 
+  
+
   const isUserMember = user ? isMember(user) : false;
 
   const { data: organizationDetails } = useOrganizationByIdQuery(
     isUserMember && organizationId ? organizationId : undefined
   );
+
+  console.log("org data", organizationDetails)
 
   useEffect(() => {
     if (isUserMember && organizationDetails) {

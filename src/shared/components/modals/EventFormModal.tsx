@@ -44,10 +44,8 @@ export const EventFormModal = ({
   const { getImageUrl } = useImageUrl();
   const locationInitialized = useRef(false);
 
-  // Track previous mode to detect changes
   const [prevMode, setPrevMode] = useState<EventFormMode>(mode);
 
-  // Initialize location hooks
   const {
     fetchRegions,
     fetchProvinces,
@@ -63,20 +61,17 @@ export const EventFormModal = ({
     handleBarangayChange,
   } = usePGSCLocation();
 
-  // Memoize eventId to prevent unnecessary re-fetching
   const memoizedEventId = useMemo(() => eventId || 0, [eventId]);
   const memoizedEnabled = useMemo(
     () => mode === "edit" && !!eventId,
     [mode, eventId]
   );
 
-  // Fetch event data if in edit mode
   const { data: eventData, isLoading: isEventLoading } = useGetEvent(
     memoizedEventId,
     memoizedEnabled
   );
 
-  // Initialize React Hook Form with Zod validation
   const {
     register,
     handleSubmit,
@@ -105,17 +100,13 @@ export const EventFormModal = ({
     },
   });
 
-  // Watch form values for LocationSelect component
   const countryValue = watch("country");
   const provinceValue = watch("province");
   const cityValue = watch("city");
   const barangayValue = watch("barangay");
 
-  /**
-   * Custom reset function that clears form fields and image preview
-   */
   const resetForm = useCallback(() => {
-    // Reset React Hook Form fields
+
     reset({
       title: "",
       country: "",
@@ -133,21 +124,17 @@ export const EventFormModal = ({
       image: undefined,
     });
 
-    // Clear image preview
     setImagePreview(null);
 
-    // Clear any error messages
     setError("");
   }, [reset]);
 
-  // Fetch regions on component mount
   useEffect(() => {
     fetchRegions();
   }, [fetchRegions]);
 
   // Reset form when modal closes or when switching between create/edit modes
   useEffect(() => {
-    // If modal is closed, reset the form
     if (!isOpen) {
       resetForm();
       return;
@@ -344,18 +331,13 @@ export const EventFormModal = ({
   // Memoize the handleSelectChange function to prevent unnecessary re-renders
   const handleSelectChange = useCallback(
     (name: string, value: string, label: string) => {
-      // Type assertion to ensure name is a valid key
       const fieldName = name as keyof (CreateEventFormData | EditEventFormData);
 
-      // Set the label value for location fields
       setValue(fieldName, label, { shouldValidate: false });
 
-      // Set the corresponding code fields for country and province
-      // For city and barangay, we'll set the code if available but they remain optional
       if (name === "country") {
         setValue("country_code", value, { shouldValidate: false });
 
-        // Find and select the region option
         const regionOption = regionOptions.find(
           (option: LocationOption) => option.code === value
         );
@@ -365,7 +347,6 @@ export const EventFormModal = ({
       } else if (name === "province") {
         setValue("province_code", value, { shouldValidate: false });
 
-        // Find and select the province option
         const provinceOption = provinceOptions.find(
           (option: LocationOption) => option.code === value
         );
@@ -375,7 +356,6 @@ export const EventFormModal = ({
       } else if (name === "city") {
         setValue("city_code", value, { shouldValidate: false });
 
-        // Find and select the city option
         const cityOption = cityOptions.find(
           (option: LocationOption) => option.code === value
         );
@@ -385,7 +365,6 @@ export const EventFormModal = ({
       } else if (name === "barangay") {
         setValue("barangay_code", value, { shouldValidate: false });
 
-        // Find and select the barangay option
         const barangayOption = barangayOptions.find(
           (option: LocationOption) => option.code === value
         );

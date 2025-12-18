@@ -28,8 +28,6 @@ export const SharedCard = ({ share }: SharedCardProps) => {
     closeConfirmationModal,
   } = useConfirmationModal();
 
-  console.log("share data from member post", share);
-
   const handleJoinOrganization = (orgId: number) => {
     openConfirmationModal({
       title: "Request to Join",

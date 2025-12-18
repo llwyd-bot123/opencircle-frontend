@@ -52,7 +52,7 @@ export function Modal({
   const modalWidth = maxWidth || sizeClasses[size];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-100 overflow-y-auto">
       {/* Enhanced background overlay with Mantine-style appearance */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-all duration-200 ease-out animate-in fade-in"
