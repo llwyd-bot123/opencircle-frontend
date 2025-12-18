@@ -49,7 +49,7 @@ export function CommentsSection({
   const [isShareListOpen, setIsShareListOpen] = useState(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
   const { user } = useAuthStore();
-  const showShare = isMember(user);
+  const isUserMember = isMember(user);
   // const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   // const [editingCommentText, setEditingCommentText] = useState("");
   // const editInputRef = useRef<HTMLInputElement>(null);
@@ -187,7 +187,7 @@ export function CommentsSection({
         )}
       </div>
       {contentType === "event" ? (
-        <div className={`flex ${showShare ? "justify-between" : "justify-around"} items-center mb-2 sm:mb-3 md:mb-4`}>
+        <div className={`flex ${isUserMember ? "justify-between" : "justify-around"} items-center mb-2 sm:mb-3 md:mb-4`}>
           <div className="flex items-center space-x-2">
             <img src={commentIcon} alt="Comments" className="w-4 h-4" />
             <h4 className="text-responsive-xs font-semibold text-primary">Comments</h4>
@@ -195,11 +195,11 @@ export function CommentsSection({
           <div className="flex items-center space-x-2">
             <img src={participantsIcon} alt="Participants" className="w-4 h-4" />
             <PrimaryButton label="Participants" variant="shareButton" onClick={() => setIsParticipantsModalOpen(true)} />
-            {hasParticipants && (
-              <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-secondary text-white text-responsive-xxs">{sharesTotal}</span>
+            {hasParticipants && !isUserMember && (
+              <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-secondary text-white text-responsive-xxs">{participantsCount}</span>
             )}
           </div>
-          {showShare && (
+          {isUserMember && (
             <div className="flex items-center space-x-2">
               <img src={shareIcon} alt="Share" className="w-4 h-4" />
               <PrimaryButton label="Share" variant="shareButton" onClick={() => setIsShareModalOpen(true)} />
@@ -373,7 +373,7 @@ export function CommentsSection({
           onClose={() => setIsParticipantsModalOpen(false)}
           eventId={contentId}
           initialTab="members"
-          isUserMember={showShare}
+          isUserMember={isUserMember}
         />
       )}
     </div>
