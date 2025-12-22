@@ -97,13 +97,13 @@ const mapToShareItem = (item: AllSharesItem): ShareItem => {
             item.content.organization?.user_membership_status_with_organizer ?? "",
         } as EventData);
 
-  console.log("account", account);
   return {
     shared_id: item.share_id,
     message: item.share_comment || "",
     comment: item.share_comment || "",
     account_uuid: item.sharer.uuid,
     content_type: contentType,
+    auth_user_rsvp: item.auth_user_rsvp,
     date_created: item.share_date,
     content_details,
     account,
@@ -111,20 +111,6 @@ const mapToShareItem = (item: AllSharesItem): ShareItem => {
 };
 
 type SharesPageMapped = { shares: ShareItem[]; pagination: SharesPagination };
-
-export const useInfiniteSharesWithComments = ({ content_type, limit = 10 }: { content_type?: number; limit?: number }) => {
-  return useInfiniteQuery<SharesPageMapped, Error, SharesPageMapped, unknown[], number>({
-    queryKey: [QUERY_KEYS.ALL_SHARES_WITH_COMMENTS, content_type, limit],
-    queryFn: async ({ pageParam }) => {
-      const page = typeof pageParam === "number" ? pageParam : 1;
-      const resp: AllSharesResponse = await getAllSharesWithComments(page, limit, content_type);
-      return { shares: resp.shares.map(mapToShareItem), pagination: resp.pagination };
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => (lastPage.pagination.page < lastPage.pagination.pages ? lastPage.pagination.page + 1 : undefined),
-    staleTime: 5 * 60 * 1000,
-  });
-};
 
 export type InfiniteAllSharesParams = {
   limit?: number;

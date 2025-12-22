@@ -20,7 +20,6 @@ export const getUserShares = async (
   const response = await axiosInstance.get<UserSharesResponse>("/share/user", {
     params: { account_uuid, page, limit, content_type },
   });
-  console.log("getUserShares", response.data);
   return response.data;
 
   

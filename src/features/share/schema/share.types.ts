@@ -12,6 +12,7 @@ export type AccountUserDetails = {
   first_name: string;
   last_name: string;
   profile_picture: ProfilePicture | null;
+  user_rsvp?: RSVPData;
 };
 
 export type AccountOrganizationDetails = {
@@ -29,6 +30,7 @@ export interface ShareItem {
   comment: string;
   account_uuid: string;
   content_type: number;
+  auth_user_rsvp?: RSVPData | null;
   date_created: string;
   content_details: AllMemberPostData | EventData;
   account?: AccountDetails;
@@ -116,6 +118,7 @@ export type ShareSharer = {
   organization_name: string | null;
   profile_picture: ProfilePicture | null;
   logo?: ProfilePicture | null;
+  user_rsvp?: RSVPData;
 };
 
 export type ShareContentPost = {
@@ -159,6 +162,7 @@ export interface AllSharesItem {
   content: ShareContent;
   comments: ContentComment[];
   comments_count: number;
+  auth_user_rsvp?: RSVPData;
 }
 
 export interface AllSharesResponse {

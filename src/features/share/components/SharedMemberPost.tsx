@@ -18,8 +18,8 @@ export const SharedMemberPost = ({ post }: SharedMemberPostProps) => {
 
   const { user } = useAuthStore();
   const authorImageUrl = getImageUrl(
-    isMember(user) ? post.author_profile_picture?.directory : post.author_logo?.directory,
-    isMember(user) ? post.author_profile_picture?.filename : post.author_logo?.filename,
+    isMember(user) ? post.author_profile_picture?.directory ?? post.profile_picture?.directory : post.author_logo?.directory,
+    isMember(user) ? post.author_profile_picture?.filename ?? post.profile_picture?.filename : post.author_logo?.filename,
     avatarImage
   );
 

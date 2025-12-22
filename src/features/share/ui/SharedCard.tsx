@@ -176,7 +176,8 @@ export const SharedCard = ({ share }: SharedCardProps) => {
       {share.content_type === 2 ? (
         <SharedEventPost
           event={share.content_details as EventData}
-          share={share}
+          sharer={share.sharer}
+          user_rsvp_status={share.auth_user_rsvp}
           onJoinOrganization={handleJoinOrganization}
           onCancelJoiningOrganization={handleCancelJoiningOrganization}
           onLeaveOrganization={handleLeaveOrganization}

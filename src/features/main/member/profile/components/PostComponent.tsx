@@ -122,8 +122,6 @@ export default function PostComponent({ accountUuid }: PostComponentProps) {
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  console.log("dataaaaa", sharesInfinite)
-
   const {
     data: infiniteCommentsData,
     isLoading: isCommentsLoading,
