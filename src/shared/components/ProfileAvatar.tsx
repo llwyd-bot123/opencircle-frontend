@@ -11,11 +11,12 @@ interface ProfileAvatarProps {
   memberUuid?: string;
   organizationId?: number;
   className?: string;
-  name?: React.ReactNode;
   nameClassName?: string;
   containerClassName?: string;
   textContainerClassName?: string;
   nameContainer?: React.ElementType;
+  name?: string;
+  suffix?: React.ReactNode;
   children?: React.ReactNode;
 }
 
@@ -28,11 +29,12 @@ export const ProfileAvatar = ({
   organizationId,
   className = "",
   name,
-  nameClassName = "",
+  nameClassName = "flex items-center gap-2",
   containerClassName = "flex items-center gap-3",
   textContainerClassName = "flex flex-col",
   nameContainer: NameContainer = "span",
   children,
+  suffix,
 }: ProfileAvatarProps) => {
   const { onMemberClick, onOrganizationClick } = useNavigation();
   const { user, isAuthenticated } = useAuthStore();
@@ -91,14 +93,16 @@ export const ProfileAvatar = ({
       {Image}
       <div className={textContainerClassName}>
         {name && (
-          <NameContainer
-            className={`${nameClassName} ${
-              isOwnerOrAuth ? "" : "hover:underline cursor-pointer"
-            }`}
-            onClick={isOwnerOrAuth ? undefined : handleClick}
-          >
-            {name}
+          <NameContainer className={nameClassName}>
+            <span
+              className={isOwnerOrAuth ? "" : "hover:underline cursor-pointer"}
+              onClick={isOwnerOrAuth ? undefined : handleClick}
+            >
+              {name}
+            </span>
+            {suffix}
           </NameContainer>
+          
         )}
         {children}
       </div>

@@ -25,14 +25,20 @@ export const TwoFactorCodeModal = ({
 
   const handleSubmit = () => {
     onSubmit(code);
+    setCode("");
   };
 
+  const handleClose = () => {
+      onClose();
+      setCode("")
+  }
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+    <Modal isOpen={isOpen} onClose={handleClose} size="xl">
       <div className="relative p-6 border-b border-gray-100">
         <h2 className="text-responsive-base font-bold text-primary text-center">{title}</h2>
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute right-6 top-1/2 transform -translate-y-1/2 text-placeholderbg hover:text-primary transition-colors text-responsive-xs"
         >
           Close

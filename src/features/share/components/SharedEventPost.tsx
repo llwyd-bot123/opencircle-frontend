@@ -83,15 +83,13 @@ export const SharedEventPost = ({
             type="organization"
             isOwner={isOwner}
             organizationId={event.organization_id}
-            name={
-            <div className="flex items-center gap-2">
-              <span>{ event.organization_name}</span>
-            <span className="text-primary text-responsive-xs font-bold">
+            name={event.organization_name}
+            suffix={
+              <span className="text-primary text-responsive-xs font-bold">
                {" "}
-              <span className="text-authlayoutbg font-normal"> posted an event</span>
-            </span>
-            </div>
-          }
+               <span className="text-authlayoutbg font-normal"> posted an event</span>
+              </span>
+            }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
             <p className="text-placeholderbg text-responsive-xxs">

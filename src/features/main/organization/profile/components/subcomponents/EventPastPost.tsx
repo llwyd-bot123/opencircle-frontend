@@ -1,3 +1,4 @@
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import {
@@ -38,6 +39,7 @@ export const EventPastPost = ({
   const { formatRelativeTime, formatDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
   const { openLightbox, LightboxViewer } = useLightbox();
+  const isOwner = checkOwnership({ type: "event", ownerId: event.organization?.account_id });
 
   const handleEdit = () => {
     onEdit?.(event.id);
@@ -74,7 +76,7 @@ export const EventPastPost = ({
       {/* 1. Header with Avatar, Name, Time and 3-dot menu */}
       <div className="flex flex-row items-start justify-between mb-3 sm:mb-4">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-          <img
+          <ProfileAvatar
             src={getImageUrl(
               event.organization?.logo?.directory,
               event.organization?.logo?.filename,
@@ -82,16 +84,19 @@ export const EventPastPost = ({
             )}
             alt={event.organization?.name || "Event Creator"}
             className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
-          />
-          <div className="flex flex-col">
-            <h4 className="text-primary text-responsive-sm">
-              {event.organization?.name || "Organization"}{" "}
-              <span className="text-authlayoutbg">posted an event</span>
-            </h4>
+            type="organization"
+            organizationId={event.organization_id}
+            isOwner={isOwner}
+            name={event.organization?.name || "Organization"}
+            suffix={
+              <span className="text-authlayoutbg"> posted an event</span>
+            }
+            nameClassName="text-primary text-responsive-sm font-bold"
+          >
             <p className="text-placeholderbg text-responsive-xs">
               {formatRelativeTime(event.created_date)}
             </p>
-          </div>
+          </ProfileAvatar>
         </div>
 
         {/* Horizontal 3-dot menu - only show if the event is from the authenticated user */}

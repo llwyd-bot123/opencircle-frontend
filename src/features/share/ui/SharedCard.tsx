@@ -150,15 +150,13 @@ export const SharedCard = ({ share }: SharedCardProps) => {
             isOwner={false}
             memberUuid={!isOrganizationAccount ? share?.account_uuid : undefined}
             organizationId={isOrganizationAccount ? account?.id : undefined}
-             name={
-            <div className="flex items-center gap-2">
-              <span>{ displayName}</span>
-            <span className="text-primary text-responsive-xs font-bold">
+             name={displayName}
+            suffix={
+              <span className="text-primary text-responsive-xs font-bold">
                {" "}
-              <span className="text-authlayoutbg font-normal">shared {share.content_type === 2 ? "an event" : "a post"}</span>
-            </span>
-            </div>
-          }
+               <span className="text-authlayoutbg font-normal">shared {share.content_type === 2 ? "an event" : "a post"}</span>
+              </span>
+            }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
             

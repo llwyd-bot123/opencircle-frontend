@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../schema/auth.schema";
 import type { MemberLoginResponse, MemberLoginSuccess, OrganizationLoginResponse, OrganizationLoginSuccess } from "../schema/auth.types";
 import { useAuthStore } from "@src/shared/store";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function LoginInterface() {
   const [loginType, setLoginType] = useState<"member" | "organization">(
@@ -17,6 +18,7 @@ export default function LoginInterface() {
   const memberLoginMutation = useMemberLoginDeferred();
   const organizationLoginMutation = useOrganizationLogin();
   const authStore = useAuthStore();
+  const queryClient = useQueryClient();
 
   // Initialize React Hook Form with Zod validation
   const {
@@ -32,7 +34,7 @@ export default function LoginInterface() {
     },
   });
 
-  const determinePostLoginNavigation = (
+  const determinePostLoginNavigation = async (
     loginTypeValue: "member" | "organization",
     loginResponse: MemberLoginResponse | OrganizationLoginResponse,
     formData: LoginFormData
@@ -56,6 +58,10 @@ export default function LoginInterface() {
           });
         } else if (shouldSkipOtp) {
           authStore.login(loginResponse as MemberLoginSuccess);
+          // Clear any stale queries from previous sessions
+          queryClient.removeQueries();
+          // Small delay to ensure cookies are set and propagated
+          await new Promise(resolve => setTimeout(resolve, 500));
           navigate("/member-profile");
         } else {
           navigate("/two-factor-setup", { state: { loginResponse, loginType: loginTypeValue } });
@@ -83,6 +89,10 @@ export default function LoginInterface() {
           });
         } else if (shouldSkipOtp) {
           authStore.login(loginResponse as OrganizationLoginSuccess);
+          // Clear any stale queries from previous sessions
+          queryClient.removeQueries();
+          // Small delay to ensure cookies are set and propagated
+          await new Promise(resolve => setTimeout(resolve, 500));
           navigate("/organization-profile");
         } else {
           navigate("/two-factor-setup", { state: { loginResponse, loginType: loginTypeValue } });
@@ -101,16 +111,15 @@ export default function LoginInterface() {
         return;
       }
 
-      let loginResponse: MemberLoginResponse | OrganizationLoginResponse;
       if (loginType === "member") {
-        loginResponse = await memberLoginMutation.mutateAsync(data);
+        const response = await memberLoginMutation.mutateAsync(data);
+        await determinePostLoginNavigation(loginType, response, data);
       } else {
-        loginResponse = await organizationLoginMutation.mutateAsync(data);
+        const response = await organizationLoginMutation.mutateAsync(data);
+        await determinePostLoginNavigation(loginType, response, data);
       }
-
-      determinePostLoginNavigation(loginType, loginResponse, data);
-    } catch (error: unknown) {
-      console.error("Login error:", error);
+    } catch (error) {
+      console.error("Login failed:", error);
     }
   };
 

@@ -33,6 +33,7 @@ export const EventActivePost = ({
   const { openLightbox, LightboxViewer } = useLightbox();
 
   // Check if user is a member
+  const isOwner = checkOwnership({ type: "event", ownerId: event.organization.account_id });
 
   const { getImageUrl } = useImageUrl();
   const eventImageUrl = getImageUrl(
@@ -79,17 +80,15 @@ export const EventActivePost = ({
             alt="Event Creator"
             className="w-10 h-10 sm:w-14 sm:h-14"
             type="organization"
-            isOwner={false}
+            isOwner={isOwner}
             organizationId={event.organization.id}
-             name={
-            <div className="flex items-center gap-2">
-              <span>{ event.organization.name}</span>
-            <span className="text-primary text-responsive-xs font-bold">
+             name={event.organization.name}
+            suffix={
+              <span className="text-primary text-responsive-xs font-bold">
                {" "}
-              <span className="text-authlayoutbg font-normal"> posted an event</span>
-            </span>
-            </div>
-          }
+               <span className="text-authlayoutbg font-normal"> posted an event</span>
+              </span>
+            }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
             <p className="text-placeholderbg text-responsive-xxs">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
+import { useAuthStore } from "@src/shared/store";
 import { useAuthHydration, usePeriodicAuthCheck } from "../lib/auth.hydration";
 
 type AuthProviderProps = {
@@ -34,6 +35,12 @@ export function AuthProvider({
   // Initial auth check on mount
   useEffect(() => {
     const initializeAuth = async () => {
+      
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        setIsInitialized(true);
+      }
+      
       try {
         await checkSession();
       } catch (error) {

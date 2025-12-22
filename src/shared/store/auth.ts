@@ -1,6 +1,6 @@
-import type { AuthState } from "@src/features/auth/schema/auth.types";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { AuthState } from "@src/features/auth/schema/auth.types";
 
 /**
  * Zustand store for authentication state with persistence

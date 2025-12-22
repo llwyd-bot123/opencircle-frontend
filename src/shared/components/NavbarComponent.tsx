@@ -166,8 +166,8 @@ export function Navbar({
             <div className="mt-4">
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
-                  <button type="button" className="p-2" aria-label="Notifications">
-                    <img src={notificationIcon} alt="Notifications" className="w-6 h-6" />
+                  <button type="button" className="p-2" aria-label="Notificationszzzzz">
+                    <img src={notificationIcon} alt="Notifications123" className="w-6 h-6" />
                   </button>
                   <button type="button" className="p-2" aria-label="Settings">
                     <img src={settingsIcon} alt="Settings" className="w-6 h-6" />

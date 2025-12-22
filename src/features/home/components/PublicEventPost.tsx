@@ -69,16 +69,14 @@ export const PublicEventPost = ({
             type="organization"
             isOwner={isOwner}
             organizationId={event.organization_id}
-            name={
-            <div className="flex items-center gap-2">
-              <span>{event.organization?.name}</span>
-              <span className="text-primary text-responsive-xs font-bold">
-                      {" "}
-                      <span className="text-authlayoutbg font-normal">
-                        posted an event
-                      </span>
-                    </span>
-            </div>
+            name={event.organization?.name}
+            suffix={
+            <span className="text-primary text-responsive-xs font-bold">
+              {" "}
+              <span className="text-authlayoutbg font-normal">
+                posted an event
+              </span>
+            </span>
           }
             nameClassName="text-primary text-responsive-xs font-bold"
           >

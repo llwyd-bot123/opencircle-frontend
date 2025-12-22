@@ -5,8 +5,8 @@ import { DEFAULT_GRAPH_COLORS } from "@src/shared/enums/graphColors";
 
 export default function EventInteractionStatistic() {
   const today = new Date().toISOString().split("T")[0];
-  const [startDate, setStartDate] = useState(`${today} 00:00`);
-  const [endDate, setEndDate] = useState(`${today} 23:59`);
+  const [startDate, setStartDate] = useState(`${today}T00:00`);
+  const [endDate, setEndDate] = useState(`${today}T23:59`);
   const { data } = useEventCommentAnalyticsSummary({ start_date: startDate, end_date: endDate });
 
   const categories = useMemo(() => {
@@ -50,20 +50,17 @@ export default function EventInteractionStatistic() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="flex items-center justify-end space-x-3 mb-3">
           <div className="relative">
-            <div className="text-responsive-xxs text-primary mb-1">Start Date</div>
-            <input
-              type="datetime-local"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
-            />
-          </div>
-          <div className="relative">
-            <div className="text-responsive-xxs text-primary mb-1">End Date</div>
+            <div className="text-responsive-xxs text-primary mb-1">Date</div>
             <input
               type="datetime-local"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setEndDate(val);
+                if (val) {
+                  setStartDate(`${val.split("T")[0]}T00:00`);
+                }
+              }}
               className="border border-gray-300 rounded-lg px-3 py-2 text-responsive-xs text-primary bg-white"
             />
           </div>
