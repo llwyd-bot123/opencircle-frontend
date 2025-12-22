@@ -6,9 +6,13 @@ import ActiveAndPastEventsStatistic from "./ActiveAndPastEventsStatistic";
 import { useState } from "react";
 
 export default function EventsStatistic() {
-  const today = new Date().toISOString().split("T")[0];
-  const [startDate, setStartDate] = useState(`${today} 00:00`);
-  const [endDate, setEndDate] = useState(`${today} 23:59`);
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = lastWeek.toISOString().split("T")[0];
+
+  const [startDate, setStartDate] = useState(`${oneWeekAgo}T00:00`);
+  const [endDate, setEndDate] = useState(`${today}T23:59`);
 
   const { data } = useEventsSummary({ start_date: startDate, end_date: endDate });
   const joined = data?.summary.rsvp_counts.joined ?? 67;

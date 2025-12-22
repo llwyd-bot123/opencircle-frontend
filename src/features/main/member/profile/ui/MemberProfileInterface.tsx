@@ -1,5 +1,5 @@
 import { UserProfileHeader } from "@src/shared/components/UserProfileHeader";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PostComponent from "../components/PostComponent";
 import EventComponent from "../components/EventComponent";
 import { useAuthStore } from "@src/shared/store/auth";
@@ -13,10 +13,7 @@ type MemberProfileInterfaceProps = {
 };
 
 export default function MemberProfileInterface({ accountUuid }: MemberProfileInterfaceProps) {
-  const [activeTab, setActiveTab] = useState(() => {
-    const storedTab = localStorage.getItem("memberProfileActiveTab");
-    return storedTab || "post";
-  });
+  const [activeTab, setActiveTab] = useState("post");
   const { user } = useAuthStore();
   const effectiveUuid = accountUuid || user?.uuid || "";
 
@@ -40,10 +37,6 @@ export default function MemberProfileInterface({ accountUuid }: MemberProfileInt
         uuid: visitedProfile.uuid,
       }
     : user;
-
-  useEffect(() => {
-    localStorage.setItem("memberProfileActiveTab", activeTab);
-  }, [activeTab]);
 
   const profileTabs = [
     { id: "post", label: "Post" },

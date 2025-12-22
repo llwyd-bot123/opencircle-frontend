@@ -31,8 +31,6 @@ export default function OrganizationProfileInterface({
    organizationId
   );
 
-  console.log("org data", organizationDetails)
-
    const {
       isOrganizationVisitingOrganization
     } = useProfileRelationship(organizationDetails);

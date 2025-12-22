@@ -35,17 +35,15 @@ export const SharedMemberPost = ({ post }: SharedMemberPostProps) => {
             isOwner={isOwner}
             memberUuid={post.author_uuid}
             organizationId={post.author_organization_id}
-            name={
-            <div className="flex items-center gap-2">
-              <span>{  post.author_organization_name
+            name={post.author_organization_name
                 ? post.author_organization_name
-                : `${post.author_first_name} ${post.author_last_name}`}</span>
-            <span className="text-primary text-responsive-xs font-bold">
+                : `${post.author_first_name} ${post.author_last_name}`}
+            suffix={
+              <span className="text-primary text-responsive-xs font-bold">
                {" "}
-              <span className="text-authlayoutbg font-normal"> posted</span>
-            </span>
-            </div>
-          }
+               <span className="text-authlayoutbg font-normal"> posted</span>
+              </span>
+            }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
             <p className="text-placeholderbg text-responsive-xxs">

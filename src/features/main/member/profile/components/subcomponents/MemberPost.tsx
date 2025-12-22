@@ -61,20 +61,18 @@ export const MemberPost = ({
             alt="Post Author"
             className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14"
             type={post.author.organization_name ? "organization" : "member"}
-            isOwner={false}
+            isOwner={isOwner}
             memberUuid={!post.author.organization_name ? post.author.uuid : undefined}
             organizationId={post.author.organization_name ? post.author.id : undefined}
-             name={
-            <div className="flex items-center gap-2">
-              <span>{ post.author.organization_name
+             name={post.author.organization_name
                 ? post.author.organization_name
-                : `${post.author.first_name} ${post.author.last_name}`}</span>
-            <span className="text-primary text-responsive-xs font-bold">
+                : `${post.author.first_name} ${post.author.last_name}`}
+            suffix={
+              <span className="text-primary text-responsive-xs font-bold">
                {" "}
-              <span className="text-authlayoutbg font-normal">posted</span>
-            </span>
-            </div>
-          }
+               <span className="text-authlayoutbg font-normal">posted</span>
+              </span>
+            }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
             <p className="text-placeholderbg text-responsive-xxs">

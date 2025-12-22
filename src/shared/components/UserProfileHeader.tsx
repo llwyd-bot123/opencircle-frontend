@@ -177,7 +177,7 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
 
   return (
     <div className={`flex-1 flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:pt-8 ${isOrganization ? "bg-secondary/50" : ""}`}>
-      <div className={`w-full sm:w-5/6 md:w-4/5 lg:w-2/3 flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start space-y-3 sm:space-y-0 sm:space-x-4 md:space-x-6 lg:space-x-8 xl:space-x-16 `}>
+      <div className={`w-full sm:w-5/6 md:w-4/5 lg:w-2/3 flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start space-y-3 sm:space-y-0 sm:space-x-4 md:space-x-6 lg:space-x-8 xl:space-x-16 lg:pr-22 xl:pr-42`}>
         {/* Profile Image */}
         <div className="flex-shrink-0">
           <img
@@ -197,7 +197,7 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
             </div>
             
             {isMemberVisitingOrganization && (
-              <div className="sm:col-span-4 lg:col-span-3 flex justify-center">
+              <div className="sm:col-span-4 lg:col-span-3 flex justify-end">
                 {(!membershipStatus || membershipStatus === "rejected") && (
                   <PrimaryButton
                     variant="joinStatusButton"
@@ -233,7 +233,7 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
             )}
 
             {isOrganizationVisitingMember && (
-              <div className="sm:col-span-4 lg:col-span-3 flex justify-center space-x-2">
+              <div className="sm:col-span-4 lg:col-span-3 flex justify-end space-x-2">
                 {userMembershipStatusWithOrganizer === "pending" && (
                   <>
                     <PrimaryButton
@@ -279,7 +279,7 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
               <p className="text-responsive-xs text-primary">{getRole()}</p>
             </div>
             
-              <div className="sm:col-span-4 lg:col-span-3 flex justify-center">
+              <div className="sm:col-span-4 lg:col-span-3 flex justify-end">
                 {(isMemberVisitingOrganization || isOrganizationVisitingOrganization) && (
                     <PrimaryButton
                       variant="shareButton"

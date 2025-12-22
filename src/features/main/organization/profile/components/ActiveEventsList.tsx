@@ -179,7 +179,7 @@ export default function ActiveEventsList({ accountUuid }: ActiveEventsListProps)
                 alt="User Avatar"
                 className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14"
                 type={isOrganization(user) ? "organization" : "member"}
-                isOwner={false}
+                isOwner={isOwnProfile}
                 memberUuid={isMember(user) ? user?.uuid : undefined}
                 organizationId={isOrganization(user) ? user?.id : undefined}
               />

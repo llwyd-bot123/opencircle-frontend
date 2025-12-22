@@ -8,6 +8,7 @@ import {
 } from "@src/shared/hooks";
 import { useLightbox } from "@src/shared/hooks/useLightbox";
 import avatarImage from "@src/assets/shared/avatar.png";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
@@ -60,6 +61,7 @@ export function EventDetailsModal({
   const { formatFriendlyDateTime, formatRelativeTime } = useFormatDate();
   const { user } = useAuthStore();
   const accountUuid = user?.uuid || "";
+  const isOwnProfile = user?.uuid === accountUuid;
   const {
     isConfirmModalOpen,
     modalConfig,
@@ -148,26 +150,29 @@ export function EventDetailsModal({
             {/* 1. Header with Avatar, Name, Time and buttons */}
             <div className="p-4 sm:p-0 pt-4 sm:pt-6 flex flex-row items-start justify-between">
               <div className="flex flex-row items-center space-x-2 sm:space-x-3">
-                <img
+                <ProfileAvatar
                   src={getImageUrl(
                     event.organization?.logo?.directory,
                     event.organization?.logo?.filename,
                     avatarImage
                   )}
                   alt="Event Creator"
-                  className="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover"
-                />
-                <div className="flex flex-col">
-                  <h4 className="text-primary text-responsive-xs font-bold">
-                    {event.organization?.name}{" "}
+                  className="w-10 h-10 sm:w-14 sm:h-14"
+                  type="organization"
+                  organizationId={event.organization_id}
+                  isOwner={isOwnProfile}
+                  name={event.organization?.name}
+                  suffix={
                     <span className="text-authlayoutbg font-normal">
-                      posted an event
+                      {" "}posted an event
                     </span>
-                  </h4>
+                  }
+                  nameClassName="text-primary text-responsive-xs font-bold"
+                >
                   <p className="text-placeholderbg text-responsive-xxs">
                     {formatRelativeTime(event.created_date)}
                   </p>
-                </div>
+                </ProfileAvatar>
               </div>
 
               <div className="flex items-start space-x-2">

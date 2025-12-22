@@ -15,12 +15,12 @@ function App() {
       FallbackComponent={ErrorBoundaryComponent}
       onReset={() => window.location.reload()}
     >
-      <Suspense fallback={<Preloader />}>
-        <Providers>
+      <Providers>
+        <Suspense fallback={<Preloader />}>
           <RouterProvider router={router} />
-          <ToastContainer />
-        </Providers>
-      </Suspense>
+        </Suspense>
+        <ToastContainer />
+      </Providers>
     </ErrorBoundary>
   );
 }

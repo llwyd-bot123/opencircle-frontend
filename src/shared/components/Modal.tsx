@@ -52,7 +52,7 @@ export function Modal({
   const modalWidth = maxWidth || sizeClasses[size];
 
   return (
-    <div className="fixed inset-0 z-100 overflow-y-auto">
+    <div className="fixed inset-0 z-[100] overflow-y-auto">
       {/* Enhanced background overlay with Mantine-style appearance */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-all duration-200 ease-out animate-in fade-in"
@@ -63,16 +63,10 @@ export function Modal({
 
       {/* Modal content container with enhanced animations */}
       <div 
-        className="flex min-h-full items-center justify-center p-3 sm:p-4 md:p-6 relative z-10"
-        onClick={closeOnClickOutside ? (e) => {
-          // Only close if the click is directly on this container (not on its children)
-          if (e.target === e.currentTarget) {
-            onClose();
-          }
-        } : undefined}
+        className="flex min-h-full items-center justify-center p-3 sm:p-4 md:p-6 relative z-10 pointer-events-none"
       >
         <div
-          className={`bg-white rounded-xl w-full ${modalWidth} shadow-2xl transform transition-all duration-200 ease-out animate-in zoom-in-95 fade-in slide-in-from-bottom-4 ${
+          className={`bg-white rounded-xl w-full ${modalWidth} shadow-2xl transform transition-all duration-200 ease-out animate-in zoom-in-95 fade-in slide-in-from-bottom-4 pointer-events-auto ${
             isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
           }`}
           onClick={(e) => e.stopPropagation()}

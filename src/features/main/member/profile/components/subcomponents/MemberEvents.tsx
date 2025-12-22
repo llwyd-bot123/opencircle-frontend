@@ -2,7 +2,7 @@ import joinedIcon from "@src/assets/shared/joined_icon.svg";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
-import { useFormatDate } from "@src/shared/hooks";
+import { useFormatDate, checkOwnership } from "@src/shared/hooks";
 import { useImageUrl } from "@src/shared/hooks/useImageUrl";
 import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
@@ -36,6 +36,7 @@ export const MemberEvents = ({
   const { formatRelativeTime, formatDateTime } = useFormatDate();
   const { getImageUrl } = useImageUrl();
   const { openLightbox, LightboxViewer } = useLightbox();
+  const isOwner = checkOwnership({ type: "event", ownerId: event.organization?.account_id });
   const isPastEvent = status === "Past";
 
   const handleViewMoreComments = () => {
@@ -60,17 +61,15 @@ export const MemberEvents = ({
             alt="Event Creator"
             className="w-10 h-10 sm:w-14 sm:h-14"
             type="organization"
-            isOwner={false}
+            isOwner={isOwner}
             organizationId={event.organization_id}
-            name={
-            <div className="flex items-center gap-2">
-              <span>{ event.organization?.name}</span>
-            <span className="text-primary text-responsive-xs font-bold">
+            name={event.organization?.name}
+            suffix={
+              <span className="text-primary text-responsive-xs font-bold">
                {" "}
-              <span className="text-authlayoutbg font-normal">posted an event</span>
-            </span>
-            </div>
-          }
+               <span className="text-authlayoutbg font-normal">posted an event</span>
+              </span>
+            }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
             <p className="text-placeholderbg text-responsive-xxs">

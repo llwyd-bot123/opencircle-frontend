@@ -2,9 +2,12 @@ import { useMembershipAnalytics } from "@src/features/main/organization/dashboar
 import { useState } from "react";
 
 export default function MemberStatistic() {
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = lastWeek.toISOString().split("T")[0];
 
-  const [startDate, setStartDate] = useState(`${today} 00:00`);
+  const [startDate, setStartDate] = useState(`${oneWeekAgo} 00:00`);
   const [endDate, setEndDate] = useState(`${today} 23:59`);
 
   const { data: membership } = useMembershipAnalytics({
