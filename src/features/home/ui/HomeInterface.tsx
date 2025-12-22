@@ -113,8 +113,6 @@ export default function HomeInterface() {
     isFetchingNextPage: isFetchingNextSharesPage,
   } = useInfiniteAllShares();
 
-  console.log("shared data", sharesData);
-
   // Determine if we should load more content (either events or posts)
   const hasMoreContent = !!hasNextEventsPage || !!hasNextPostsPage || !!hasNextSharesPage;
   const isLoadingMoreContent =

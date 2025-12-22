@@ -8,6 +8,7 @@ import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
+import avatarImage from "@src/assets/shared/avatar.png";
 
 interface MemberActiveEventProps {
   event: EventData;
@@ -52,24 +53,26 @@ export const MemberEvents = ({
                 ? getImageUrl(
                     event.organization.logo.directory,
                     event.organization.logo.filename,
-                    "https://placehold.co/40x40/29465b/ffffff?text=O"
+                    avatarImage
                   )
-                : "https://placehold.co/40x40/29465b/ffffff?text=O"
+                : avatarImage
             }
             alt="Event Creator"
             className="w-10 h-10 sm:w-14 sm:h-14"
             type="organization"
             isOwner={false}
             organizationId={event.organization_id}
-            name={event.organization?.name}
+            name={
+            <div className="flex items-center gap-2">
+              <span>{ event.organization?.name}</span>
+            <span className="text-primary text-responsive-xs font-bold">
+               {" "}
+              <span className="text-authlayoutbg font-normal">posted an event</span>
+            </span>
+            </div>
+          }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
-            <span className="text-primary text-responsive-xs font-bold">
-              {" "}
-              <span className="text-authlayoutbg font-normal">
-                posted an event
-              </span>
-            </span>
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(event.created_date)}
             </p>

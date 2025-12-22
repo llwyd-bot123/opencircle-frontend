@@ -64,17 +64,19 @@ export const MemberPost = ({
             isOwner={false}
             memberUuid={!post.author.organization_name ? post.author.uuid : undefined}
             organizationId={post.author.organization_name ? post.author.id : undefined}
-            name={
-              post.author.organization_name
+             name={
+            <div className="flex items-center gap-2">
+              <span>{ post.author.organization_name
                 ? post.author.organization_name
-                : `${post.author.first_name} ${post.author.last_name}`
-            }
+                : `${post.author.first_name} ${post.author.last_name}`}</span>
+            <span className="text-primary text-responsive-xs font-bold">
+               {" "}
+              <span className="text-authlayoutbg font-normal">posted</span>
+            </span>
+            </div>
+          }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
-            <span className="text-primary text-responsive-xs">
-              {" "}
-              <span className="text-authlayoutbg">posted</span>
-            </span>
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(post.created_date)}
             </p>

@@ -22,7 +22,7 @@ interface ActiveComponentProps {
   isUserMember?: boolean;
 }
 
-export default function ActiveComponent({ accountUuid, isUserMember = false }: ActiveComponentProps) {
+export default function ActiveComponent({ accountUuid}: ActiveComponentProps) {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [isPostFormModalOpen, setIsPostFormModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
@@ -44,6 +44,7 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
   const { getImageUrl } = useImageUrl();
 
   const userUuid = accountUuid || "";
+  const isOwnProfile = user?.uuid === userUuid;
 
 
   const {
@@ -62,6 +63,8 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
       fetchNextPostsPage();
     }
   };
+
+  console.log("infigite data post", infinitePostsData)
 
   // Setup infinite scroll
   const { sentinelRef: loadMoreRef } = useInfiniteScroll({
@@ -162,8 +165,8 @@ export default function ActiveComponent({ accountUuid, isUserMember = false }: A
 
   return (
     <div className="w-full lg:w-1/2 mx-auto p-8">
-      {/* Comment Card - Only shown if not a member */}
-      {!isUserMember && (
+      {/* Comment Card - Only shown if it is the own profile */}
+      {isOwnProfile && (
         <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
           <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
             {/* Avatar Column */}

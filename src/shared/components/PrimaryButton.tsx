@@ -47,7 +47,7 @@ const variantClasses: Record<Variant, string> = {
     "text-primary py-[2px] rounded-full flex items-center text-responsive-xxs",
   rsvpButton:
     "border-2 py-1 px-6 border-primary text-primary text-responsive-xxs rounded-full",
-  leaveOrgButton: "text-red-700 text-responsive-xxs",
+  leaveOrgButton: "px-6 py-1 border border-red-700 rounded-full text-red-700 text-responsive-xxs",
   acceptButton:
     "px-6 py-1 bg-primary text-white text-responsive-xxs rounded-full",
   declineButton:
