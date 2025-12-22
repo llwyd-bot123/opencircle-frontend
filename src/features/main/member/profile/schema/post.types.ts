@@ -85,6 +85,7 @@ export interface AllMemberPostData {
   latest_comments: ContentComment[];
   total_comments: number;
   logo: ProfilePicture | null;
+  profile_picture: ProfilePicture | null;
 }
 
 // Type definition for paginated member posts response

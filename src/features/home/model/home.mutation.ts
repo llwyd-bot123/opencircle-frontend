@@ -80,6 +80,9 @@ export const useRsvpEvent = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.USER_SHARES],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ALL_SHARES_WITH_COMMENTS],
+      });
       showSuccessToast("Successfully reserved");
     },
     onError: (error: unknown) => {
@@ -109,6 +112,9 @@ export const useDeleteRsvp = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.USER_SHARES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ALL_SHARES_WITH_COMMENTS],
       });
       showSuccessToast("Reservation cancelled");
     },
