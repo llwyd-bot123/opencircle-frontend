@@ -69,15 +69,20 @@ export const PublicEventPost = ({
             type="organization"
             isOwner={isOwner}
             organizationId={event.organization_id}
-            name={event.organization?.name}
+            name={
+            <div className="flex items-center gap-2">
+              <span>{event.organization?.name}</span>
+              <span className="text-primary text-responsive-xs font-bold">
+                      {" "}
+                      <span className="text-authlayoutbg font-normal">
+                        posted an event
+                      </span>
+                    </span>
+            </div>
+          }
             nameClassName="text-primary text-responsive-xs font-bold"
           >
-            <span className="text-primary text-responsive-xs font-bold">
-               {" "}
-              <span className="text-authlayoutbg font-normal">
-                posted an event
-              </span>
-            </span>
+            
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(event.created_date)}
             </p>

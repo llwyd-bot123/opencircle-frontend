@@ -180,9 +180,9 @@ export function EventParticipantsModal({
                           name={`${member.first_name} ${member.last_name}`}
                           nameClassName="text-primary font-medium text-responsive-xs"
                         >
-                          <p className="text-placeholderbg text-responsive-xxs">
-                            {/* Joined {formatFriendlyDateTime(member.created_at)} */}
-                          </p>
+                          {/* <p className="text-placeholderbg text-responsive-xxs">
+                            Joined {formatFriendlyDateTime(member.created_at)}
+                          </p> */}
                         </ProfileAvatar>
                       </div>
                       {!isUserMember && (
@@ -232,9 +232,9 @@ export function EventParticipantsModal({
                           name={`${request.first_name} ${request.last_name}`}
                           nameClassName="text-primary font-medium text-responsive-xs"
                         >
-                          <p className="text-placeholderbg text-responsive-xxs">
-                            {/* {request.requestedAt} */}
-                          </p>
+                          {/* <p className="text-placeholderbg text-responsive-xxs">
+                            {request.requestedAt}
+                          </p> */}
                         </ProfileAvatar>
                       </div>
                       {!isUserMember && (

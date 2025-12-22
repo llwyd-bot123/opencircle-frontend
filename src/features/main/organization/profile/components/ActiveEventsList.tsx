@@ -27,6 +27,8 @@ export default function ActiveEventsList({ accountUuid }: ActiveEventsListProps)
   const { user } = useAuthStore();
   const { getImageUrl } = useImageUrl();
   const { isConfirmModalOpen, modalConfig, openConfirmationModal, closeConfirmationModal } = useConfirmationModal();
+  const userUuid = accountUuid || "";
+  const isOwnProfile = user?.uuid === userUuid;
 
   const isUserMember = user ? isMember(user) : false;
 
@@ -168,7 +170,7 @@ export default function ActiveEventsList({ accountUuid }: ActiveEventsListProps)
 
   return (
     <div className="w-full">
-      {!isUserMember && (
+      {isOwnProfile && (
         <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
           <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
             <div className="flex-shrink-0">

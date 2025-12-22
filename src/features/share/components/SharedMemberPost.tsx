@@ -36,16 +36,18 @@ export const SharedMemberPost = ({ post }: SharedMemberPostProps) => {
             memberUuid={post.author_uuid}
             organizationId={post.author_organization_id}
             name={
-              post.author_organization_name
+            <div className="flex items-center gap-2">
+              <span>{  post.author_organization_name
                 ? post.author_organization_name
-                : `${post.author_first_name} ${post.author_last_name}`
-            }
-            nameClassName="text-primary text-responsive-xs font-bold"
-          >
+                : `${post.author_first_name} ${post.author_last_name}`}</span>
             <span className="text-primary text-responsive-xs font-bold">
                {" "}
-              <span className="text-authlayoutbg font-normal">posted</span>
+              <span className="text-authlayoutbg font-normal"> posted</span>
             </span>
+            </div>
+          }
+            nameClassName="text-primary text-responsive-xs font-bold"
+          >
             <p className="text-placeholderbg text-responsive-xxs">
               {formatRelativeTime(post.created_date)}
             </p>

@@ -10,6 +10,7 @@ import {
   isOrganization,
 } from "@src/shared/utils/checkAuthenticatedRole";
 import { type Organization } from "@src/features/auth/schema/auth.types";
+import { useProfileRelationship } from "@src/shared/hooks";
 
 interface OrganizationProfileInterfaceProps {
   organizationId?: string;
@@ -23,24 +24,29 @@ export default function OrganizationProfileInterface({
   const [organizationData, setOrganizationData] = useState<Organization | null>(
     null
   );
-
   
-
   const isUserMember = user ? isMember(user) : false;
 
   const { data: organizationDetails } = useOrganizationByIdQuery(
-    isUserMember && organizationId ? organizationId : undefined
+   organizationId
   );
 
   console.log("org data", organizationDetails)
 
+   const {
+      isOrganizationVisitingOrganization
+    } = useProfileRelationship(organizationDetails);
+
   useEffect(() => {
     if (isUserMember && organizationDetails) {
       setOrganizationData(organizationDetails);
-    } else if (!isUserMember && user && isOrganization(user)) {
+    } else if (isOrganizationVisitingOrganization && organizationDetails){
+      setOrganizationData(organizationDetails);
+    } 
+    else if (!isUserMember && user && isOrganization(user)) {
       setOrganizationData(user);
     }
-  }, [isUserMember, organizationDetails, organizationId, user]);
+  }, [isUserMember, organizationDetails, organizationId, user, isOrganizationVisitingOrganization]);
 
   const profileTabs = [
     { id: "active", label: "Post" },
@@ -54,7 +60,7 @@ export default function OrganizationProfileInterface({
     // For member users viewing an organization, use the organization's account_id as UUID
     const accountUuid = isUserMember
       ? organizationData?.uuid || ""
-      : user?.uuid || "";
+      : isOrganizationVisitingOrganization ? organizationData?.uuid || "" : user?.uuid || "";
 
 
     switch (activeTab) {
@@ -62,7 +68,6 @@ export default function OrganizationProfileInterface({
         return (
           <ActiveComponent
             accountUuid={accountUuid}
-            isUserMember={isUserMember}
           />
         );
       case "events":

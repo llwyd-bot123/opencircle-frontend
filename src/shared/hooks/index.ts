@@ -7,3 +7,4 @@ export { useTitleCase } from "./useTitleCase";
 export { useFormatDate } from "./useFormatDate";
 export { checkOwnership } from "./useOwnershipCheck";
 export { useNavigation } from "./useNavigation";
+export { useProfileRelationship } from "./useProfileRelationship";

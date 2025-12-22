@@ -1,10 +1,17 @@
 import avatarImage from "@src/assets/shared/avatar.png";
 import { useState } from "react";
-import { useConfirmationModal, useProfileData, type ProfileData } from "@src/shared/hooks";
+import {
+  useConfirmationModal,
+  useProfileData,
+  useProfileRelationship,
+  type ProfileData,
+} from "@src/shared/hooks";
 import { PrimaryButton } from "./PrimaryButton";
-import { ConfirmationModal, MemberOrganizationsModal, OrganizationMembersModal } from "./modals";
-import { isMember as isUserMember, isOrganization as isUserOrganization } from "../utils";
-import { useAuthStore } from "../store";
+import {
+  ConfirmationModal,
+  MemberOrganizationsModal,
+  OrganizationMembersModal,
+} from "./modals";
 import { useJoinOrganization } from "@src/features/home/model/home.mutation";
 import { useLeaveOrganization } from "@src/features/main/member/organization/model/organization.mutation";
 import { useUpdateMemberRequestStatus } from "@src/features/main/organization/member/model/member.mutation";
@@ -18,10 +25,22 @@ interface UserProfileHeaderProps {
 
 export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
   // Use the custom hook to get profile utility functions
-  const { getName, getRole, getBio, getImageUrl, getUsername, isOrganization, isMember } =
-    useProfileData(profile);
+  const {
+    getName,
+    getRole,
+    getBio,
+    getImageUrl,
+    getUsername,
+    isOrganization,
+  } = useProfileData(profile);
 
-  const { user } = useAuthStore();
+  const {
+    isMemberVisitingOrganization,
+    isOrganizationVisitingMember,
+    isMemberVisitingAnotherMember,
+    isOrganizationVisitingOrganization
+  } = useProfileRelationship(profile);
+
   const joinOrganizationMutation = useJoinOrganization();
   const leaveOrganizationMutation = useLeaveOrganization();
   const updateStatusMutation = useUpdateMemberRequestStatus();
@@ -150,27 +169,11 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
 
   // const email = getEmail();
   const username = getUsername();
-  const isVisitorMember = isUserMember(user);
-  const isVisitorOrganizer = isUserOrganization(user)
-  
+
   const membershipStatus = profile?.user_membership_status;
   const orgId = profile?.id;
 
-  const isOwnProfile =
-    user &&
-    profile &&
-    profile.uuid === user.uuid
-
-  const isMemberVisitingOrganization =
-    isVisitorMember && isOrganization && !isOwnProfile;
-
-  const isOrganizationVisitingMember =
-    isVisitorOrganizer && isMember && !isOwnProfile;
-
-  const isMemberVisitingAnotherMember =
-    isVisitorMember && isMember && !isOwnProfile;
-
-  const userMembershipStatusWithOrganizer = profile?.organizer_view_user_membership
+  const userMembershipStatusWithOrganizer = profile?.organizer_view_user_membership;
 
   return (
     <div className={`flex-1 flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:pt-8 ${isOrganization ? "bg-secondary/50" : ""}`}>
@@ -277,7 +280,7 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
             </div>
             
               <div className="sm:col-span-4 lg:col-span-3 flex justify-center">
-                {isMemberVisitingOrganization && (
+                {(isMemberVisitingOrganization || isOrganizationVisitingOrganization) && (
                     <PrimaryButton
                       variant="shareButton"
                       label="View all members"
@@ -285,7 +288,7 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
                     />
                   )}
 
-                  {isOrganizationVisitingMember || isMemberVisitingAnotherMember &&(
+                  {(isOrganizationVisitingMember || isMemberVisitingAnotherMember) &&(
                     <PrimaryButton
                       variant="shareButton"
                       label="View all organizations"
