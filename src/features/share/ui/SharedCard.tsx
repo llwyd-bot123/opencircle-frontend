@@ -117,17 +117,9 @@ export const SharedCard = ({ share }: SharedCardProps) => {
   const avatarSrc = (() => {
     if (!account && !share) return avatarImage;
     if (isOrganizationAccount) {
-      return getImageUrl(
-        account?.logo?.directory ?? share.sharer?.logo?.directory,
-        account?.logo?.filename ?? share.sharer?.logo?.filename,
-        avatarImage
-      );
+      return getImageUrl(account?.logo ?? share.sharer?.logo);
     }
-    return getImageUrl(
-      account?.profile_picture?.directory ?? share.sharer?.profile_picture?.directory,
-      account?.profile_picture?.filename ?? share.sharer?.profile_picture?.filename,
-      avatarImage
-    );
+    return getImageUrl(account?.profile_picture ?? share.sharer?.profile_picture);
   })();
 
   const displayName = (() => {

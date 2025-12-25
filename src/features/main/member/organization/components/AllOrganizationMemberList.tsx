@@ -11,8 +11,8 @@ import {
 } from "../model/organization.query";
 import leaveOrgIcon from "@src/assets/shared/leave_org_icon.svg";
 import joinIcon2 from "@src/assets/shared/join2.png";
-import avatarImage from "@src/assets/shared/avatar.png";
 import type { DirectOrganizationSearchItem } from "../schema/organization.types";
+import type { ProfilePicture } from "@src/features/auth/schema/auth.types";
 
 interface AllOrganizationMemberListProps {
   organizations: DirectOrganizationSearchItem[];
@@ -21,8 +21,7 @@ interface AllOrganizationMemberListProps {
   handleLeaveOrg?: (organizationId: number) => void;
   onBackToAll?: () => void;
   getImageUrl: (
-    directory?: string,
-    filename?: string,
+    imageObject?: ProfilePicture | null,
     fallbackUrl?: string
   ) => string;
 }
@@ -152,11 +151,7 @@ const AllOrganizationMemberList: React.FC<AllOrganizationMemberListProps> = ({
                 >
                   <div className="flex items-center space-x-3">
                     <ProfileAvatar
-                      src={
-                        org.logo
-                          ? getImageUrl(org.logo.directory, org.logo.filename)
-                          : avatarImage
-                      }
+                      src={getImageUrl(org.logo)}
                       alt={`${org.name} logo`}
                       type="organization"
                       isOwner={false}
@@ -249,9 +244,7 @@ const AllOrganizationMemberList: React.FC<AllOrganizationMemberListProps> = ({
                     >
                       <ProfileAvatar
                         src={getImageUrl(
-                          member.profile_picture?.directory,
-                          member.profile_picture?.filename,
-                          avatarImage
+                          member.profile_picture,
                         )}
                         alt={`${member.first_name} ${member.last_name} avatar`}
                         type="member"

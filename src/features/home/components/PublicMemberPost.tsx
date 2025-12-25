@@ -3,7 +3,6 @@ import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { useImageUrl, useFormatDate, checkOwnership } from "@src/shared/hooks";
 import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { type AllMemberPostData } from "@src/features/main/member/profile/schema/post.types";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { CommentsSection } from "@src/shared/components";
 
 interface PublicMemberPostProps {
@@ -26,13 +25,11 @@ export const PublicMemberPost = ({
   const { openLightbox, LightboxViewer } = useLightbox();
   const isOwner = checkOwnership({ type: "post", ownerId: post.author_id });
   const imageUrls = (post.images || []).map((img) =>
-    getImageUrl(img?.directory, img?.filename, "")
+    getImageUrl(img)
   );
 
   const authorImageUrl = getImageUrl(
-    post.author_profile_picture?.directory || post.author_logo?.directory,
-    post.author_profile_picture?.filename || post.author_logo?.filename,
-    avatarImage
+    post.author_profile_picture || post.author_logo
   );
   const isAuthorOrganization = !!post.author_organization_name;
 

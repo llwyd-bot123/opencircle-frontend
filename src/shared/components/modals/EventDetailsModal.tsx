@@ -152,9 +152,7 @@ export function EventDetailsModal({
               <div className="flex flex-row items-center space-x-2 sm:space-x-3">
                 <ProfileAvatar
                   src={getImageUrl(
-                    event.organization?.logo?.directory,
-                    event.organization?.logo?.filename,
-                    avatarImage
+                    event.organization?.logo
                   )}
                   alt="Event Creator"
                   className="w-10 h-10 sm:w-14 sm:h-14"
@@ -339,8 +337,7 @@ export function EventDetailsModal({
                   openLightbox(0, [
                     {
                       src: getImageUrl(
-                        event.image.directory,
-                        event.image.filename,
+                        event.image,
                         ""
                       ),
                     },
@@ -349,8 +346,7 @@ export function EventDetailsModal({
               >
                 <img
                   src={getImageUrl(
-                    event.image.directory,
-                    event.image.filename,
+                    event.image,
                     ""
                   )}
                   alt={event.title}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigation } from "@src/shared/hooks";
+import { useImageUrl, useNavigation } from "@src/shared/hooks";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import { ErrorState } from "@src/shared/components/states/ErrorState";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
@@ -12,11 +12,6 @@ interface PendingOrganizationProps {
   filterType: "all" | "joined" | "approval";
   handleFilterClick: (type: "all" | "joined" | "approval") => void;
   handleLeaveOrg: (organizationId: number) => void;
-  getImageUrl: (
-    directory?: string,
-    filename?: string,
-    fallbackUrl?: string
-  ) => string;
 }
 
 
@@ -24,10 +19,10 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
   filterType,
   handleFilterClick,
   handleLeaveOrg,
-  getImageUrl,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuthStore();
+  const { getImageUrl } = useImageUrl();
   const accountUuid = user?.uuid || "";
   
   // Fetch pending organization memberships
@@ -145,8 +140,7 @@ const PendingOrganization: React.FC<PendingOrganizationProps> = ({
                     {org.organization_logo ? (
                       <img
                         src={getImageUrl(
-                          org.organization_logo.directory,
-                          org.organization_logo.filename
+                          org.organization_logo
                         )}
                         alt={`${org.organization_name} logo`}
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary"

@@ -231,8 +231,7 @@ export function CommentsSection({
                   {comment.user && Object.keys(comment.user).length > 0 ? (
                     <img
                       src={getImageUrl(
-                        comment.user.profile_picture?.directory,
-                        comment.user.profile_picture?.filename,
+                        comment.user.profile_picture,
                         avatarImage
                       )}
                       alt={`${comment.user.first_name} ${comment.user.last_name} avatar`}
@@ -242,11 +241,7 @@ export function CommentsSection({
                   ) : comment.organization &&
                     Object.keys(comment.organization).length > 0 ? (
                     <img
-                      src={getImageUrl(
-                        comment.organization.logo?.directory,
-                        comment.organization.logo?.filename,
-                        avatarImage
-                      )}
+                      src={getImageUrl(comment.organization.logo)}
                       alt={`${comment.organization.name} logo`}
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                       onError={(e) => (e.currentTarget.src = avatarImage)}

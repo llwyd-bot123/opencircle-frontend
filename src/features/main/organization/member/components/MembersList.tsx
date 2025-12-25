@@ -45,11 +45,7 @@ export const MembersList: React.FC<MembersListProps> = ({
               <div className="flex items-center space-x-3">
                 {member.profile_picture ? (
                   <img
-                    src={getImageUrl(
-                      member.profile_picture.directory,
-                      member.profile_picture.filename,
-                      "/assets/images/avatar.png"
-                    )}
+                    src={getImageUrl(member.profile_picture)}
                     alt={`${member.first_name || "User"}'s profile picture`}
                     className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer"
                     onClick={onMemberClick(member.account_uuid)}

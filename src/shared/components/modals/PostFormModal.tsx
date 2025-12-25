@@ -10,6 +10,7 @@ import {
   type PostFormData,
   type PostFormMode,
 } from "@src/features/main/member/profile/schema/post.schema";
+import type { PostImage } from "@src/features/main/member/profile/schema/post.types";
 import {
   useCreatePost,
   useUpdatePost,
@@ -32,7 +33,7 @@ export const PostFormModal = ({
 }: PostFormModalProps) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImagePreviews, setExistingImagePreviews] = useState<string[]>([]);
-  const [existingImagesMeta, setExistingImagesMeta] = useState<{ directory: string; filename: string }[]>([]);
+  const [existingImagesMeta, setExistingImagesMeta] = useState<PostImage[]>([]);
   const existingLoadedRef = useRef(false);
   const [imagesError, setImagesError] = useState<string>("");
   const [error, setError] = useState("");
@@ -117,12 +118,12 @@ export const PostFormModal = ({
       setValue("description", postData.description);
 
       const existing = (postData.images || []).filter(
-        (img) => !!img?.directory && !!img?.filename
+        (img) => !!img?.image || (!!img?.directory && !!img?.filename)
       );
       const urls = existing.map((img) =>
-        getImageUrl(img.directory, img.filename, "avatar")
+        getImageUrl(img)
       );
-      setExistingImagesMeta(existing.map((img) => ({ directory: img.directory, filename: img.filename })));
+      setExistingImagesMeta(existing);
       setExistingImagePreviews(urls);
       existingLoadedRef.current = true;
     }
@@ -210,7 +211,7 @@ export const PostFormModal = ({
         } else {
        const existingFiles = await Promise.all(
           existingImagesMeta.map(async (img) => {
-            const url = getImageUrl(img.directory, img.filename, "avatar");
+            const url = getImageUrl(img);
             const res = await fetch(url);
             const blob = await res.blob();
             const name = img.filename || "image.jpg";

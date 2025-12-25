@@ -13,7 +13,6 @@ import type {
   EventResponse,
 } from "../schema/calendar.type";
 import { useImageUrl } from "@src/shared/hooks";
-import avatarImage from "@src/assets/shared/avatar.png";
 import {
   useJoinOrganization,
   useRsvpEvent,
@@ -153,16 +152,10 @@ export function CalendarSection(
 
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
-      : undefined,
-    avatarImage
+      ? user?.logo
+      : undefined
   );
 
   return (

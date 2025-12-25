@@ -6,7 +6,6 @@ import {
   ProfileAvatar,
 } from "@src/shared/components";
 import { useImageUrl } from "@src/shared/hooks";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { useMemo } from "react";
 import { useOrganizationMembers } from "@src/features/main/organization/member/model/member.query";
 
@@ -77,13 +76,9 @@ export function OrganizationMembersModal({
                   <div className="flex items-center space-x-3">
                     <ProfileAvatar
                       src={
-                        member.profile_picture
-                          ? getImageUrl(
-                              member.profile_picture.directory,
-                              member.profile_picture.filename,
-                              avatarImage
+                        getImageUrl(
+                              member.profile_picture
                             )
-                          : avatarImage
                       }
                       alt={`${member.first_name} ${member.last_name} avatar`}
                       className="w-12 h-12"

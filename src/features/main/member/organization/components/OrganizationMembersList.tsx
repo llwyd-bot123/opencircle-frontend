@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { useNavigation } from "@src/shared/hooks";
+import { useImageUrl, useNavigation } from "@src/shared/hooks";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import leaveOrgIcon from "@src/assets/shared/leave_org_icon.svg";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { useAuthStore } from "@src/shared/store/auth";
 import { useOrganizationMembershipsQuery } from "../model/organization.query";
 import type { OrganizationMembership } from "../schema/organization.types";
@@ -14,11 +13,6 @@ interface OrganizationMembersListProps {
   filterType: "all" | "joined" | "approval";
   handleFilterClick: (type: "all" | "joined" | "approval") => void;
   handleLeaveOrg: (organizationId: number) => void;
-  getImageUrl: (
-    directory?: string,
-    filename?: string,
-    fallbackUrl?: string
-  ) => string;
   handleOrgClick?: (orgId: number) => void;
 }
 
@@ -28,7 +22,6 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
   filterType,
   handleFilterClick,
   handleLeaveOrg,
-  getImageUrl,
   handleOrgClick,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,6 +72,9 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
     const value = e.target.value;
     setSearchQuery(value);
   };
+
+  const { getImageUrl } = useImageUrl();
+
   return (
     <>
       <div className="flex justify-center items-center mt-6">
@@ -182,8 +178,7 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
                           {org.organization_logo ? (
                             <img
                               src={getImageUrl(
-                                org.organization_logo?.directory,
-                                org.organization_logo?.filename
+                                org.organization_logo
                               )}
                               alt={`${org.organization_name} logo`}
                               className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-secondary ${
@@ -261,9 +256,7 @@ const OrganizationMembersList: React.FC<OrganizationMembersListProps> = ({
                         <div className="flex items-center space-x-2 sm:space-x-3">
                           <img
                             src={getImageUrl(
-                              member.profile_picture?.directory,
-                              member.profile_picture?.filename,
-                              avatarImage
+                              member.profile_picture
                             )}
                             alt={`${member.first_name} ${member.last_name} avatar`}
                             className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"

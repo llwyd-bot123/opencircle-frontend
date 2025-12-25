@@ -99,19 +99,40 @@ export function useProfileData(profile: ProfileData | null | undefined) {
   /**
    * Get the profile image URL based on profile type
    */
-  const getImageUrl = () => {
-    if (!profile) return avatarImage;
-    
-    if (isMemberProfile && isMemberType(profile) && profile.profile_picture) {
-      const pic = profile.profile_picture;
-      return generateImageUrl(pic.directory, pic.filename, avatarImage);
-    } else if (isOrganizationProfile && isOrganizationType(profile) && profile.logo) {
-      const logo = profile.logo;
-      return generateImageUrl(logo.directory, logo.filename, avatarImage);
+const getImageUrl = (): string => {
+  if (!profile) return avatarImage;
+
+  if (isMemberProfile && isMemberType(profile)) {
+    const pic = profile.profile_picture;
+    if (!pic) return avatarImage;
+
+    if (pic) {
+      const url = generateImageUrl(pic);
+      return url || avatarImage;
     }
-    // For custom profile object with avatarUrl
-    return "avatarUrl" in profile && profile.avatarUrl ? profile.avatarUrl : avatarImage;
-  };
+
+    return avatarImage;
+  }
+
+  if (isOrganizationProfile && isOrganizationType(profile)) {
+    const logo = profile.logo;
+    if (!logo) return avatarImage;
+
+    if (logo) {
+      const url = generateImageUrl(logo);
+      return url || avatarImage;
+    }
+
+    return avatarImage;
+  }
+
+  if ("avatarUrl" in profile && typeof profile.avatarUrl === "string") {
+    return profile.avatarUrl || avatarImage;
+  }
+
+  return avatarImage;
+};
+
 
   /**
    * Get the email if available

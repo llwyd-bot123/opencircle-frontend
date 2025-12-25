@@ -4,7 +4,6 @@ import { useImageUrl, useFormatDate, checkOwnership } from "@src/shared/hooks";
 import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { type PostData } from "@src/features/main/member/profile/schema/post.types";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { CommentsSection } from "@src/shared/components";
 
 interface MemberPostProps {
@@ -30,13 +29,11 @@ export const MemberPost = ({
     checkOwnership({ type: "event", ownerId: post.author.id });
 
   const imageUrls = (post.images || []).map((img) =>
-    getImageUrl(img?.directory, img?.filename, "")
+    getImageUrl(img)
   );
 
   const authorImageUrl = getImageUrl(
-    post.author?.profile_picture?.directory ?? post.author?.logo?.directory,
-    post.author?.profile_picture?.filename ?? post.author?.logo?.filename,
-    avatarImage
+    post.author?.profile_picture ?? post.author?.logo
   );
 
   const handleEdit = () => {

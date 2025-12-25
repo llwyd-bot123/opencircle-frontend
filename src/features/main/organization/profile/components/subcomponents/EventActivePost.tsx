@@ -1,12 +1,9 @@
-// import { useState } from "react";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
-// import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import { useFormatDate, useImageUrl, checkOwnership } from "@src/shared/hooks";
 import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
-import avatarImage from "@src/assets/shared/avatar.png";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
 import joinedIcon from "@src/assets/shared/joined_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
@@ -36,17 +33,9 @@ export const EventActivePost = ({
   const isOwner = checkOwnership({ type: "event", ownerId: event.organization.account_id });
 
   const { getImageUrl } = useImageUrl();
-  const eventImageUrl = getImageUrl(
-    event.image?.directory,
-    event.image?.filename,
-    ""
-  );
+  const eventImageUrl = getImageUrl(event.image);
 
-  const creatorImageUrl = getImageUrl(
-    event.organization.logo?.directory,
-    event.organization.logo?.filename,
-    avatarImage
-  );
+  const creatorImageUrl = getImageUrl(event.organization.logo);
 
   const handleDelete = () => {
     onDelete?.(event.id);

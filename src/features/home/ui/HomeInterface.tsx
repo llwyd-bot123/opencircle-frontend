@@ -5,7 +5,6 @@ import {
 } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { useState } from "react";
 import {
   EventFormModal,
@@ -54,16 +53,10 @@ export default function HomeInterface() {
 
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
-      : undefined,
-    avatarImage
+      ? user?.logo
+      : undefined
   );
 
   // Initialize mutations

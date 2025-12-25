@@ -9,7 +9,6 @@ import {
   useInfiniteScroll,
   checkOwnership,
 } from "@src/shared/hooks";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { LoadingState, ErrorState } from "@src/shared/components";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -210,16 +209,10 @@ export function CommentsModal({
                       <ProfileAvatar
                         src={getImageUrl(
                           comment.role === "user"
-                            ? comment?.profile_picture?.directory
+                            ? comment?.profile_picture
                             : comment.role === "organization"
-                            ? comment?.organization_logo?.directory
-                            : '',
-                          comment.role === "user"
-                            ? comment?.profile_picture?.filename
-                            : comment.role === "organization"
-                            ? comment?.organization_logo?.filename
-                            : '',
-                          avatarImage
+                            ? comment?.organization_logo
+                            : undefined
                         )}
                         alt={`${comment.author} avatar`}
                         className="w-12 h-12"

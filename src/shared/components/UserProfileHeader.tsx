@@ -29,10 +29,10 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
     getName,
     getRole,
     getBio,
-    getImageUrl,
     getUsername,
     isOrganization,
   } = useProfileData(profile);
+
 
   const {
     isMemberVisitingOrganization,
@@ -181,7 +181,7 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
         {/* Profile Image */}
         <div className="flex-shrink-0">
           <img
-            src={getImageUrl()}
+            src={profile.avatarUrl}
             alt="Profile"
             className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-full object-cover border-2 sm:border-3 md:border-4 border-gray-100"
           />
