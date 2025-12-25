@@ -1,3 +1,7 @@
+import type { ProfilePicture } from "@src/features/auth/schema/auth.types";
+import avatarImage from "@src/assets/shared/avatar.png";
+
+
 /**
  * Hook for generating image URLs by combining API URL with directory and filename
  *
@@ -10,22 +14,26 @@ export function useImageUrl() {
   /**
    * Generates a complete image URL by combining API URL with directory and filename
    *
-   * @param directory - The directory path where the image is stored
-   * @param filename - The filename of the image
-   * @param fallbackUrl - Optional fallback URL to use if directory or filename is missing
+   * @param fallbackUrl - Optional fallback URL to use if directory or filename is missing. Defaults to avatarImage.
    * @returns The complete image URL
    */
   const getImageUrl = (
-    directory?: string,
-    filename?: string,
-    fallbackUrl?: string
+    imageObject?: ProfilePicture | null,
+    fallbackUrl: string = avatarImage
   ): string => {
-    // Return fallback URL if directory or filename is missing
-    if (!directory || !filename) {
-      return fallbackUrl || "";
+    const { directory, filename, image } = imageObject || {};
+
+    // Return image if it's a base64 string
+    if (image?.startsWith("data:")) {
+      // Return fallback URL if directory or filename is missing
+      return image;
     }
 
-    return `${API_URL_UPLOAD}/${directory}/${filename}`;
+    if (directory && filename) {
+        return `${API_URL_UPLOAD}/${directory}/${filename}`;
+      }
+
+    return fallbackUrl || "";
   };
 
   return {

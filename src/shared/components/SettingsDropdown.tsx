@@ -18,8 +18,8 @@ export const SettingsDropdown = ({ onLogoutClick }: SettingsDropdownProps) => {
   const isMember = user && "first_name" in user;
   const displayName = isMember ? `${user?.first_name} ${user?.last_name}` : user?.name || "";
   const profileImage = isMember
-    ? getImageUrl(user?.profile_picture?.directory, user?.profile_picture?.filename, avatarImage)
-    : getImageUrl(user?.logo?.directory, user?.logo?.filename, avatarImage);
+    ? getImageUrl(user?.profile_picture)
+    : getImageUrl(user?.logo);
 
   const { data: twoFAStatus, refetch: refetchTwoFAStatus } = use2FAStatus();
   const twoFAEnabled = !!twoFAStatus?.two_factor_enabled;

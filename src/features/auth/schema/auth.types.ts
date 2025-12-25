@@ -1,8 +1,9 @@
 // User profile picture type
 export type ProfilePicture = {
-  id: number;
-  directory: string;
-  filename: string;
+  id?: number;
+  directory?: string;
+  filename?: string;
+  image?: string;
 };
 
 // Authenticated member user type
@@ -21,6 +22,7 @@ export type Member = {
   bypass_two_factor: 0 | 1;
   user_membership_status: string;
   organizer_view_user_membership: string;
+  avatarUrl: string;
 };
 
 // Authenticated organization user type
@@ -39,6 +41,7 @@ export type Organization = {
   bypass_two_factor: 0 | 1;
   user_membership_status: string;
   organizer_view_user_membership: string;
+  avatarUrl: string;
 };
 
 // Authenticated user (either Member or Organization)

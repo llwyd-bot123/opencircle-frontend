@@ -166,9 +166,7 @@ export function EventParticipantsModal({
                           src={
                             member.profile_picture
                               ? getImageUrl(
-                                  member.profile_picture.directory,
-                                  member.profile_picture.filename,
-                                  avatarImage
+                                  member.profile_picture
                                 )
                               : avatarImage
                           }
@@ -216,13 +214,9 @@ export function EventParticipantsModal({
                       <div className="flex items-center space-x-3">
                         <ProfileAvatar
                           src={
-                            request.profile_picture
-                              ? getImageUrl(
-                                  request.profile_picture.directory,
-                                  request.profile_picture.filename,
-                                  avatarImage
+                            getImageUrl(
+                                  request.profile_picture
                                 )
-                              : avatarImage
                           }
                           alt={`${request.first_name} ${request.last_name} avatar`}
                           className="w-12 h-12"

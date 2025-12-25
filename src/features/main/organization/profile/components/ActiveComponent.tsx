@@ -7,7 +7,6 @@ import {
 } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useInfiniteMemberPosts } from "@src/features/main/member/profile/model/post.infinite.query";
 import { MemberPost } from "@src/features/main/member/profile/components/subcomponents/MemberPost";
@@ -151,16 +150,10 @@ export default function ActiveComponent({ accountUuid}: ActiveComponentProps) {
 
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
-      : undefined,
-    avatarImage
+      ? user?.logo
+      : undefined
   );
 
   return (

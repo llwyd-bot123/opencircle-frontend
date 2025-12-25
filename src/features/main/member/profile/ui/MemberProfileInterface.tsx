@@ -29,8 +29,7 @@ export default function MemberProfileInterface({ accountUuid }: MemberProfileInt
         bio: visitedProfile.bio,
         username: visitedProfile.username,
         avatarUrl: getImageUrl(
-          visitedProfile.profile_picture?.directory,
-          visitedProfile.profile_picture?.filename,
+          visitedProfile.profile_picture,
           avatarImage
         ),
         organizer_view_user_membership: visitedProfile.organizer_view_user_membership || "",

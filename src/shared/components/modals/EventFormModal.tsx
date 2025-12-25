@@ -183,8 +183,7 @@ export const EventFormModal = ({
       // Set image preview if available
       if (eventData.image) {
         const imageUrl = getImageUrl(
-          eventData.image.directory,
-          eventData.image.filename,
+          eventData.image,
           ""
         );
         setImagePreview(imageUrl);

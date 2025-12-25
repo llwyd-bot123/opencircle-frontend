@@ -97,13 +97,9 @@ export function AllEventsModal({
                         )}
                         <img
                           src={
-                            event.organization.logo.directory &&
-                            event.organization.logo.filename
-                              ? getImageUrl(
-                                  event.organization.logo.directory,
-                                  event.organization.logo.filename
+                            getImageUrl(
+                                  event.organization.logo
                                 )
-                              : avatarImage
                           }
                           alt={event.organization.name}
                           className={`w-full h-full object-cover transition-opacity duration-200 ${

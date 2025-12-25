@@ -1,22 +1,21 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import type { DirectOrganizationSearchItem } from "../schema/organization.types";
-import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
-import { PrimaryButton } from "@src/shared/components/PrimaryButton";
-import { ErrorState } from "@src/shared/components/states/ErrorState";
 import { LoadingState } from "@src/shared/components/states/LoadingState";
+import { ErrorState } from "@src/shared/components/states/ErrorState";
+import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import {
   useOrganizationSearchQuery,
   useOrganizationMembershipsQuery,
   usePendingOrganizationMembershipsQuery,
 } from "../model/organization.query";
 import { useAuthStore } from "@src/shared/store/auth";
+import AllOrganizationMemberList from "./AllOrganizationMemberList";
+import type { ProfilePicture } from "@src/features/auth/schema/auth.types";
+import { ProfileAvatar } from "@src/shared/components";
+import removeIcon from "@src/assets/shared//remove_icon.png";
 import leaveOrgIcon from "@src/assets/shared/leave_org_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
-import removeIcon from "@src/assets/shared//remove_icon.png";
-import AllOrganizationMemberList from "./AllOrganizationMemberList";
-import avatarImage from "@src/assets/shared/avatar.png";
-
 interface AllOrganizationListProps {
   selectedOrgId: number | null;
   filterType: "all" | "joined" | "approval";
@@ -24,8 +23,7 @@ interface AllOrganizationListProps {
   handleJoinOrg?: (organizationId: number) => void;
   handleLeaveOrg?: (organizationId: number) => void;
   getImageUrl: (
-    directory?: string,
-    filename?: string,
+    imageObject?: ProfilePicture | null,
     fallbackUrl?: string
   ) => string;
 }
@@ -181,11 +179,7 @@ const AllOrganizationList: React.FC<AllOrganizationListProps> = ({
                   >
                     <div className="flex items-center space-x-3">
                       <ProfileAvatar
-                        src={
-                          org.logo
-                            ? getImageUrl(org.logo.directory, org.logo.filename)
-                            : avatarImage
-                        }
+                        src={getImageUrl(org.logo)}
                         alt={`${org.name} logo`}
                         type="organization"
                         isOwner={false}

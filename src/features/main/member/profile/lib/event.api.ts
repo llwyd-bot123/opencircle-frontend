@@ -57,7 +57,7 @@ export const getMemberProfile = async (
 ): Promise<MemberProfileResponse> => {
   try {
     const response = await axiosInstance.get<MemberProfileResponse>(
-      `user/profile/${accountUuid}`
+      `/user/profile/${accountUuid}`
     );
     return response.data;
   } catch (error) {

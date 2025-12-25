@@ -8,7 +8,6 @@ import { useLightbox } from "@src/shared/hooks/useLightbox";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import type { EventData } from "@src/features/main/organization/profile/schema/event.type";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
-import avatarImage from "@src/assets/shared/avatar.png";
 
 interface MemberActiveEventProps {
   event: EventData;
@@ -49,15 +48,7 @@ export const MemberEvents = ({
       <div className="flex flex-row items-start justify-between mb-4">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
           <ProfileAvatar
-            src={
-              event.organization?.logo
-                ? getImageUrl(
-                    event.organization.logo.directory,
-                    event.organization.logo.filename,
-                    avatarImage
-                  )
-                : avatarImage
-            }
+            src={getImageUrl(event.organization?.logo)}
             alt="Event Creator"
             className="w-10 h-10 sm:w-14 sm:h-14"
             type="organization"
@@ -206,7 +197,7 @@ export const MemberEvents = ({
           openLightbox(0, [
             {
               src: event.image
-                ? getImageUrl(event.image.directory, event.image.filename)
+                ? getImageUrl(event.image)
                 : "",
             },
           ])
@@ -215,7 +206,7 @@ export const MemberEvents = ({
         <img
           src={
             event.image
-              ? getImageUrl(event.image.directory, event.image.filename)
+              ? getImageUrl(event.image)
               : ""
           }
           alt={event.title}

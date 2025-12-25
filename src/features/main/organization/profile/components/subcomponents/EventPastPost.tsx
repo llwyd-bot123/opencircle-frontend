@@ -2,14 +2,11 @@ import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { DropdownMenu } from "@src/shared/components/DropdownMenu";
 import { CommentsSection } from "@src/features/comments/ui/CommentsSection";
 import {
-  // useConfirmationModal,
   useFormatDate,
   useImageUrl,
   checkOwnership,
 } from "@src/shared/hooks";
 import { useLightbox } from "@src/shared/hooks/useLightbox";
-// import { ConfirmationModal } from "@src/shared/components/modals";
-import avatarImage from "@src/assets/shared/avatar.png";
 import type { EventData } from "../../schema/event.type";
 
 interface EventPastPostProps {
@@ -63,11 +60,7 @@ export const EventPastPost = ({
   const hasMoreMembers = totalMembers > 3;
 
   // Get event image URL
-  const eventImageUrl = getImageUrl(
-    event.image?.directory,
-    event.image?.filename,
-    "" // Fallback to empty string if no image is available
-  );
+  const eventImageUrl = getImageUrl(event.image);
 
   // We'll format the location directly in the JSX for better handling of optional fields
 
@@ -77,11 +70,7 @@ export const EventPastPost = ({
       <div className="flex flex-row items-start justify-between mb-3 sm:mb-4">
         <div className="flex flex-row items-center space-x-2 sm:space-x-3">
           <ProfileAvatar
-            src={getImageUrl(
-              event.organization?.logo?.directory,
-              event.organization?.logo?.filename,
-              avatarImage
-            )}
+            src={getImageUrl(event.organization?.logo)}
             alt={event.organization?.name || "Event Creator"}
             className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
             type="organization"
@@ -207,9 +196,7 @@ export const EventPastPost = ({
                 >
                   <img
                     src={getImageUrl(
-                      member.user?.profile_picture?.directory,
-                      member.user?.profile_picture?.filename,
-                      avatarImage
+                      member.user?.profile_picture
                     )}
                     alt={`${member.user?.first_name || "User"} ${
                       member.user?.last_name || ""

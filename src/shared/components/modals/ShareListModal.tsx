@@ -60,9 +60,7 @@ export function ShareListModal({ isOpen, onClose, contentType, contentId }: Shar
                     ?.trim() ||
                   "Someone";
                 
-                const avatarSrc = getImageUrl(s.sharer.profile_picture?.directory, s.sharer.profile_picture?.filename,
-                    avatarImage
-                );
+                const avatarSrc = getImageUrl(s.sharer.profile_picture);
 
                 return (
                   <div key={s.share_id} className="">

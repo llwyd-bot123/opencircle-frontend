@@ -4,7 +4,6 @@ import type { ShareByContentSharer } from "@src/features/share/schema/share.type
 import { checkOwnership, useFormatDate, useImageUrl } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store/auth";
 import { isMember, isOrganization } from "@src/shared/utils";
-import avatarImage from "@src/assets/shared/avatar.png";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
 import joinedIcon from "@src/assets/shared/joined_icon.svg";
 import joinIcon from "@src/assets/shared/join_icon.svg";
@@ -43,28 +42,14 @@ export const SharedEventPost = ({
 
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
-      : undefined,
-    avatarImage
+      ? user?.logo
+      : undefined
   );
 
-  const creatorImageUrl = getImageUrl(
-    event.organization?.logo?.directory,
-    event.organization?.logo?.filename,
-    avatarImage
-  );
-  const eventImageUrl = getImageUrl(
-    event.image?.directory,
-    event.image?.filename,
-    avatarImage
-  );
+  const creatorImageUrl = getImageUrl(event.organization?.logo);
+  const eventImageUrl = getImageUrl(event.image);
 
   const userRsvp = sharer?.user_rsvp || user_rsvp_status;
 

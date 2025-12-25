@@ -5,7 +5,6 @@ import { LoadingState, ErrorState } from "@src/shared/components";
 import { useInfiniteScroll, useImageUrl, useConfirmationModal } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { CommentsModal, EventFormModal, PostFormModal, ConfirmationModal } from "@src/shared/components/modals";
 import { IconDropdown } from "@src/shared/components";
@@ -34,16 +33,10 @@ export default function ActiveEventsList({ accountUuid }: ActiveEventsListProps)
 
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
-      : undefined,
-    avatarImage
+      ? user?.logo
+      : undefined
   );
 
   const {

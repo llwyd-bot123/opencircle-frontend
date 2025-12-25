@@ -2,7 +2,6 @@ import { useImageUrl, useFormatDate, checkOwnership } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store";
 import { isMember } from "@src/shared/utils";
 import { type AllMemberPostData } from "@src/features/main/member/profile/schema/post.types";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 
 interface SharedMemberPostProps {
@@ -14,13 +13,11 @@ export const SharedMemberPost = ({ post }: SharedMemberPostProps) => {
   const { getImageUrl } = useImageUrl();
   const { formatRelativeTime } = useFormatDate();
   const isOwner = checkOwnership({ type: "post", ownerId: post.author_id });
-  const imageUrls = (post.images || []).map((img) => getImageUrl(img?.directory, img?.filename, ""));
+  const imageUrls = (post.images || []).map((img) => getImageUrl(img));
 
   const { user } = useAuthStore();
   const authorImageUrl = getImageUrl(
-    isMember(user) ? post.author_profile_picture?.directory ?? post.profile_picture?.directory : post.author_logo?.directory,
-    isMember(user) ? post.author_profile_picture?.filename ?? post.profile_picture?.filename : post.author_logo?.filename,
-    avatarImage
+    isMember(user) ? post.author_profile_picture ?? post.profile_picture : post.author_logo
   );
 
   return (

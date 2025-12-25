@@ -1,6 +1,5 @@
 import { ConfirmationModal } from "./modals";
 import { useConfirmationModal, useImageUrl } from "../hooks";
-import avatarImage from "@src/assets/shared/avatar.png";
 import type { EventParticipant } from "@src/features/main/organization/profile/schema/event.type";
 import {
   useAcceptRsvpRequest,
@@ -89,9 +88,7 @@ export function EventTabContent({
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <img
                     src={getImageUrl(
-                      member.user.profile_picture?.directory,
-                      member.user.profile_picture?.filename,
-                      avatarImage
+                      member.user.profile_picture
                     )}
                     alt={`${member.user.first_name} ${member.user.last_name} avatar`}
                     className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full object-cover"
@@ -164,9 +161,7 @@ export function EventTabContent({
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <img
                     src={getImageUrl(
-                      request.user.profile_picture?.directory,
-                      request.user.profile_picture?.filename,
-                      avatarImage
+                      request.user.profile_picture
                     )}
                     alt={`${request.user.first_name} ${request.user.last_name} avatar`}
                     className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full object-cover"

@@ -46,16 +46,8 @@ export const PublicEventPost = ({
   const { openLightbox, LightboxViewer } = useLightbox();
   const isOwner = checkOwnership({ type: "event", ownerId: event.organization?.account_id });
 
-  const creatorImageUrl = getImageUrl(
-    event.organization?.logo?.directory,
-    event.organization?.logo?.filename,
-    avatarImage
-  );
-  const eventImageUrl = getImageUrl(
-    event.image?.directory,
-    event.image?.filename,
-    avatarImage
-  );
+  const creatorImageUrl = getImageUrl(event.organization?.logo);
+  const eventImageUrl = getImageUrl(event.image);
 
   return (
     <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 w-full">

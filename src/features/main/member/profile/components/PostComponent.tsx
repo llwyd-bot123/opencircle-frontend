@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import { MemberPost } from "./subcomponents/MemberPost";
-// import { CommentsModal } from "@src/shared/components/modals";
 import { PostFormModal } from "@src/shared/components/modals/PostFormModal";
 import { useAuthStore } from "@src/shared/store/auth";
 import {
@@ -9,7 +8,6 @@ import {
   useImageUrl,
   useInfiniteScroll,
 } from "@src/shared/hooks";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { isMember, isOrganization } from "@src/shared/utils";
 import {
   CommentsModal,
@@ -49,16 +47,10 @@ export default function PostComponent({ accountUuid }: PostComponentProps) {
   // Get current user avatar URL
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
-      : undefined,
-    avatarImage
+      ? user?.logo
+      : undefined
   );
 
   const userUuid = accountUuid || user?.uuid || "";

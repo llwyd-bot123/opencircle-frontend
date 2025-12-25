@@ -6,7 +6,6 @@ import {
   ProfileAvatar,
 } from "@src/shared/components";
 import { useImageUrl } from "@src/shared/hooks";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { useMemo } from "react";
 import { useMemberJoinedOrganizationsQuery } from "@src/features/main/member/organization/model/organization.query";
 import pendingIcon from "@src/assets/shared/for_approval_icon.svg";
@@ -91,13 +90,9 @@ export function MemberOrganizationsModal({
                   <div className="flex items-center space-x-3">
                     <ProfileAvatar
                       src={
-                        org.logo
-                          ? getImageUrl(
-                              org.logo.directory,
-                              org.logo.filename,
-                              avatarImage
+                        getImageUrl(
+                              org.logo
                             )
-                          : avatarImage
                       }
                       alt={`${org.name} logo`}
                       className="w-12 h-12"

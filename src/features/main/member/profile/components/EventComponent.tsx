@@ -129,22 +129,16 @@ export default function EventComponent({ accountUuid }: EventComponentProps) {
   const userAvatar =
     user && "profile_picture" in user && user.profile_picture
       ? getImageUrl(
-          user.profile_picture.directory,
-          user.profile_picture.filename,
+          user.profile_picture,
           avatarImage
         )
       : avatarImage;
 
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
+      ? user?.logo
       : undefined,
     avatarImage
   );

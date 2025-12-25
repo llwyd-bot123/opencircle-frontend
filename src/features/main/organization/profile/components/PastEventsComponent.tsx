@@ -15,7 +15,6 @@ import {
 } from "@src/shared/hooks";
 import { useAuthStore } from "@src/shared/store";
 import { isMember, isOrganization } from "@src/shared/utils";
-import avatarImage from "@src/assets/shared/avatar.png";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useInfiniteOrganizationPastEvents } from "../model/event.infinite.query";
 import { useDeleteEvent } from "../model/event.mutation";
@@ -144,16 +143,10 @@ export default function PastEventsComponent({ accountUuid }: PastEventsComponent
 
   const currentAvatar = getImageUrl(
     isMember(user)
-      ? user?.profile_picture?.directory
+      ? user?.profile_picture
       : isOrganization(user)
-      ? user?.logo?.directory
-      : undefined,
-    isMember(user)
-      ? user?.profile_picture?.filename
-      : isOrganization(user)
-      ? user?.logo?.filename
-      : undefined,
-    avatarImage
+      ? user?.logo
+      : undefined
   );
 
   const handleOpenCreateEventModal = () => {
@@ -327,11 +320,7 @@ export default function PastEventsComponent({ accountUuid }: PastEventsComponent
                   `${member.user?.first_name || ""} ${
                     member.user?.last_name || ""
                   }`.trim() || "Unknown User",
-                avatar: getImageUrl(
-                  member.user?.profile_picture?.directory,
-                  member.user?.profile_picture?.filename,
-                  avatarImage
-                ),
+                avatar: getImageUrl(member.user?.profile_picture),
                 joinedAt: "",
               }))
             : []

@@ -51,11 +51,7 @@ export const MemberRequestsList: React.FC<MemberRequestsListProps> = ({
                   <img
                     src={
                       request.profile_picture
-                        ? getImageUrl(
-                            request.profile_picture.directory,
-                            request.profile_picture.filename,
-                            avatarImage
-                          )
+                        ? getImageUrl(request.profile_picture)
                         : avatarImage
                     }
                     alt={`${request.first_name || "User"}'s profile picture`}

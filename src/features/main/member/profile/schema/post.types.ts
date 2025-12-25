@@ -5,6 +5,7 @@ export type PostImage = {
   id: number;
   directory: string;
   filename: string;
+  image?: string;
 };
 
 // Type definition for user profile picture
