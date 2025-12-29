@@ -96,7 +96,6 @@ export default function MemberOrganizationInterface() {
           handleOrgClick={handleOrgClick}
           handleFilterClick={handleFilterClick}
           handleLeaveOrg={handleLeaveOrg}
-          getImageUrl={getImageUrl}
         />
       ) : filterType === "approval" ? (
         <PendingOrganization
@@ -104,7 +103,6 @@ export default function MemberOrganizationInterface() {
           handleFilterClick={handleFilterClick}
           selectedOrgId={selectedOrgId}
           handleLeaveOrg={handleLeaveOrg}
-          getImageUrl={getImageUrl}
         />
       ) : (
         <AllOrganizationList

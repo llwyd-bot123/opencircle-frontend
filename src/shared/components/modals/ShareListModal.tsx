@@ -5,7 +5,6 @@ import { Spinner } from "@src/shared/components/Spinner";
 import { useFormatDate } from "@src/shared/hooks/useFormatDate";
 import { useImageUrl } from "@src/shared/hooks/useImageUrl";
 import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
-import avatarImage from "@src/assets/shared/avatar.png";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { ShareByContentResponse, ShareByContentItem } from "@src/features/share/schema/share.types";
 

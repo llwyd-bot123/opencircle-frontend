@@ -1,7 +1,6 @@
 import { useAuthStore } from "@src/shared/store";
 import { useState } from "react";
 import { useImageUrl } from "@src/shared/hooks/useImageUrl";
-import avatarImage from "@src/assets/shared/avatar.png";
 import logoutIcon from "@src/assets/shared/logout.png"
 import { TwoFactorCodeModal } from "@src/shared/components/modals";
 import { useEnableTwoFA, useDisableTwoFA } from "@src/features/auth/model/signup.mutations";
