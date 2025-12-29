@@ -11,10 +11,11 @@ export const useNotifications = ({ unread_only = false, limit = 3 }: Notificatio
   });
 };
 
-export const useUnreadNotificationsCount = () => {
+export const useUnreadNotificationsCount = (enabled: boolean = true) => {
   return useQuery<UnreadNotificationsCountResponse, Error>({
     queryKey: [QUERY_KEYS.NOTIFICATIONS_UNREAD_COUNT],
     queryFn: async () => await getUnreadNotificationsCount(),
     staleTime: 60 * 1000,
+    enabled,
   });
 };

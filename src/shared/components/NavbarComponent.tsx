@@ -30,7 +30,7 @@ export function Navbar({
   const notifRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   const shouldBeTransparent = transparent;
-  const { data: unreadCountData } = useUnreadNotificationsCount();
+  const { data: unreadCountData } = useUnreadNotificationsCount(isAuthenticated);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
