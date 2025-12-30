@@ -10,7 +10,8 @@ import {
   isOrganization,
 } from "@src/shared/utils/checkAuthenticatedRole";
 import { type Organization } from "@src/features/auth/schema/auth.types";
-import { useProfileRelationship } from "@src/shared/hooks";
+import { useImageUrl, useProfileRelationship } from "@src/shared/hooks";
+import avatarImage from "@src/assets/shared/avatar.png";
 
 interface OrganizationProfileInterfaceProps {
   organizationId?: string;
@@ -45,6 +46,24 @@ export default function OrganizationProfileInterface({
       setOrganizationData(user);
     }
   }, [isUserMember, organizationDetails, organizationId, user, isOrganizationVisitingOrganization]);
+
+  const { getImageUrl } = useImageUrl();
+
+  const headerProfile = organizationData
+    ? {
+        id: organizationData.id,
+        name: organizationData.name,
+        role_id: 2,
+        role: "organization",
+        bio: organizationData.description,
+        username: organizationData.username,
+        avatarUrl: getImageUrl(
+          organizationData.logo,
+          avatarImage
+        ),
+        uuid: organizationData.uuid,
+      }
+    : user;
 
   const profileTabs = [
     { id: "active", label: "Post" },
@@ -85,10 +104,7 @@ export default function OrganizationProfileInterface({
       <div className="w-full h-auto sm:h-64 md:h-72 bg-white relative flex flex-col">
         {/* Profile Details Section - Centered */}
         <UserProfileHeader
-          profile={
-            organizationData ||
-            (isUserMember ? null : isOrganization(user) ? user : null)
-          }
+          profile={headerProfile}
         />
 
         {/* Menu Section - Fixed at Bottom */}

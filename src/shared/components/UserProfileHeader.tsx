@@ -175,6 +175,8 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
 
   const userMembershipStatusWithOrganizer = profile?.organizer_view_user_membership;
 
+  console.log("profile.avatarUrl", profile);
+
   return (
     <div className={`flex-1 flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:pt-8 ${isOrganization ? "bg-secondary/50" : ""}`}>
       <div className={`w-full sm:w-5/6 md:w-4/5 lg:w-2/3 flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start space-y-3 sm:space-y-0 sm:space-x-4 md:space-x-6 lg:space-x-8 xl:space-x-16 lg:pr-22 xl:pr-42`}>
