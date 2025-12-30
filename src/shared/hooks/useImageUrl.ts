@@ -8,8 +8,8 @@ import avatarImage from "@src/assets/shared/avatar.png";
  * @returns A function that generates image URLs
  */
 export function useImageUrl() {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const API_URL_UPLOAD = import.meta.env.VITE_API_URL_UPLOAD || API_URL;
+  // const API_URL = import.meta.env.VITE_API_URL;
+  // const API_URL_UPLOAD = import.meta.env.VITE_API_URL_UPLOAD || API_URL;
 
   /**
    * Generates a complete image URL by combining API URL with directory and filename
@@ -30,7 +30,8 @@ export function useImageUrl() {
     }
 
     if (directory && filename) {
-        return `${API_URL_UPLOAD}/${directory}/${filename}`;
+      return "https://placehold.co/600x400"
+        // return `${API_URL_UPLOAD}/${directory}/${filename}`;
       }
 
     return fallbackUrl || "";
