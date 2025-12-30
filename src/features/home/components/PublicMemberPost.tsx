@@ -92,7 +92,7 @@ export const PublicMemberPost = ({
       </div>
 
       {imageUrls.length > 0 && (
-        <div className="grid grid-cols-2 gap-2 mt-4">
+        <div className={`grid ${imageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-2 mt-4`}>
           {imageUrls.slice(0, 4).map((src, idx) => (
             <button
               key={idx}
