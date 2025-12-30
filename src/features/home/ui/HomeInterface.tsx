@@ -20,7 +20,8 @@ import {
 import { useLeaveOrganization } from "@src/features/main/member/organization/model/organization.mutation";
 import { useInfiniteRandomEvents } from "@src/features/main/organization/profile/model/event.infinite.query";
 import { useDeleteEvent } from "@src/features/main/organization/profile/model/event.mutation";
-import { ErrorState, LoadingState } from "@src/shared/components";
+import { ErrorState, LoadingState, IconDropdown } from "@src/shared/components";
+import { ProfileAvatar } from "@src/shared/components/ProfileAvatar";
 import { useInfiniteAllMemberPosts } from "@src/features/main/member/profile/model/post.infinite.query";
 import { useDeletePost } from "@src/features/main/member/profile/model/post.mutation";
 import { PublicEventPost } from "../components/PublicEventPost";
@@ -45,6 +46,7 @@ export default function HomeInterface() {
   const [postFormMode, setPostFormMode] = useState<"create" | "edit">("create");
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [selectedPostType, setSelectedPostType] = useState<"event" | "post">("event");
 
   // No additional confirmation modal state needed - using useConfirmationModal
 
@@ -199,6 +201,14 @@ export default function HomeInterface() {
     setSelectedPostId(null);
     setPostFormMode("create");
     setIsPostFormModalOpen(true);
+  };
+
+  const handleCreateActionClick = () => {
+    if (selectedPostType === "event") {
+      handleOpenCreateEventModal();
+    } else {
+      handleOpenCreatePostModal();
+    }
   };
 
   // Edit event
@@ -378,37 +388,64 @@ export default function HomeInterface() {
 
   return (
     <div className="w-full lg:w-1/2 mx-auto p-8">
-      <div className="bg-white rounded-xl h-[90px] sm:h-[104px] p-3 sm:p-4 shadow-sm border border-gray-100 mb-4 sm:mb-6">
-        <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
-          {/* Avatar Column */}
-          <div className="flex-shrink-0">
-            <img
-              src={currentAvatar}
-              alt="User Avatar"
-              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
-            />
-          </div>
+      {isOrganization(user) ? (
+        <div className="bg-white rounded-xl h-auto sm:h-[104px] p-4 shadow-sm border border-gray-100 mb-6">
+          <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
+            <div className="flex-shrink-0">
+              <ProfileAvatar
+                src={currentAvatar}
+                alt="User Avatar"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14"
+                type="organization"
+                isOwner={false}
+                organizationId={user?.id}
+              />
+            </div>
 
-          {/* Input Column */}
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder={
-                isOrganization(user)
-                  ? "Post an event..."
-                  : "What's on your mind..."
-              }
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs cursor-pointer"
-              onClick={
-                isOrganization(user)
-                  ? handleOpenCreateEventModal
-                  : handleOpenCreatePostModal
-              }
-              readOnly
-            />
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder={
+                  selectedPostType === "post"
+                    ? "Whats on your mind?"
+                    : "Post an event"
+                }
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs cursor-pointer"
+                onClick={handleCreateActionClick}
+                readOnly
+              />
+            </div>
+
+            <div className="flex-shrink-0">
+              <IconDropdown value={selectedPostType} setValue={setSelectedPostType} />
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-white rounded-xl h-[90px] sm:h-[104px] p-3 sm:p-4 shadow-sm border border-gray-100 mb-4 sm:mb-6">
+          <div className="flex flex-row items-center space-x-2 sm:space-x-4 h-full">
+            {/* Avatar Column */}
+            <div className="flex-shrink-0">
+              <img
+                src={currentAvatar}
+                alt="User Avatar"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+              />
+            </div>
+
+            {/* Input Column */}
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="What's on your mind..."
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-athens_gray border border-transparent rounded-full text-responsive-xs cursor-pointer"
+                onClick={handleOpenCreatePostModal}
+                readOnly
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading State */}
       {(isLoadingEvents || isLoadingPosts) &&
