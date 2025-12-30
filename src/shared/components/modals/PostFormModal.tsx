@@ -285,10 +285,26 @@ export const PostFormModal = ({
             <img src={addImageIcon} alt="Add Image" className="w-5 h-5 mr-1" />
             <span className="font-bold text-responsive-xs">Add Image</span>
           </label>
-          {imagePreviews.length > 0 ? (
+          {(imagePreviews.length > 0 || existingImagePreviews.length > 0) && (
             <div className="mt-4 grid grid-cols-2 gap-2">
+              {existingImagePreviews.map((src, idx) => (
+                <div key={`existing-${idx}`} className="relative">
+                  <img
+                    src={src}
+                    alt={`Existing Image ${idx + 1}`}
+                    className="h-32 w-full mx-auto rounded-lg object-cover border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-1 right-1 bg-white/80 text-red-600 rounded px-2 text-responsive-xxs cursor-pointer"
+                    onClick={() => removeExistingImageAtIndex(idx)}
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
               {imagePreviews.map((src, idx) => (
-                <div key={idx} className="relative">
+                <div key={`new-${idx}`} className="relative">
                   <img
                     src={src}
                     alt={`Image Preview ${idx + 1}`}
@@ -303,43 +319,7 @@ export const PostFormModal = ({
                   </button>
                 </div>
               ))}
-             
             </div>
-          ) : (
-            existingImagePreviews.length > 0 && (
-              <div className="mt-4">
-                <div className="grid grid-cols-2 gap-2">
-                  {existingImagePreviews.map((src, idx) => (
-                    <div key={idx} className="relative">
-                      <img
-                        src={src}
-                        alt={`Existing Image ${idx + 1}`}
-                        className="h-32 w-full mx-auto rounded-lg object-cover border border-gray-200"
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-1 right-1 bg-white/80 text-red-600 rounded px-2 text-responsive-xxs cursor-pointer"
-                        onClick={() => removeExistingImageAtIndex(idx)}
-                      >
-                        X
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                {/* <div className="mt-2 flex justify-end">
-                  <button
-                    type="button"
-                    className="px-3 py-1 text-responsive-xxs text-primary border border-primary rounded-2xl"
-                  onClick={() => {
-                    setExistingImagePreviews([]);
-                    setValue("images", [], { shouldValidate: true });
-                  }}
-                  >
-                    Clear Selection
-                  </button>
-                </div> */}
-              </div>
-            )
           )}
           {errors.images && (
             <p className="mt-1 text-responsive-xxs text-red-600">{errors.images.message}</p>
