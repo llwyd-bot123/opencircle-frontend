@@ -60,6 +60,22 @@ export const useMemberLoginDeferred = () => {
   });
 };
 
+/**
+ * Hook for deferred organization login (does not commit auth state automatically)
+ */
+export const useOrganizationLoginDeferred = () => {
+  return useMutation<OrganizationLoginResponse, Error, LoginCredentials>({
+    mutationFn: (credentials) => loginOrganization(credentials, { commit: false }),
+    onSuccess: () => {
+      showSuccessToast("Successfully logged in");
+    },
+    onError: (error) => {
+      console.error("Organization login error:", error);
+      showErrorToast("Failed to login");
+    },
+  });
+};
+
 // Removed deprecated useLogin hook
 
 /**

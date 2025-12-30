@@ -2,7 +2,7 @@ import { PrimaryButton } from "@src/shared/components/PrimaryButton";
 import brandLogoDark from "@src/assets/brand-dark.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useMemberLoginDeferred, useOrganizationLogin } from "../model";
+import { useMemberLoginDeferred, useOrganizationLoginDeferred } from "../model";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../schema/auth.schema";
@@ -16,7 +16,7 @@ export default function LoginInterface() {
   );
   const navigate = useNavigate();
   const memberLoginMutation = useMemberLoginDeferred();
-  const organizationLoginMutation = useOrganizationLogin();
+  const organizationLoginMutation = useOrganizationLoginDeferred();
   const authStore = useAuthStore();
   const queryClient = useQueryClient();
 

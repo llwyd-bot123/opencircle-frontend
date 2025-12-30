@@ -64,8 +64,11 @@ export const loginOrganization = async (
     );
 
     if (options?.commit !== false) {
-      const authStore = useAuthStore.getState();
-      authStore.login(response.data);
+      const data = response.data;
+      if ('organization' in data) {
+        const authStore = useAuthStore.getState();
+        authStore.login(data);
+      }
     }
 
     return response.data;
